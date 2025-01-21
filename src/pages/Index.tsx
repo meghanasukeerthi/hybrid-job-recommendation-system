@@ -104,9 +104,9 @@ const SAMPLE_JOBS = [
 
 const Index = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   
-  // Get user profile from localStorage (updated by resume parser)
   const getUserProfile = () => {
     const profileData = localStorage.getItem('userProfile');
     return profileData ? JSON.parse(profileData) : {
@@ -114,7 +114,6 @@ const Index = () => {
     };
   };
 
-  // Filter jobs based on user skills
   const getRecommendedJobs = () => {
     const userProfile = getUserProfile();
     return SAMPLE_JOBS.filter(job => 
@@ -124,7 +123,23 @@ const Index = () => {
     );
   };
 
-  const displayedJobs = showAllJobs ? SAMPLE_JOBS : getRecommendedJobs();
+  const filterJobsBySearch = (jobs: typeof SAMPLE_JOBS) => {
+    if (!searchQuery) return jobs;
+    
+    const query = searchQuery.toLowerCase();
+    return jobs.filter(job => 
+      job.title.toLowerCase().includes(query) ||
+      job.company.toLowerCase().includes(query) ||
+      job.description.toLowerCase().includes(query) ||
+      job.requiredSkills.some(skill => 
+        skill.toLowerCase().includes(query)
+      )
+    );
+  };
+
+  const displayedJobs = filterJobsBySearch(
+    showAllJobs ? SAMPLE_JOBS : getRecommendedJobs()
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -153,7 +168,7 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8">
             Discover opportunities that match your skills and aspirations
           </p>
-          <SearchBar />
+          <SearchBar onSearch={setSearchQuery} />
           <div className="mt-4 flex justify-center gap-4">
             <Button
               variant={!showAllJobs ? "default" : "outline"}
