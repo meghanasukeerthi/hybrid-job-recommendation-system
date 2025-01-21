@@ -10,9 +10,18 @@ interface JobCardProps {
   type: string;
   description: string;
   postedDate: string;
+  requiredSkills?: string[];
 }
 
-export const JobCard = ({ title, company, location, type, description, postedDate }: JobCardProps) => {
+export const JobCard = ({ 
+  title, 
+  company, 
+  location, 
+  type, 
+  description, 
+  postedDate,
+  requiredSkills = []
+}: JobCardProps) => {
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
@@ -35,6 +44,11 @@ export const JobCard = ({ title, company, location, type, description, postedDat
           {postedDate}
         </div>
         <p className="text-sm text-gray-600 mb-4">{description}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {requiredSkills.map((skill, index) => (
+            <Badge key={index} variant="outline">{skill}</Badge>
+          ))}
+        </div>
         <Button className="w-full">Apply Now</Button>
       </CardContent>
     </Card>
