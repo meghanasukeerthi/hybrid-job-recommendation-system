@@ -3,10 +3,10 @@ import { JobCard } from "@/components/JobCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { UserCircle, ListFilter } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { ResumeUploader } from "@/components/ResumeUploader";
 
-// Extended sample jobs data with 30+ entries
 const SAMPLE_JOBS = [
   {
     title: "Senior Frontend Developer",
@@ -106,13 +106,17 @@ const Index = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
   const { toast } = useToast();
   
-  // Mock user profile data (in real app, this would come from a backend)
-  const userProfile = {
-    skills: ["React", "TypeScript", "Node.js", "Python"]
+  // Get user profile from localStorage (updated by resume parser)
+  const getUserProfile = () => {
+    const profileData = localStorage.getItem('userProfile');
+    return profileData ? JSON.parse(profileData) : {
+      skills: ["React", "TypeScript", "Node.js", "Python"]
+    };
   };
 
   // Filter jobs based on user skills
   const getRecommendedJobs = () => {
+    const userProfile = getUserProfile();
     return SAMPLE_JOBS.filter(job => 
       job.requiredSkills.some(skill => 
         userProfile.skills.includes(skill)
@@ -122,17 +126,6 @@ const Index = () => {
 
   const displayedJobs = showAllJobs ? SAMPLE_JOBS : getRecommendedJobs();
 
-  const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Mock resume parsing (in real app, this would call a backend service)
-      toast({
-        title: "Resume Uploaded",
-        description: "Your resume is being processed to extract skills and experience.",
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -141,18 +134,7 @@ const Index = () => {
             Job Portal
           </h1>
           <div className="flex gap-4">
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={handleResumeUpload}
-              className="hidden"
-              id="resume-upload"
-            />
-            <label htmlFor="resume-upload">
-              <Button variant="outline" className="cursor-pointer">
-                Upload Resume
-              </Button>
-            </label>
+            <ResumeUploader />
             <Link to="/profile">
               <Button variant="outline" className="flex items-center gap-2">
                 <UserCircle className="w-5 h-5" />
