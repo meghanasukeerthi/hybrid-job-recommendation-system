@@ -90,12 +90,12 @@ export const JobCard = ({
   };
 
   return (
-    <Card className="hover-card animate-fade-in">
+    <Card className="animate-fade-in">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl font-semibold hover:text-primary transition-colors">{title}</CardTitle>
-            <CardDescription className="flex items-center mt-1 hover:text-primary/80 transition-colors">
+            <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+            <CardDescription className="flex items-center mt-1">
               <Building2 className="w-4 h-4 mr-1" />
               {company}
             </CardDescription>
@@ -139,7 +139,7 @@ export const JobCard = ({
                 <Share2 className="w-5 h-5 text-gray-500" />
               </Button>
             </div>
-            <Badge variant="secondary" className="animate-fade-in">{type}</Badge>
+            <Badge variant="secondary">{type}</Badge>
           </div>
         </div>
       </CardHeader>
