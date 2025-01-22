@@ -54,7 +54,6 @@ const SAMPLE_JOBS = [
     postedDate: "4 days ago",
     requiredSkills: ["React Native", "iOS", "Android"]
   },
-  // ... Adding more sample jobs to reach 30+ total
   {
     title: "Data Scientist",
     company: "Data Analytics Co",
@@ -82,7 +81,6 @@ const SAMPLE_JOBS = [
     postedDate: "5 days ago",
     requiredSkills: ["Product Management", "Agile", "JIRA"]
   },
-  // ... Adding more jobs with different skill requirements
   {
     title: "Java Developer",
     company: "Enterprise Solutions",
@@ -103,6 +101,31 @@ const SAMPLE_JOBS = [
   }
 ];
 
+const calculateJobScore = (job, userProfile) => {
+  let score = 0;
+  
+  // Match skills (higher weight)
+  const userSkills = userProfile.skills || [];
+  const matchedSkills = job.requiredSkills.filter(skill => 
+    userSkills.some(userSkill => 
+      userSkill.toLowerCase().includes(skill.toLowerCase())
+    )
+  );
+  score += matchedSkills.length * 3;
+  
+  // Experience match (medium weight)
+  const userExperience = parseInt(userProfile.experience) || 0;
+  const jobExperience = parseInt(job.experienceRequired) || 0;
+  if (userExperience >= jobExperience) {
+    score += 2;
+  }
+  
+  // Likes weight (lower weight)
+  score += (job.initialLikes || 0) / 1000;
+  
+  return score;
+};
+
 const Index = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -116,24 +139,6 @@ const Index = () => {
       education: "",
       careerGoals: []
     };
-  };
-
-  const calculateJobScore = (job, userProfile) => {
-    let score = 0;
-    
-    // Match skills
-    const userSkills = userProfile.skills || [];
-    const matchedSkills = job.requiredSkills.filter(skill => 
-      userSkills.some(userSkill => 
-        userSkill.toLowerCase().includes(skill.toLowerCase())
-      )
-    );
-    score += matchedSkills.length * 2;
-    
-    // Add likes weight
-    score += (job.initialLikes || 0) / 1000;
-    
-    return score;
   };
 
   const getRecommendedJobs = () => {
