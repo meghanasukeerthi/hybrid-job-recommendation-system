@@ -90,12 +90,12 @@ export const JobCard = ({
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
+    <Card className="hover-card animate-fade-in">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl font-semibold">{title}</CardTitle>
-            <CardDescription className="flex items-center mt-1">
+            <CardTitle className="text-xl font-semibold hover:text-primary transition-colors">{title}</CardTitle>
+            <CardDescription className="flex items-center mt-1 hover:text-primary/80 transition-colors">
               <Building2 className="w-4 h-4 mr-1" />
               {company}
             </CardDescription>
@@ -106,12 +106,12 @@ export const JobCard = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative"
+                  className="relative hover-button"
                   onClick={handleLike}
                 >
                   <Heart
                     className={cn(
-                      "w-5 h-5 transition-colors duration-200",
+                      "w-5 h-5 transition-all duration-300",
                       isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
                       isAnimating && "animate-scale-in"
                     )}
@@ -123,6 +123,7 @@ export const JobCard = ({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="hover-button"
                   onClick={() => setShowComments(!showComments)}
                 >
                   <MessageSquare className="w-5 h-5 text-gray-500" />
@@ -132,12 +133,13 @@ export const JobCard = ({
               <Button
                 variant="ghost"
                 size="icon"
+                className="hover-button"
                 onClick={handleShare}
               >
                 <Share2 className="w-5 h-5 text-gray-500" />
               </Button>
             </div>
-            <Badge variant="secondary">{type}</Badge>
+            <Badge variant="secondary" className="animate-fade-in">{type}</Badge>
           </div>
         </div>
       </CardHeader>
@@ -148,29 +150,37 @@ export const JobCard = ({
           <Timer className="w-4 h-4 ml-4 mr-1" />
           {postedDate}
         </div>
-        <p className="text-sm text-gray-600 mb-4">{description}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {requiredSkills.map((skill, index) => (
-            <Badge key={index} variant="outline">{skill}</Badge>
+            <Badge 
+              key={index} 
+              variant="outline"
+              className="hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
+              {skill}
+            </Badge>
           ))}
         </div>
         <div className="mb-4">
-          <Badge variant="secondary">Experience: {experienceRequired}</Badge>
+          <Badge variant="secondary" className="hover:bg-primary hover:text-primary-foreground transition-colors">
+            Experience: {experienceRequired}
+          </Badge>
         </div>
         {showComments && (
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-4 animate-slide-in">
             <div className="flex gap-2">
               <Input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment..."
-                className="flex-1"
+                className="flex-1 hover:border-primary transition-colors"
               />
-              <Button onClick={handleAddComment}>Post</Button>
+              <Button onClick={handleAddComment} className="hover-button">Post</Button>
             </div>
             <div className="space-y-3">
               {comments.map((comment) => (
-                <div key={comment.id} className="bg-muted p-3 rounded-lg">
+                <div key={comment.id} className="bg-muted p-3 rounded-lg hover:scale-[1.02] transition-transform">
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>{comment.author}</span>
                     <span>{comment.date}</span>
@@ -181,7 +191,7 @@ export const JobCard = ({
             </div>
           </div>
         )}
-        <Button className="w-full mt-4">Apply Now</Button>
+        <Button className="w-full mt-4 hover-button">Apply Now</Button>
       </CardContent>
     </Card>
   );

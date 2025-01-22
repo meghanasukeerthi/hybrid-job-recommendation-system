@@ -182,17 +182,17 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="bg-card shadow">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <header className="bg-card shadow-md backdrop-blur-sm sticky top-0 z-10">
         <div className="container py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold hover:text-primary transition-colors">
             Job Portal
           </h1>
           <div className="flex gap-4 items-center">
             <ThemeToggle />
             <ResumeUploader />
             <Link to="/profile">
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 hover-button">
                 <UserCircle className="w-5 h-5" />
                 Profile
               </Button>
@@ -201,9 +201,9 @@ const Index = () => {
         </div>
       </header>
       
-      <div className="container py-8">
+      <div className="container py-8 animate-fade-in">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">
+          <h2 className="text-4xl font-bold mb-4 hover:text-primary transition-colors">
             Find Your Dream Job
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
@@ -214,7 +214,7 @@ const Index = () => {
             <Button
               variant={!showAllJobs ? "default" : "outline"}
               onClick={() => setShowAllJobs(false)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover-button"
             >
               <ListFilter className="w-4 h-4" />
               Recommended Jobs
@@ -222,7 +222,7 @@ const Index = () => {
             <Button
               variant={showAllJobs ? "default" : "outline"}
               onClick={() => setShowAllJobs(true)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover-button"
             >
               All Jobs
             </Button>
