@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, Timer } from "lucide-react";
+import { Building2, MapPin, Timer, Heart } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface JobCardProps {
   title: string;
@@ -22,6 +24,15 @@ export const JobCard = ({
   postedDate,
   requiredSkills = []
 }: JobCardProps) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
@@ -33,7 +44,23 @@ export const JobCard = ({
               {company}
             </CardDescription>
           </div>
-          <Badge variant="secondary">{type}</Badge>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={handleLike}
+            >
+              <Heart
+                className={cn(
+                  "w-5 h-5 transition-colors duration-200",
+                  isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
+                  isAnimating && "animate-scale-in"
+                )}
+              />
+            </Button>
+            <Badge variant="secondary">{type}</Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
