@@ -111,20 +111,44 @@ const Index = () => {
   const getUserProfile = () => {
     const profileData = localStorage.getItem('userProfile');
     return profileData ? JSON.parse(profileData) : {
-      skills: ["React", "TypeScript", "Node.js", "Python"]
+      skills: [],
+      experience: "",
+      education: "",
+      careerGoals: []
     };
+  };
+
+  const calculateJobScore = (job, userProfile) => {
+    let score = 0;
+    
+    // Match skills
+    const userSkills = userProfile.skills || [];
+    const matchedSkills = job.requiredSkills.filter(skill => 
+      userSkills.some(userSkill => 
+        userSkill.toLowerCase().includes(skill.toLowerCase())
+      )
+    );
+    score += matchedSkills.length * 2;
+    
+    // Add likes weight
+    score += (job.initialLikes || 0) / 1000;
+    
+    return score;
   };
 
   const getRecommendedJobs = () => {
     const userProfile = getUserProfile();
-    return SAMPLE_JOBS.filter(job => 
-      job.requiredSkills.some(skill => 
-        userProfile.skills.includes(skill)
-      )
-    );
+    const scoredJobs = SAMPLE_JOBS.map(job => ({
+      ...job,
+      score: calculateJobScore(job, userProfile)
+    }));
+    
+    return scoredJobs
+      .sort((a, b) => b.score - a.score)
+      .map(({ score, ...job }) => job);
   };
 
-  const filterJobsBySearch = (jobs: typeof SAMPLE_JOBS) => {
+  const filterJobsBySearch = (jobs) => {
     if (!searchQuery) return jobs;
     
     const query = searchQuery.toLowerCase();
@@ -141,6 +165,16 @@ const Index = () => {
   const displayedJobs = filterJobsBySearch(
     showAllJobs ? SAMPLE_JOBS : getRecommendedJobs()
   );
+
+  useEffect(() => {
+    const userProfile = getUserProfile();
+    if (userProfile.skills?.length) {
+      toast({
+        title: "Profile Updated",
+        description: "Job recommendations have been updated based on your profile.",
+      });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

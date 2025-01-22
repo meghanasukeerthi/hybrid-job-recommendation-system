@@ -13,6 +13,7 @@ interface JobCardProps {
   description: string;
   postedDate: string;
   requiredSkills?: string[];
+  initialLikes?: number;
 }
 
 export const JobCard = ({ 
@@ -22,13 +23,16 @@ export const JobCard = ({
   type, 
   description, 
   postedDate,
-  requiredSkills = []
+  requiredSkills = [],
+  initialLikes = Math.floor(Math.random() * 1000) + 1
 }: JobCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(initialLikes);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
+    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 300);
   };
@@ -44,21 +48,24 @@ export const JobCard = ({
               {company}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={handleLike}
-            >
-              <Heart
-                className={cn(
-                  "w-5 h-5 transition-colors duration-200",
-                  isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
-                  isAnimating && "animate-scale-in"
-                )}
-              />
-            </Button>
+          <div className="flex gap-2 items-center">
+            <div className="flex flex-col items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={handleLike}
+              >
+                <Heart
+                  className={cn(
+                    "w-5 h-5 transition-colors duration-200",
+                    isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
+                    isAnimating && "animate-scale-in"
+                  )}
+                />
+              </Button>
+              <span className="text-sm text-muted-foreground">{likesCount}</span>
+            </div>
             <Badge variant="secondary">{type}</Badge>
           </div>
         </div>
