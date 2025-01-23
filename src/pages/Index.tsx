@@ -17,15 +17,14 @@ const SAMPLE_JOBS = [
     type: "Full-time",
     category: "fresher",
     description: "Perfect opportunity for fresh graduates to start their career in frontend development with React and TypeScript.",
-    postedDate: "1 day ago",
+    postedDate: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
     requiredSkills: ["React", "HTML", "CSS", "JavaScript"],
     experienceRequired: {
-      id: "exp_fresher_1",
-      years: "0-1",
-      level: "Entry Level"
+      id: 1,
+      years: 0
     },
     comments: [
-      { id: 1, text: "Great opportunity for freshers!", author: "John Doe", date: "1 day ago" }
+      { id: 1, text: "Great opportunity for freshers!", author: "John Doe", date: Date.now() - 24 * 60 * 60 * 1000 }
     ]
   },
   {
@@ -35,16 +34,15 @@ const SAMPLE_JOBS = [
     location: "Remote",
     type: "Contract",
     description: "Join our creative team as a UX Designer and help shape the future of our digital products.",
-    postedDate: "1 week ago",
+    postedDate: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
     requiredSkills: ["Figma", "UI/UX", "Prototyping"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 2,
+      years: 3
     },
     comments: [
-      { id: 3, text: "Flexible remote work policy", author: "Mike Johnson", date: "3 days ago" },
-      { id: 4, text: "Great design team", author: "Sarah Lee", date: "5 days ago" }
+      { id: 3, text: "Flexible remote work policy", author: "Mike Johnson", date: Date.now() - 3 * 24 * 60 * 60 * 1000 },
+      { id: 4, text: "Great design team", author: "Sarah Lee", date: Date.now() - 5 * 24 * 60 * 60 * 1000 }
     ]
   },
   {
@@ -54,12 +52,11 @@ const SAMPLE_JOBS = [
     location: "Boston, MA",
     type: "Full-time",
     description: "Looking for an AI Engineer to develop and implement machine learning models.",
-    postedDate: "3 days ago",
+    postedDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Python", "Machine Learning", "TensorFlow"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 3,
+      years: 3
     },
     comments: []
   },
@@ -70,12 +67,11 @@ const SAMPLE_JOBS = [
     location: "Seattle, WA",
     type: "Full-time",
     description: "Join our DevOps team to help build and maintain our cloud infrastructure.",
-    postedDate: "1 day ago",
+    postedDate: Date.now() - 24 * 60 * 60 * 1000,
     requiredSkills: ["AWS", "Docker", "Kubernetes"],
     experienceRequired: {
-      id: "exp_senior",
-      years: "5+",
-      level: "Senior"
+      id: 4,
+      years: 5
     },
     comments: []
   },
@@ -86,12 +82,11 @@ const SAMPLE_JOBS = [
     location: "Austin, TX",
     type: "Full-time",
     description: "Seeking a Mobile Developer proficient in React Native and iOS development.",
-    postedDate: "4 days ago",
+    postedDate: Date.now() - 4 * 24 * 60 * 60 * 1000,
     requiredSkills: ["React Native", "iOS", "Android"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 5,
+      years: 3
     },
     comments: []
   },
@@ -102,12 +97,11 @@ const SAMPLE_JOBS = [
     location: "Chicago, IL",
     type: "Full-time",
     description: "Join our data science team to analyze and interpret complex data sets.",
-    postedDate: "1 week ago",
+    postedDate: Date.now() - 7 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Python", "R", "Machine Learning"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 6,
+      years: 3
     },
     comments: []
   },
@@ -118,12 +112,11 @@ const SAMPLE_JOBS = [
     location: "Denver, CO",
     type: "Full-time",
     description: "Looking for a Backend Developer experienced with Node.js and databases.",
-    postedDate: "2 days ago",
+    postedDate: Date.now() - 2 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Node.js", "MongoDB", "Express"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 7,
+      years: 3
     },
     comments: []
   },
@@ -134,12 +127,11 @@ const SAMPLE_JOBS = [
     location: "New York, NY",
     type: "Full-time",
     description: "Seeking an experienced Product Manager to lead our product development initiatives.",
-    postedDate: "5 days ago",
+    postedDate: Date.now() - 5 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Product Management", "Agile", "JIRA"],
     experienceRequired: {
-      id: "exp_senior",
-      years: "5+",
-      level: "Senior"
+      id: 8,
+      years: 5
     },
     comments: []
   },
@@ -150,12 +142,11 @@ const SAMPLE_JOBS = [
     location: "Chicago, IL",
     type: "Full-time",
     description: "Join our team to develop enterprise-level Java applications.",
-    postedDate: "3 days ago",
+    postedDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Java", "Spring Boot", "SQL"],
     experienceRequired: {
-      id: "exp_mid",
-      years: "3+",
-      level: "Mid-Level"
+      id: 9,
+      years: 3
     },
     comments: []
   },
@@ -166,12 +157,11 @@ const SAMPLE_JOBS = [
     location: "Seattle, WA",
     type: "Full-time",
     description: "Design and implement cloud-based solutions for our clients.",
-    postedDate: "1 week ago",
+    postedDate: Date.now() - 7 * 24 * 60 * 60 * 1000,
     requiredSkills: ["AWS", "Azure", "Cloud Architecture"],
     experienceRequired: {
-      id: "exp_senior",
-      years: "5+",
-      level: "Senior"
+      id: 10,
+      years: 5
     },
     comments: []
   },
@@ -183,12 +173,11 @@ const SAMPLE_JOBS = [
     type: "Full-time",
     category: "fresher",
     description: "Join our 6-month training program designed specifically for fresh graduates. Learn modern web development technologies and get hands-on experience.",
-    postedDate: "3 days ago",
+    postedDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
     requiredSkills: ["Basic Programming", "Problem Solving", "Communication"],
     experienceRequired: {
-      id: "exp_fresher_2",
-      years: "0",
-      level: "Trainee"
+      id: 11,
+      years: 0
     },
     comments: []
   }
@@ -208,7 +197,7 @@ const calculateJobScore = (job, userProfile) => {
   
   // Experience match (medium weight)
   const userExperience = parseInt(userProfile.experience) || 0;
-  const jobExperience = parseInt(job.experienceRequired.years) || 0;
+  const jobExperience = job.experienceRequired.years || 0;
   if (userExperience >= jobExperience) {
     score += 2;
   }
