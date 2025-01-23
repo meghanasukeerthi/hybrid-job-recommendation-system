@@ -11,21 +11,21 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const SAMPLE_JOBS = [
   {
     id: 1,
-    title: "Senior Frontend Developer",
-    company: "TechCorp Inc.",
-    location: "San Francisco, CA",
+    title: "Junior Frontend Developer",
+    company: "TechStart Inc.",
+    location: "Remote",
     type: "Full-time",
-    description: "We're looking for a Senior Frontend Developer to join our team and help build amazing user experiences using React and TypeScript.",
-    postedDate: "2 days ago",
-    requiredSkills: ["React", "TypeScript", "HTML", "CSS"],
+    category: "fresher",
+    description: "Perfect opportunity for fresh graduates to start their career in frontend development with React and TypeScript.",
+    postedDate: "1 day ago",
+    requiredSkills: ["React", "HTML", "CSS", "JavaScript"],
     experienceRequired: {
-      id: "exp_senior",
-      years: "5+",
-      level: "Senior"
+      id: "exp_fresher_1",
+      years: "0-1",
+      level: "Entry Level"
     },
     comments: [
-      { id: 1, text: "Great company culture!", author: "John Doe", date: "2 days ago" },
-      { id: 2, text: "Excellent work-life balance", author: "Jane Smith", date: "1 week ago" }
+      { id: 1, text: "Great opportunity for freshers!", author: "John Doe", date: "1 day ago" }
     ]
   },
   {
@@ -172,6 +172,23 @@ const SAMPLE_JOBS = [
       id: "exp_senior",
       years: "5+",
       level: "Senior"
+    },
+    comments: []
+  },
+  {
+    id: 11,
+    title: "Graduate Trainee - Software Development",
+    company: "Tech Academy",
+    location: "Hybrid",
+    type: "Full-time",
+    category: "fresher",
+    description: "Join our 6-month training program designed specifically for fresh graduates. Learn modern web development technologies and get hands-on experience.",
+    postedDate: "3 days ago",
+    requiredSkills: ["Basic Programming", "Problem Solving", "Communication"],
+    experienceRequired: {
+      id: "exp_fresher_2",
+      years: "0",
+      level: "Trainee"
     },
     comments: []
   }

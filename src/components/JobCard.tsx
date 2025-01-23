@@ -32,6 +32,7 @@ interface JobCardProps {
   initialLikes?: number;
   experienceRequired: ExperienceRequired;
   comments: Comment[];
+  category?: 'fresher' | 'experienced' | 'remote' | 'internship';
 }
 
 export const JobCard = ({ 
@@ -45,7 +46,8 @@ export const JobCard = ({
   requiredSkills = [],
   initialLikes = Math.floor(Math.random() * 1000) + 1,
   experienceRequired,
-  comments: initialComments
+  comments: initialComments,
+  category = 'experienced',
 }: JobCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
@@ -96,11 +98,21 @@ export const JobCard = ({
     }
   };
 
+  const handleApply = () => {
+    setIsAnimating(true);
+    toast({
+      title: "Application Submitted! 🎉",
+      description: "We've received your application. Good luck!",
+      className: "animate-bounce",
+    });
+    setTimeout(() => setIsAnimating(false), 500);
+  };
+
   return (
-    <Card className="animate-fade-in">
+    <Card className="animate-fade-in hover:shadow-lg transition-shadow duration-300">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <div>
+          <div className="mini-hover">
             <CardTitle className="text-xl font-semibold">{title}</CardTitle>
             <CardDescription className="flex items-center mt-1">
               <Building2 className="w-4 h-4 mr-1" />
@@ -109,7 +121,7 @@ export const JobCard = ({
           </div>
           <div className="flex gap-2 items-center">
             <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center mini-hover">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -126,7 +138,7 @@ export const JobCard = ({
                 </Button>
                 <span className="text-sm text-muted-foreground">{likesCount}</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center mini-hover">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -140,13 +152,20 @@ export const JobCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover-button"
+                className="hover-button mini-hover"
                 onClick={handleShare}
               >
                 <Share2 className="w-5 h-5 text-gray-500" />
               </Button>
             </div>
-            <Badge variant="secondary">{type}</Badge>
+            <Badge variant="secondary" className="mini-hover">
+              {type}
+            </Badge>
+            {category === 'fresher' && (
+              <Badge variant="outline" className="bg-green-500/10 text-green-500 mini-hover">
+                Fresher Friendly
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -198,7 +217,15 @@ export const JobCard = ({
             </div>
           </div>
         )}
-        <Button className="w-full mt-4 hover-button">Apply Now</Button>
+        <Button 
+          onClick={handleApply} 
+          className={cn(
+            "apply-button",
+            isAnimating && "animate-scale-in"
+          )}
+        >
+          Apply Now
+        </Button>
       </CardContent>
     </Card>
   );

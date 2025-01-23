@@ -67,4 +67,15 @@
   .glass-effect {
     @apply backdrop-blur-sm bg-background/80;
   }
+
+  .apply-button {
+    @apply w-32 mx-auto transform transition-all duration-300 
+           hover:bg-purple-600 hover:text-white 
+           active:scale-95 rounded-lg shadow-lg 
+           hover:shadow-purple-500/50;
+  }
+
+  .mini-hover {
+    @apply hover:translate-y-[-2px] transition-transform duration-200;
+  }
 }
