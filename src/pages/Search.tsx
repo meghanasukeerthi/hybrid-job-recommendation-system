@@ -8,14 +8,14 @@ import { getSearchHistory } from "@/utils/searchHistory";
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [filteredJobs, setFilteredJobs] = useState(SAMPLE_JOBS);
-  const [searchHistory] = useState<string[]>(getSearchHistory());
-  
+  const [searchHistory] = useState(getSearchHistory());
+
   const handleSearch = (query: string) => {
-    const filtered = SAMPLE_JOBS.filter(job => 
+    const filtered = SAMPLE_JOBS.filter((job) =>
       job.title.toLowerCase().includes(query.toLowerCase()) ||
       job.company.toLowerCase().includes(query.toLowerCase()) ||
       job.description.toLowerCase().includes(query.toLowerCase()) ||
-      job.requiredSkills.some(skill => 
+      job.requiredSkills.some((skill) =>
         skill.toLowerCase().includes(query.toLowerCase())
       )
     );
@@ -52,13 +52,13 @@ const Search = () => {
           </div>
         )}
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredJobs.map((job, index) => (
           <JobCard key={index} {...job} />
         ))}
       </div>
-      
+
       {filteredJobs.length === 0 && (
         <div className="text-center text-muted-foreground">
           No jobs found matching your search criteria.
