@@ -55,6 +55,9 @@ export const JobCard = ({
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
+
+  const [hasApplied, setHasApplied] = useState(false); // Add this line to your state
+
   const { toast } = useToast();
 
   const handleLike = () => {
@@ -97,15 +100,29 @@ export const JobCard = ({
     }
   };
 
+  
+
   const handleApply = () => {
-    setIsAnimating(true);
-    toast({
-      title: "Application Submitted! 🎉",
-      description: "We've received your application. Good luck!",
-      className: "animate-bounce",
-    });
-    setTimeout(() => setIsAnimating(false), 500);
+
+      // if (isAnimating) return; // Prevents the function from running if it's already animating
+
+      setIsAnimating(true);
+      toast({
+          title: "Application Submitted! 🎉",
+          description: "We've received your application. Good luck!",
+      });
+
+      // Clearing any previous timeout and setting a new timeout
+      const timeoutId = setTimeout(() => {
+          setIsAnimating(false);
+      }, 2000); // Adjust the timeout duration as needed
+
+      // Cleanup function to clear timeout on component unmount
+      return () => clearTimeout(timeoutId);
   };
+
+
+
 
   const getExperienceLevel = (years: number) => {
     if (years <= 1) return "Entry Level";
