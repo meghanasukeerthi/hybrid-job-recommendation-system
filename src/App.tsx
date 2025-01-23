@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
@@ -17,11 +18,16 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/search" element={<Search />} />
-          </Routes>
+          <div className="min-h-screen bg-background">
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/search" element={<Search />} />
+              </Routes>
+            </main>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
