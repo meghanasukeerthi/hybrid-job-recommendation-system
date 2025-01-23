@@ -1,17 +1,25 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { addSearchKeyword } from "@/utils/searchHistory";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
 }
 
 export const SearchBar = ({ onSearch }: SearchBarProps) => {
+  const navigate = useNavigate();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get('search') as string;
-    onSearch(query);
+    if (query.trim()) {
+      addSearchKeyword(query.trim());
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      onSearch(query);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +36,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           onChange={handleChange}
         />
       </div>
-      <Button type="submit">
+      <Button type="submit" className="hover:bg-purple-600 hover:text-white transition-colors">
         <Search className="w-4 h-4 mr-2" />
         Search
       </Button>
