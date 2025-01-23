@@ -14,7 +14,14 @@ interface Comment {
   date: string;
 }
 
+interface ExperienceRequired {
+  id: string;
+  years: string;
+  level: string;
+}
+
 interface JobCardProps {
+  id: number;
   title: string;
   company: string;
   location: string;
@@ -23,10 +30,12 @@ interface JobCardProps {
   postedDate: string;
   requiredSkills?: string[];
   initialLikes?: number;
-  experienceRequired?: string;
+  experienceRequired: ExperienceRequired;
+  comments: Comment[];
 }
 
 export const JobCard = ({ 
+  id,
   title, 
   company, 
   location, 
@@ -35,16 +44,14 @@ export const JobCard = ({
   postedDate,
   requiredSkills = [],
   initialLikes = Math.floor(Math.random() * 1000) + 1,
-  experienceRequired = "2+ years"
+  experienceRequired,
+  comments: initialComments
 }: JobCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([
-    { id: 1, text: "Great company culture!", author: "John Doe", date: "2 days ago" },
-    { id: 2, text: "Excellent work-life balance", author: "Jane Smith", date: "1 week ago" }
-  ]);
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
 
@@ -164,7 +171,7 @@ export const JobCard = ({
         </div>
         <div className="mb-4">
           <Badge variant="secondary" className="hover:bg-primary hover:text-primary-foreground transition-colors">
-            Experience: {experienceRequired}
+            Experience: {experienceRequired.years} ({experienceRequired.level})
           </Badge>
         </div>
         {showComments && (

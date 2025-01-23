@@ -10,94 +10,170 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const SAMPLE_JOBS = [
   {
+    id: 1,
     title: "Senior Frontend Developer",
     company: "TechCorp Inc.",
     location: "San Francisco, CA",
     type: "Full-time",
     description: "We're looking for a Senior Frontend Developer to join our team and help build amazing user experiences using React and TypeScript.",
     postedDate: "2 days ago",
-    requiredSkills: ["React", "TypeScript", "HTML", "CSS"]
+    requiredSkills: ["React", "TypeScript", "HTML", "CSS"],
+    experienceRequired: {
+      id: "exp_senior",
+      years: "5+",
+      level: "Senior"
+    },
+    comments: [
+      { id: 1, text: "Great company culture!", author: "John Doe", date: "2 days ago" },
+      { id: 2, text: "Excellent work-life balance", author: "Jane Smith", date: "1 week ago" }
+    ]
   },
   {
+    id: 2,
     title: "UX Designer",
     company: "Design Studio",
     location: "Remote",
     type: "Contract",
     description: "Join our creative team as a UX Designer and help shape the future of our digital products.",
     postedDate: "1 week ago",
-    requiredSkills: ["Figma", "UI/UX", "Prototyping"]
+    requiredSkills: ["Figma", "UI/UX", "Prototyping"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: [
+      { id: 3, text: "Flexible remote work policy", author: "Mike Johnson", date: "3 days ago" },
+      { id: 4, text: "Great design team", author: "Sarah Lee", date: "5 days ago" }
+    ]
   },
   {
+    id: 3,
     title: "AI Engineer",
     company: "AI Solutions Ltd",
     location: "Boston, MA",
     type: "Full-time",
     description: "Looking for an AI Engineer to develop and implement machine learning models.",
     postedDate: "3 days ago",
-    requiredSkills: ["Python", "Machine Learning", "TensorFlow"]
+    requiredSkills: ["Python", "Machine Learning", "TensorFlow"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: []
   },
   {
+    id: 4,
     title: "DevOps Engineer",
     company: "Cloud Systems",
     location: "Seattle, WA",
     type: "Full-time",
     description: "Join our DevOps team to help build and maintain our cloud infrastructure.",
     postedDate: "1 day ago",
-    requiredSkills: ["AWS", "Docker", "Kubernetes"]
+    requiredSkills: ["AWS", "Docker", "Kubernetes"],
+    experienceRequired: {
+      id: "exp_senior",
+      years: "5+",
+      level: "Senior"
+    },
+    comments: []
   },
   {
+    id: 5,
     title: "Mobile Developer",
     company: "App Makers",
     location: "Austin, TX",
     type: "Full-time",
     description: "Seeking a Mobile Developer proficient in React Native and iOS development.",
     postedDate: "4 days ago",
-    requiredSkills: ["React Native", "iOS", "Android"]
+    requiredSkills: ["React Native", "iOS", "Android"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: []
   },
   {
+    id: 6,
     title: "Data Scientist",
     company: "Data Analytics Co",
     location: "Chicago, IL",
     type: "Full-time",
     description: "Join our data science team to analyze and interpret complex data sets.",
     postedDate: "1 week ago",
-    requiredSkills: ["Python", "R", "Machine Learning"]
+    requiredSkills: ["Python", "R", "Machine Learning"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: []
   },
   {
+    id: 7,
     title: "Backend Developer",
     company: "Server Solutions",
     location: "Denver, CO",
     type: "Full-time",
     description: "Looking for a Backend Developer experienced with Node.js and databases.",
     postedDate: "2 days ago",
-    requiredSkills: ["Node.js", "MongoDB", "Express"]
+    requiredSkills: ["Node.js", "MongoDB", "Express"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: []
   },
   {
+    id: 8,
     title: "Product Manager",
     company: "Product Labs",
     location: "New York, NY",
     type: "Full-time",
     description: "Seeking an experienced Product Manager to lead our product development initiatives.",
     postedDate: "5 days ago",
-    requiredSkills: ["Product Management", "Agile", "JIRA"]
+    requiredSkills: ["Product Management", "Agile", "JIRA"],
+    experienceRequired: {
+      id: "exp_senior",
+      years: "5+",
+      level: "Senior"
+    },
+    comments: []
   },
   {
+    id: 9,
     title: "Java Developer",
     company: "Enterprise Solutions",
     location: "Chicago, IL",
     type: "Full-time",
     description: "Join our team to develop enterprise-level Java applications.",
     postedDate: "3 days ago",
-    requiredSkills: ["Java", "Spring Boot", "SQL"]
+    requiredSkills: ["Java", "Spring Boot", "SQL"],
+    experienceRequired: {
+      id: "exp_mid",
+      years: "3+",
+      level: "Mid-Level"
+    },
+    comments: []
   },
   {
+    id: 10,
     title: "Cloud Architect",
     company: "Cloud Tech",
     location: "Seattle, WA",
     type: "Full-time",
     description: "Design and implement cloud-based solutions for our clients.",
     postedDate: "1 week ago",
-    requiredSkills: ["AWS", "Azure", "Cloud Architecture"]
+    requiredSkills: ["AWS", "Azure", "Cloud Architecture"],
+    experienceRequired: {
+      id: "exp_senior",
+      years: "5+",
+      level: "Senior"
+    },
+    comments: []
   }
 ];
 
@@ -115,7 +191,7 @@ const calculateJobScore = (job, userProfile) => {
   
   // Experience match (medium weight)
   const userExperience = parseInt(userProfile.experience) || 0;
-  const jobExperience = parseInt(job.experienceRequired) || 0;
+  const jobExperience = parseInt(job.experienceRequired.years) || 0;
   if (userExperience >= jobExperience) {
     score += 2;
   }
