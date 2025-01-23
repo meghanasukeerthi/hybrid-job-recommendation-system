@@ -10,19 +10,17 @@ import { JobActions } from "./job/JobActions";
 import { JobComments } from "./job/JobComments";
 
 interface Comment {
-  id: number;
   text: string;
   author: string;
   date: number;
 }
 
 interface ExperienceRequired {
-  id: number;
   years: number;
 }
 
 interface JobCardProps {
-  id: number;
+  id?: number;
   title: string;
   company: string;
   location: string;
@@ -30,7 +28,7 @@ interface JobCardProps {
   description: string;
   postedDate: number;
   requiredSkills?: string[];
-  initialLikes?: number;
+  likeCount?: number;
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   category?: 'fresher' | 'experienced' | 'remote' | 'internship';
@@ -44,19 +42,17 @@ export const JobCard = ({
   description, 
   postedDate,
   requiredSkills = [],
-  initialLikes = Math.floor(Math.random() * 1000) + 1,
+  likeCount = 0,
   experienceRequired,
   comments: initialComments,
   category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
 }: JobCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(initialLikes);
+  const [likesCount, setLikesCount] = useState(likeCount);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
-
-  const [hasApplied, setHasApplied] = useState(false); // Add this line to your state
 
   const { toast } = useToast();
 
@@ -86,7 +82,6 @@ export const JobCard = ({
   const handleAddComment = () => {
     if (newComment.trim()) {
       const comment: Comment = {
-        id: comments.length + 1,
         text: newComment,
         author: "Current User",
         date: Date.now()
@@ -100,29 +95,14 @@ export const JobCard = ({
     }
   };
 
-  
-
   const handleApply = () => {
-
-      // if (isAnimating) return; // Prevents the function from running if it's already animating
-
-      setIsAnimating(true);
-      toast({
-          title: "Application Submitted! 🎉",
-          description: "We've received your application. Good luck!",
-      });
-
-      // Clearing any previous timeout and setting a new timeout
-      const timeoutId = setTimeout(() => {
-          setIsAnimating(false);
-      }, 2000); // Adjust the timeout duration as needed
-
-      // Cleanup function to clear timeout on component unmount
-      return () => clearTimeout(timeoutId);
+    setIsAnimating(true);
+    toast({
+      title: "Application Submitted! 🎉",
+      description: "We've received your application. Good luck!",
+    });
+    setTimeout(() => setIsAnimating(false), 2000);
   };
-
-
-
 
   const getExperienceLevel = (years: number) => {
     if (years <= 1) return "Entry Level";

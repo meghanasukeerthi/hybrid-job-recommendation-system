@@ -2,7 +2,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface Comment {
-  id: number;
   text: string;
   author: string;
   date: number;
@@ -32,8 +31,8 @@ export const JobComments = ({
       <Button onClick={onAddComment} className="hover-button">Post</Button>
     </div>
     <div className="space-y-3">
-      {comments.map((comment) => (
-        <div key={comment.id} className="bg-muted p-3 rounded-lg hover:scale-[1.02] transition-transform">
+      {comments.map((comment, index) => (
+        <div key={index} className="bg-muted p-3 rounded-lg hover:scale-[1.02] transition-transform">
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>{comment.author}</span>
             <span>{new Date(comment.date).toLocaleDateString()}</span>
