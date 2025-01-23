@@ -23,6 +23,7 @@ export const SAMPLE_JOBS = [
     company: "Design Studio",
     location: "Remote",
     type: "Contract",
+    category: "experienced",
     description: "Join our creative team as a UX Designer and help shape the future of our digital products.",
     postedDate: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
     requiredSkills: ["Figma", "UI/UX", "Prototyping"],
