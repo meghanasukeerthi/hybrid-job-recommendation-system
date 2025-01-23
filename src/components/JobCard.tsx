@@ -164,15 +164,17 @@ export const JobCard = ({
             onAddComment={handleAddComment}
           />
         )}
-        <Button 
-          onClick={handleApply} 
-          className={cn(
-            "w-32 mx-auto transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
-            isAnimating && "animate-scale-in"
-          )}
-        >
-          Apply Now
-        </Button>
+        <div className="flex justify-center w-full">
+          <Button 
+            onClick={handleApply} 
+            className={cn(
+              "w-1/2 transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
+              isAnimating && "animate-scale-in"
+            )}
+          >
+            Apply Now
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

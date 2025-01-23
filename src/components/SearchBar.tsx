@@ -23,7 +23,10 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(e.target.value);
+    const query = e.target.value;
+    if (query.trim()) {
+      onSearch(query);
+    }
   };
 
   return (
@@ -31,7 +34,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
       <div className="flex-1">
         <Input 
           name="search"
-          placeholder="Search jobs by title, company, or keywords..." 
+          placeholder="Search jobs by title, skills, or description..." 
           className="w-full"
           onChange={handleChange}
         />
