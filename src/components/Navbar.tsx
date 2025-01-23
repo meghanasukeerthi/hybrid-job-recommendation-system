@@ -8,7 +8,11 @@ const Navbar = () => {
   return (
     <header className="bg-card shadow-md backdrop-blur-sm sticky top-0 z-10">
       <div className="container py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold hover:text-primary transition-colors">
+        <Link 
+          to="/" 
+          className="text-2xl font-bold hover:text-primary transition-colors cursor-pointer"
+          aria-label="Go to home page"
+        >
           AI-Powered Job Portal
         </Link>
         <div className="flex gap-4 items-center">
