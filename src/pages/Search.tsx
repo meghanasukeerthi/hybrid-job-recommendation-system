@@ -5,9 +5,32 @@ import { SearchBar } from "@/components/SearchBar";
 import { SAMPLE_JOBS } from "@/data/sampleJobs";
 import { getSearchHistory } from "@/utils/searchHistory";
 
+type JobCategory = 'fresher' | 'experienced' | 'remote' | 'internship';
+
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  type: string;
+  category: JobCategory;
+  description: string;
+  postedDate: number;
+  requiredSkills: string[];
+  experienceRequired: {
+    years: number;
+  };
+  comments: {
+    text: string;
+    author: string;
+    date: number;
+  }[];
+  likeCount: number;
+}
+
 const Search = () => {
   const [searchParams] = useSearchParams();
-  const [filteredJobs, setFilteredJobs] = useState(SAMPLE_JOBS);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>(SAMPLE_JOBS);
   const [searchHistory] = useState(getSearchHistory());
 
   const handleSearch = (query: string) => {
@@ -54,8 +77,8 @@ const Search = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredJobs.map((job, index) => (
-          <JobCard key={index} {...job} />
+        {filteredJobs.map((job) => (
+          <JobCard key={job.id} {...job} />
         ))}
       </div>
 
