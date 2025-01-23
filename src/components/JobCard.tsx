@@ -28,10 +28,10 @@ interface JobCardProps {
   description: string;
   postedDate: number;
   requiredSkills?: string[];
-  likeCount?: number;
+  likeCount: number;
   experienceRequired: ExperienceRequired;
   comments: Comment[];
-  category?: 'fresher' | 'experienced' | 'remote' | 'internship';
+  category: 'fresher' | 'experienced' | 'remote' | 'internship';
 }
 
 export const JobCard = ({ 
@@ -42,7 +42,7 @@ export const JobCard = ({
   description, 
   postedDate,
   requiredSkills = [],
-  likeCount = 0,
+  likeCount,
   experienceRequired,
   comments: initialComments,
   category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
