@@ -167,10 +167,7 @@ export const JobCard = ({
         <Button 
           onClick={handleApply} 
           className={cn(
-            "w-32 mx-auto transform transition-all duration-300 
-             hover:bg-purple-600 hover:text-white 
-             active:scale-95 rounded-lg shadow-lg 
-             hover:shadow-purple-500/50",
+            "w-32 mx-auto transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
             isAnimating && "animate-scale-in"
           )}
         >
