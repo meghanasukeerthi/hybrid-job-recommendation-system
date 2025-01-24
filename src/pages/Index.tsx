@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WelcomeHeader } from "@/components/WelcomeHeader";
-import { JobList } from "@/components/JobList";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
-import type { Job } from "@/types/job";
+import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 
 const Index = () => {
   const { toast } = useToast();
@@ -59,7 +58,7 @@ const Index = () => {
     );
   }
 
-  const displayedJobs = searchQuery
+  const filteredJobs = searchQuery
     ? jobs.filter(job =>
         job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,7 +73,7 @@ const Index = () => {
           onSearch={handleSearch}
           onFilterClick={handleFilterClick}
         />
-        <JobList jobs={displayedJobs} />
+        <JobSectionsCarousel allJobs={filteredJobs} />
       </div>
     </div>
   );
