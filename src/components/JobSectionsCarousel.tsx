@@ -15,6 +15,7 @@ interface JobSectionsCarouselProps {
 export const JobSectionsCarousel = ({ allJobs }: JobSectionsCarouselProps) => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
     // Get user profile from localStorage (sample data if none exists)
@@ -53,36 +54,68 @@ export const JobSectionsCarousel = ({ allJobs }: JobSectionsCarouselProps) => {
     setRecommendedJobs(recommended);
   }, [allJobs]);
 
+  // Sort jobs based on posted date
+  const sortJobs = (jobs: Job[]) => {
+    return [...jobs].sort((a, b) => {
+      if (sortOrder === 'newest') {
+        return b.postedDate - a.postedDate;
+      } else {
+        return a.postedDate - b.postedDate;
+      }
+    });
+  };
+
+  const sortedAllJobs = sortJobs(allJobs);
+  const sortedRecommendedJobs = sortJobs(recommendedJobs);
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-center gap-4 mb-6">
-        <Button
-          variant={activeSection === 'all' ? 'default' : 'outline'}
-          onClick={() => setActiveSection('all')}
-          className="min-w-[120px]"
-        >
-          All Jobs
-        </Button>
-        <Button
-          variant={activeSection === 'recommended' ? 'default' : 'outline'}
-          onClick={() => setActiveSection('recommended')}
-          className="min-w-[120px]"
-        >
-          Recommended
-        </Button>
+      <div className="flex flex-col items-center gap-4 mb-6">
+        <div className="flex justify-center gap-4">
+          <Button
+            variant={activeSection === 'all' ? 'default' : 'outline'}
+            onClick={() => setActiveSection('all')}
+            className="min-w-[120px]"
+          >
+            All Jobs
+          </Button>
+          <Button
+            variant={activeSection === 'recommended' ? 'default' : 'outline'}
+            onClick={() => setActiveSection('recommended')}
+            className="min-w-[120px]"
+          >
+            Recommended
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={sortOrder === 'newest' ? 'default' : 'outline'}
+            onClick={() => setSortOrder('newest')}
+            size="sm"
+          >
+            Newest
+          </Button>
+          <Button
+            variant={sortOrder === 'oldest' ? 'default' : 'outline'}
+            onClick={() => setSortOrder('oldest')}
+            size="sm"
+          >
+            Oldest
+          </Button>
+        </div>
       </div>
       <Carousel className="w-full">
         <CarouselContent>
           {activeSection === 'all' ? (
             <CarouselItem>
               <div className="p-4">
-                <JobList jobs={allJobs} />
+                <JobList jobs={sortedAllJobs} />
               </div>
             </CarouselItem>
           ) : (
             <CarouselItem>
               <div className="p-4">
-                <JobList jobs={recommendedJobs} />
+                <JobList jobs={sortedRecommendedJobs} />
               </div>
             </CarouselItem>
           )}
