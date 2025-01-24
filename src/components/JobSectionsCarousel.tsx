@@ -2,12 +2,11 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { JobList } from "./JobList";
 import { Job } from "@/types/job";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
@@ -15,6 +14,7 @@ interface JobSectionsCarouselProps {
 
 export const JobSectionsCarousel = ({ allJobs }: JobSectionsCarouselProps) => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
+  const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
 
   useEffect(() => {
     // Get user profile from localStorage (sample data if none exists)
@@ -55,23 +55,38 @@ export const JobSectionsCarousel = ({ allJobs }: JobSectionsCarouselProps) => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
+      <div className="flex justify-center gap-4 mb-6">
+        <Button
+          variant={activeSection === 'all' ? 'default' : 'outline'}
+          onClick={() => setActiveSection('all')}
+          className="min-w-[120px]"
+        >
+          All Jobs
+        </Button>
+        <Button
+          variant={activeSection === 'recommended' ? 'default' : 'outline'}
+          onClick={() => setActiveSection('recommended')}
+          className="min-w-[120px]"
+        >
+          Recommended
+        </Button>
+      </div>
       <Carousel className="w-full">
         <CarouselContent>
-          <CarouselItem>
-            <div className="p-4">
-              <h2 className="text-2xl font-bold mb-6 text-center">All Jobs</h2>
-              <JobList jobs={allJobs} />
-            </div>
-          </CarouselItem>
-          <CarouselItem>
-            <div className="p-4">
-              <h2 className="text-2xl font-bold mb-6 text-center">Recommended Jobs</h2>
-              <JobList jobs={recommendedJobs} />
-            </div>
-          </CarouselItem>
+          {activeSection === 'all' ? (
+            <CarouselItem>
+              <div className="p-4">
+                <JobList jobs={allJobs} />
+              </div>
+            </CarouselItem>
+          ) : (
+            <CarouselItem>
+              <div className="p-4">
+                <JobList jobs={recommendedJobs} />
+              </div>
+            </CarouselItem>
+          )}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
       </Carousel>
     </div>
   );
