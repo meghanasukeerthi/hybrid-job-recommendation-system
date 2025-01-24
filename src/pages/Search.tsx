@@ -2,39 +2,23 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { JobCard } from "@/components/JobCard";
 import { SearchBar } from "@/components/SearchBar";
-import { SAMPLE_JOBS } from "@/data/sampleJobs";
+import { useQuery } from "@tanstack/react-query";
+import { fetchJobs } from "@/services/jobService";
 import { getSearchHistory } from "@/utils/searchHistory";
-
-type JobCategory = 'fresher' | 'experienced' | 'remote' | 'internship';
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  category: JobCategory;
-  description: string;
-  postedDate: number;
-  requiredSkills: string[];
-  experienceRequired: {
-    years: number;
-  };
-  comments: {
-    text: string;
-    author: string;
-    date: number;
-  }[];
-  likeCount: number;
-}
+import type { Job } from "@/types/job";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>(SAMPLE_JOBS);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [searchHistory] = useState(getSearchHistory());
 
+  const { data: jobs = [], isLoading } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: fetchJobs,
+  });
+
   const handleSearch = (query: string) => {
-    const filtered = SAMPLE_JOBS.filter((job) =>
+    const filtered = jobs.filter((job) =>
       job.title.toLowerCase().includes(query.toLowerCase()) ||
       job.company.toLowerCase().includes(query.toLowerCase()) ||
       job.description.toLowerCase().includes(query.toLowerCase()) ||
@@ -49,8 +33,18 @@ const Search = () => {
     const query = searchParams.get('q');
     if (query) {
       handleSearch(query);
+    } else {
+      setFilteredJobs(jobs);
     }
-  }, [searchParams]);
+  }, [searchParams, jobs]);
+
+  if (isLoading) {
+    return (
+      <div className="container py-8 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 animate-fade-in">

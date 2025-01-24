@@ -6,9 +6,10 @@ import { addSearchKeyword } from "@/utils/searchHistory";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  className?: string;
 }
 
-export const SearchBar = ({ onSearch }: SearchBarProps) => {
+export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +31,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className={`flex gap-2 max-w-2xl mx-auto ${className || ''}`}>
       <div className="flex-1">
         <Input 
           name="search"

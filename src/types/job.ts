@@ -1,5 +1,17 @@
 export type JobCategory = "fresher" | "experienced" | "remote" | "internship";
 
+export interface Comment {
+  id: number;
+  text: string;
+  author: string;
+  date: number;
+}
+
+export interface ExperienceRequired {
+  id: number;
+  years: number;
+}
+
 export interface Job {
   id: number;
   title: string;
@@ -10,13 +22,7 @@ export interface Job {
   description: string;
   postedDate: number;
   requiredSkills: string[];
-  experienceRequired: {
-    years: number;
-  };
-  comments: {
-    text: string;
-    author: string;
-    date: number;
-  }[];
+  experienceRequired: ExperienceRequired;
+  comments: Comment[];
   likeCount: number;
 }
