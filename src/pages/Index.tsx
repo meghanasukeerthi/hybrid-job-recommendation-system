@@ -8,6 +8,7 @@ import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
@@ -38,7 +39,7 @@ const Index = () => {
   const handleFilterClick = () => {
     toast({
       title: "Filters",
-      description: "Filter functionality coming soon!",
+      description: "Additional filter options coming soon!",
     });
   };
 
@@ -72,8 +73,13 @@ const Index = () => {
         <WelcomeHeader 
           onSearch={handleSearch}
           onFilterClick={handleFilterClick}
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
         />
-        <JobSectionsCarousel allJobs={filteredJobs} />
+        <JobSectionsCarousel 
+          allJobs={filteredJobs} 
+          sortOrder={sortOrder}
+        />
       </div>
     </div>
   );
