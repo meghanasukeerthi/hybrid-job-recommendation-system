@@ -16,9 +16,10 @@ interface JobSectionsCarouselProps {
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
+  const [displayedJobs, setDisplayedJobs] = useState<Job[]>(allJobs);
 
   useEffect(() => {
-    // Get user profile from localStorage (sample data if none exists)
+    // Get user profile from localStorage
     const userProfile = JSON.parse(localStorage.getItem('userProfile') || JSON.stringify({
       skills: ['React', 'TypeScript', 'JavaScript'],
       experience: '2 years of frontend development',
@@ -29,21 +30,20 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     // Function to check if a job matches user profile
     const matchesUserProfile = (job: Job) => {
       const userKeywords = [
-        ...userProfile.skills,
-        ...userProfile.experience.toLowerCase().split(' '),
-        ...userProfile.education.toLowerCase().split(' '),
-        ...userProfile.careerGoals.toLowerCase().split(' ')
+        ...(userProfile.skills || []),
+        ...(userProfile.experience?.toLowerCase().split(' ') || []),
+        ...(userProfile.education?.toLowerCase().split(' ') || []),
+        ...(userProfile.careerGoals?.toLowerCase().split(' ') || [])
       ].map(keyword => keyword.toLowerCase());
 
       const jobKeywords = [
-        ...job.requiredSkills.map(skill => skill.toLowerCase()),
+        ...(job.requiredSkills?.map(skill => skill.toLowerCase()) || []),
         job.title.toLowerCase(),
         job.description.toLowerCase(),
         job.type.toLowerCase(),
         job.category.toLowerCase()
       ];
 
-      // Check if any user keywords match job keywords
       return userKeywords.some(keyword =>
         jobKeywords.some(jobKeyword => jobKeyword.includes(keyword))
       );
@@ -65,8 +65,11 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     });
   };
 
-  const sortedAllJobs = sortJobs(allJobs);
-  const sortedRecommendedJobs = sortJobs(recommendedJobs);
+  useEffect(() => {
+    // Update displayed jobs whenever active section or sort order changes
+    const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
+    setDisplayedJobs(sortJobs(jobsToDisplay));
+  }, [activeSection, sortOrder, allJobs, recommendedJobs]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
@@ -88,19 +91,11 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
       </div>
       <Carousel className="w-full">
         <CarouselContent>
-          {activeSection === 'all' ? (
-            <CarouselItem>
-              <div className="p-4">
-                <JobList jobs={sortedAllJobs} />
-              </div>
-            </CarouselItem>
-          ) : (
-            <CarouselItem>
-              <div className="p-4">
-                <JobList jobs={sortedRecommendedJobs} />
-              </div>
-            </CarouselItem>
-          )}
+          <CarouselItem>
+            <div className="p-4">
+              <JobList jobs={displayedJobs} />
+            </div>
+          </CarouselItem>
         </CarouselContent>
       </Carousel>
     </div>
