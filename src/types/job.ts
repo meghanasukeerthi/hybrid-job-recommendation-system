@@ -25,4 +25,5 @@ export interface Job {
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   likeCount: number;
+  salary?: string;
 }

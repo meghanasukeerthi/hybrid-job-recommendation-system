@@ -8,6 +8,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { JobHeader } from "./job/JobHeader";
 import { JobActions } from "./job/JobActions";
 import { JobComments } from "./job/JobComments";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { likeJob, addComment } from "@/services/jobService";
 
 interface Comment {
   text: string;
@@ -32,9 +34,11 @@ interface JobCardProps {
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   category: 'fresher' | 'experienced' | 'remote' | 'internship';
+  salary?: string;
 }
 
 export const JobCard = ({ 
+  id,
   title, 
   company, 
   location, 
@@ -42,25 +46,97 @@ export const JobCard = ({
   description, 
   postedDate,
   requiredSkills = [],
-  likeCount,
+  likeCount: initialLikeCount,
   experienceRequired,
   comments: initialComments,
   category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
+  salary,
 }: JobCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(likeCount);
+  const [likesCount, setLikesCount] = useState(initialLikeCount);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
 
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Like mutation
+  const likeMutation = useMutation({
+    mutationFn: () => likeJob(id!),
+    onMutate: async () => {
+      // Optimistic update
+      setLikesCount(prev => prev + 1);
+      setIsLiked(true);
+      setIsAnimating(true);
+    },
+    onSuccess: (updatedJob) => {
+      // Update the jobs cache with the new like count
+      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+        if (!oldJobs) return oldJobs;
+        return oldJobs.map(job => 
+          job.id === id ? { ...job, likeCount: updatedJob.likeCount } : job
+        );
+      });
+      setTimeout(() => setIsAnimating(false), 300);
+    },
+    onError: () => {
+      // Revert optimistic update on error
+      setLikesCount(prev => prev - 1);
+      setIsLiked(false);
+      setIsAnimating(false);
+      toast({
+        title: "Error",
+        description: "Failed to like the job. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Comment mutation
+  const commentMutation = useMutation({
+    mutationFn: (commentText: string) => addComment(id!, {
+      text: commentText,
+      author: "Current User"
+    }),
+    onMutate: async (commentText) => {
+      // Optimistic update
+      const newComment = {
+        text: commentText,
+        author: "Current User",
+        date: Date.now()
+      };
+      setComments(prev => [...prev, newComment]);
+      setNewComment("");
+    },
+    onSuccess: (updatedJob) => {
+      // Update the jobs cache with the new comments
+      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+        if (!oldJobs) return oldJobs;
+        return oldJobs.map(job => 
+          job.id === id ? { ...job, comments: updatedJob.comments } : job
+        );
+      });
+      toast({
+        title: "Comment added",
+        description: "Your comment has been posted successfully",
+      });
+    },
+    onError: () => {
+      // Revert optimistic update on error
+      setComments(initialComments);
+      toast({
+        title: "Error",
+        description: "Failed to add comment. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 300);
+    if (!id) return;
+    likeMutation.mutate();
   };
 
   const handleShare = async () => {
@@ -80,19 +156,8 @@ export const JobCard = ({
   };
 
   const handleAddComment = () => {
-    if (newComment.trim()) {
-      const comment: Comment = {
-        text: newComment,
-        author: "Current User",
-        date: Date.now()
-      };
-      setComments([...comments, comment]);
-      setNewComment("");
-      toast({
-        title: "Comment added",
-        description: "Your comment has been posted successfully",
-      });
-    }
+    if (!id || !newComment.trim()) return;
+    commentMutation.mutate(newComment.trim());
   };
 
   const handleApply = () => {
@@ -135,6 +200,11 @@ export const JobCard = ({
           {location}
           <Timer className="w-4 h-4 ml-4 mr-1" />
           {new Date(postedDate).toLocaleDateString()}
+          {salary && (
+            <span className="ml-4">
+              💰 {salary}
+            </span>
+          )}
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
