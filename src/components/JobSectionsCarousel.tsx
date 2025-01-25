@@ -20,43 +20,34 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   useEffect(() => {
     // Get user profile from localStorage
-    const userProfile = JSON.parse(localStorage.getItem('userProfile') || JSON.stringify({
-      skills: ['React', 'TypeScript', 'JavaScript'],
-      experience: '2 years of frontend development',
-      education: 'Computer Science',
-      careerGoals: 'Frontend Developer'
-    }));
+    const userProfileStr = localStorage.getItem('userProfile');
+    
+    // If no profile exists, all jobs are initially recommended
+    if (!userProfileStr) {
+      setRecommendedJobs(allJobs);
+      return;
+    }
 
-    // Function to check if a job matches user profile
-    const matchesUserProfile = (job: Job) => {
-      // Extract keywords from user profile
-      const userKeywords = [
-        ...(userProfile.skills || []),
-        ...(userProfile.experience?.toLowerCase().split(' ') || []),
-        ...(userProfile.education?.toLowerCase().split(' ') || []),
-        ...(userProfile.careerGoals?.toLowerCase().split(' ') || [])
-      ].map(keyword => keyword.toLowerCase());
+    // Parse user profile
+    const userProfile = JSON.parse(userProfileStr);
+    
+    // If no skills in profile, all jobs are recommended
+    if (!userProfile.skills || userProfile.skills.length === 0) {
+      setRecommendedJobs(allJobs);
+      return;
+    }
 
-      // Extract keywords from job
-      const jobKeywords = [
-        ...(job.requiredSkills?.map(skill => skill.toLowerCase()) || []),
-        job.title.toLowerCase(),
-        job.description.toLowerCase(),
-        job.type.toLowerCase(),
-        job.category.toLowerCase()
-      ];
-
-      // Calculate match score based on keyword matches
-      const matchScore = userKeywords.reduce((score, keyword) => {
-        return score + (jobKeywords.some(jobKeyword => jobKeyword.includes(keyword)) ? 1 : 0);
-      }, 0);
-
-      // Consider a job recommended if it has at least 2 keyword matches
-      return matchScore >= 2;
+    // Function to check if a job matches user profile skills
+    const matchesUserSkills = (job: Job) => {
+      return job.requiredSkills.some(jobSkill =>
+        userProfile.skills.some((userSkill: string) => 
+          jobSkill.toLowerCase() === userSkill.toLowerCase()
+        )
+      );
     };
 
-    // Filter jobs based on profile matching
-    const recommended = allJobs.filter(matchesUserProfile);
+    // Filter jobs based on skill matching
+    const recommended = allJobs.filter(matchesUserSkills);
     setRecommendedJobs(recommended);
   }, [allJobs]);
 
