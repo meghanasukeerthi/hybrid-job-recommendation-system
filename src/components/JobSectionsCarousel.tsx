@@ -29,6 +29,7 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
     // Function to check if a job matches user profile
     const matchesUserProfile = (job: Job) => {
+      // Extract keywords from user profile
       const userKeywords = [
         ...(userProfile.skills || []),
         ...(userProfile.experience?.toLowerCase().split(' ') || []),
@@ -36,6 +37,7 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         ...(userProfile.careerGoals?.toLowerCase().split(' ') || [])
       ].map(keyword => keyword.toLowerCase());
 
+      // Extract keywords from job
       const jobKeywords = [
         ...(job.requiredSkills?.map(skill => skill.toLowerCase()) || []),
         job.title.toLowerCase(),
@@ -44,9 +46,13 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         job.category.toLowerCase()
       ];
 
-      return userKeywords.some(keyword =>
-        jobKeywords.some(jobKeyword => jobKeyword.includes(keyword))
-      );
+      // Calculate match score based on keyword matches
+      const matchScore = userKeywords.reduce((score, keyword) => {
+        return score + (jobKeywords.some(jobKeyword => jobKeyword.includes(keyword)) ? 1 : 0);
+      }, 0);
+
+      // Consider a job recommended if it has at least 2 keyword matches
+      return matchScore >= 2;
     };
 
     // Filter jobs based on profile matching
@@ -79,14 +85,14 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
           onClick={() => setActiveSection('all')}
           className="min-w-[120px]"
         >
-          All Jobs
+          All Jobs ({allJobs.length})
         </Button>
         <Button
           variant={activeSection === 'recommended' ? 'default' : 'outline'}
           onClick={() => setActiveSection('recommended')}
           className="min-w-[120px]"
         >
-          Recommended
+          Recommended ({recommendedJobs.length})
         </Button>
       </div>
       <Carousel className="w-full">
