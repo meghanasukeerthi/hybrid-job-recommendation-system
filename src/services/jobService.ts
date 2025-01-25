@@ -24,7 +24,11 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(comment),
+    body: JSON.stringify({
+      text: comment.text,
+      author: comment.author,
+      date: comment.date
+    }),
   });
   if (!response.ok) {
     throw new Error('Failed to add comment');

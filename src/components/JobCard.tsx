@@ -101,12 +101,13 @@ export const JobCard = ({
       if (!commentText.trim()) {
         throw new Error("Comment cannot be empty");
       }
-      const comment = {
+      const commentData = {
         text: commentText.trim(),
         author: "Current User",
         date: Date.now()
       };
-      return addComment(id!, comment);
+      console.log('Sending comment data:', commentData); // Debug log
+      return addComment(id!, commentData);
     },
     onMutate: async (commentText) => {
       if (!commentText.trim()) return;
@@ -120,6 +121,7 @@ export const JobCard = ({
       setNewComment("");
     },
     onSuccess: (updatedJob) => {
+      console.log('Updated job after comment:', updatedJob); // Debug log
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
         return oldJobs.map(job => 
@@ -131,7 +133,8 @@ export const JobCard = ({
         description: "Your comment has been posted successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Comment error:', error); // Debug log
       setComments(initialComments);
       toast({
         title: "Error",
