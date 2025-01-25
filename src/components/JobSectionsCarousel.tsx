@@ -21,21 +21,17 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
     
-    // If no profile exists, all jobs are initially recommended
-    if (!userProfileStr) {
-      setRecommendedJobs(allJobs);
-      return;
-    }
-
-    // Parse user profile
-    const userProfile = JSON.parse(userProfileStr);
+    // Initial placeholder profile if none exists
+    const defaultProfile = {
+      skills: ["JavaScript", "React", "TypeScript"],
+      experience: "2 years",
+      education: "Bachelor's in Computer Science",
+      careerGoals: "Frontend Developer"
+    };
     
-    // If no skills or experience in profile, all jobs are recommended
-    if ((!userProfile.skills || userProfile.skills.length === 0) && !userProfile.experience) {
-      setRecommendedJobs(allJobs);
-      return;
-    }
-
+    // If no profile exists, use default profile
+    const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultProfile;
+    
     // Function to check if job matches user profile
     const matchesUserProfile = (job: Job) => {
       // Check skills match - one skill match is enough
@@ -50,29 +46,28 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
       // Check experience match - 70% match required
       if (userProfile.experience) {
-        // Extract years from user experience
         const userYearsMatch = userProfile.experience.match(/(\d+)/);
         const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
-
-        // Calculate experience match percentage
         const jobYears = job.experienceRequired.years;
         const matchPercentage = (userYears / jobYears) * 100;
-
-        // Return true if match is 70% or higher
         if (matchPercentage >= 70) return true;
       }
 
       return false;
     };
 
-    // Filter jobs based on either skill match or experience match
     const recommended = allJobs.filter(matchesUserProfile);
     setRecommendedJobs(recommended);
   }, [allJobs]);
 
-  // Sort jobs based on posted date
+  // Sort jobs by comment count first, then by date if comment counts are equal
   const sortJobs = (jobs: Job[]) => {
     return [...jobs].sort((a, b) => {
+      // First sort by comment count (descending)
+      const commentDiff = b.comments.length - a.comments.length;
+      if (commentDiff !== 0) return commentDiff;
+      
+      // If comment counts are equal, use the date sorting
       if (sortOrder === 'newest') {
         return b.postedDate - a.postedDate;
       } else {
