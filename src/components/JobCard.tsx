@@ -11,6 +11,7 @@ import { JobComments } from "./job/JobComments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
 import { Job, Comment } from "@/types/job";
+import { formatDistanceToNow } from "date-fns";
 
 interface JobCardProps {
   id?: number;
@@ -65,7 +66,6 @@ export const JobCard = ({
       setIsLiked(true);
       setIsAnimating(true);
       
-      // Save liked state to localStorage
       const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
       if (!likedJobs.includes(id)) {
         localStorage.setItem('likedJobs', JSON.stringify([...likedJobs, id]));
@@ -85,7 +85,6 @@ export const JobCard = ({
       setIsLiked(false);
       setIsAnimating(false);
       
-      // Remove from localStorage on error
       const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
       localStorage.setItem('likedJobs', JSON.stringify(likedJobs.filter((jobId: number) => jobId !== id)));
       
@@ -97,19 +96,23 @@ export const JobCard = ({
     }
   });
 
-  // Comment mutation
   const commentMutation = useMutation({
     mutationFn: (commentText: string) => {
-      const comment: Omit<Comment, 'id'> = {
-        text: commentText,
+      if (!commentText.trim()) {
+        throw new Error("Comment cannot be empty");
+      }
+      const comment = {
+        text: commentText.trim(),
         author: "Current User",
         date: Date.now()
       };
       return addComment(id!, comment);
     },
     onMutate: async (commentText) => {
+      if (!commentText.trim()) return;
+      
       const newComment: Comment = {
-        text: commentText,
+        text: commentText.trim(),
         author: "Current User",
         date: Date.now()
       };
@@ -160,8 +163,15 @@ export const JobCard = ({
   };
 
   const handleAddComment = () => {
-    if (!id || !newComment.trim()) return;
-    commentMutation.mutate(newComment.trim());
+    if (!id || !newComment.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a comment before posting",
+        variant: "destructive"
+      });
+      return;
+    }
+    commentMutation.mutate(newComment);
   };
 
   const handleApply = () => {
@@ -203,10 +213,10 @@ export const JobCard = ({
           <MapPin className="w-4 h-4 mr-1" />
           {location}
           <Timer className="w-4 h-4 ml-4 mr-1" />
-          {new Date(postedDate).toLocaleDateString()}
+          {formatDistanceToNow(new Date(postedDate), { addSuffix: true })}
           {salary && (
             <span className="ml-4">
-              💰 {salary}
+              ₹ {salary}
             </span>
           )}
         </div>
