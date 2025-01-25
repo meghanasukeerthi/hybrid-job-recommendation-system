@@ -19,7 +19,6 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>(allJobs);
 
   useEffect(() => {
-    // Get user profile from localStorage
     const userProfileStr = localStorage.getItem('userProfile');
     
     // If no profile exists, all jobs are initially recommended
@@ -31,23 +30,43 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     // Parse user profile
     const userProfile = JSON.parse(userProfileStr);
     
-    // If no skills in profile, all jobs are recommended
-    if (!userProfile.skills || userProfile.skills.length === 0) {
+    // If no skills or experience in profile, all jobs are recommended
+    if ((!userProfile.skills || userProfile.skills.length === 0) && !userProfile.experience) {
       setRecommendedJobs(allJobs);
       return;
     }
 
-    // Function to check if a job matches user profile skills
-    const matchesUserSkills = (job: Job) => {
-      return job.requiredSkills.some(jobSkill =>
-        userProfile.skills.some((userSkill: string) => 
-          jobSkill.toLowerCase() === userSkill.toLowerCase()
-        )
-      );
+    // Function to check if job matches user profile
+    const matchesUserProfile = (job: Job) => {
+      let isMatch = false;
+
+      // Check skills match
+      if (userProfile.skills && userProfile.skills.length > 0) {
+        const hasMatchingSkill = job.requiredSkills.some(jobSkill =>
+          userProfile.skills.some((userSkill: string) => 
+            jobSkill.toLowerCase() === userSkill.toLowerCase()
+          )
+        );
+        if (hasMatchingSkill) isMatch = true;
+      }
+
+      // Check experience match
+      if (userProfile.experience) {
+        // Extract years from user experience (assuming format like "X years...")
+        const userYearsMatch = userProfile.experience.match(/(\d+)/);
+        const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
+
+        // Compare with job required experience
+        if (job.experienceRequired.years <= userYears) {
+          isMatch = true;
+        }
+      }
+
+      return isMatch;
     };
 
-    // Filter jobs based on skill matching
-    const recommended = allJobs.filter(matchesUserSkills);
+    // Filter jobs based on both skill and experience matching
+    const recommended = allJobs.filter(matchesUserProfile);
     setRecommendedJobs(recommended);
   }, [allJobs]);
 
