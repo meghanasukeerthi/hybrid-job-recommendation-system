@@ -1,14 +1,14 @@
 export type JobCategory = "fresher" | "experienced" | "remote" | "internship";
 
 export interface Comment {
-  id: number;
+  id?: number;
   text: string;
   author: string;
   date: number;
 }
 
 export interface ExperienceRequired {
-  id: number;
+  id?: number;
   years: number;
 }
 

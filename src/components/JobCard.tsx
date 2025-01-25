@@ -2,24 +2,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Timer } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { JobHeader } from "./job/JobHeader";
 import { JobActions } from "./job/JobActions";
 import { JobComments } from "./job/JobComments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
-
-interface Comment {
-  text: string;
-  author: string;
-  date: number;
-}
-
-interface ExperienceRequired {
-  years: number;
-}
+import { Job, Comment } from "@/types/job";
 
 interface JobCardProps {
   id?: number;
@@ -31,7 +22,7 @@ interface JobCardProps {
   postedDate: number;
   requiredSkills?: string[];
   likeCount: number;
-  experienceRequired: ExperienceRequired;
+  experienceRequired: { years: number };
   comments: Comment[];
   category: 'fresher' | 'experienced' | 'remote' | 'internship';
   salary?: string;
@@ -62,17 +53,27 @@ export const JobCard = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Persist like animation state
+  useEffect(() => {
+    const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+    setIsLiked(likedJobs.includes(id));
+  }, [id]);
+
   // Like mutation
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id!),
     onMutate: async () => {
-      // Optimistic update
       setLikesCount(prev => prev + 1);
       setIsLiked(true);
       setIsAnimating(true);
+      
+      // Save liked state to localStorage
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      if (!likedJobs.includes(id)) {
+        localStorage.setItem('likedJobs', JSON.stringify([...likedJobs, id]));
+      }
     },
     onSuccess: (updatedJob) => {
-      // Update the jobs cache with the new like count
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
         return oldJobs.map(job => 
@@ -82,10 +83,14 @@ export const JobCard = ({
       setTimeout(() => setIsAnimating(false), 300);
     },
     onError: () => {
-      // Revert optimistic update on error
       setLikesCount(prev => prev - 1);
       setIsLiked(false);
       setIsAnimating(false);
+      
+      // Remove from localStorage on error
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      localStorage.setItem('likedJobs', JSON.stringify(likedJobs.filter((jobId: number) => jobId !== id)));
+      
       toast({
         title: "Error",
         description: "Failed to like the job. Please try again.",
@@ -98,11 +103,11 @@ export const JobCard = ({
   const commentMutation = useMutation({
     mutationFn: (commentText: string) => addComment(id!, {
       text: commentText,
-      author: "Current User"
+      author: "Current User",
+      date: Date.now()
     }),
     onMutate: async (commentText) => {
-      // Optimistic update
-      const newComment = {
+      const newComment: Comment = {
         text: commentText,
         author: "Current User",
         date: Date.now()
@@ -111,7 +116,6 @@ export const JobCard = ({
       setNewComment("");
     },
     onSuccess: (updatedJob) => {
-      // Update the jobs cache with the new comments
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
         return oldJobs.map(job => 
@@ -124,7 +128,6 @@ export const JobCard = ({
       });
     },
     onError: () => {
-      // Revert optimistic update on error
       setComments(initialComments);
       toast({
         title: "Error",
