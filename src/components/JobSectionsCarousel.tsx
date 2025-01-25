@@ -38,34 +38,34 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
     // Function to check if job matches user profile
     const matchesUserProfile = (job: Job) => {
-      let isMatch = false;
-
-      // Check skills match
+      // Check skills match - one skill match is enough
       if (userProfile.skills && userProfile.skills.length > 0) {
         const hasMatchingSkill = job.requiredSkills.some(jobSkill =>
           userProfile.skills.some((userSkill: string) => 
             jobSkill.toLowerCase() === userSkill.toLowerCase()
           )
         );
-        if (hasMatchingSkill) isMatch = true;
+        if (hasMatchingSkill) return true;
       }
 
-      // Check experience match
+      // Check experience match - 70% match required
       if (userProfile.experience) {
-        // Extract years from user experience (assuming format like "X years...")
+        // Extract years from user experience
         const userYearsMatch = userProfile.experience.match(/(\d+)/);
         const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
 
-        // Compare with job required experience
-        if (job.experienceRequired.years <= userYears) {
-          isMatch = true;
-        }
+        // Calculate experience match percentage
+        const jobYears = job.experienceRequired.years;
+        const matchPercentage = (userYears / jobYears) * 100;
+
+        // Return true if match is 70% or higher
+        if (matchPercentage >= 70) return true;
       }
 
-      return isMatch;
+      return false;
     };
 
-    // Filter jobs based on both skill and experience matching
+    // Filter jobs based on either skill match or experience match
     const recommended = allJobs.filter(matchesUserProfile);
     setRecommendedJobs(recommended);
   }, [allJobs]);
@@ -82,7 +82,6 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   };
 
   useEffect(() => {
-    // Update displayed jobs whenever active section or sort order changes
     const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
     setDisplayedJobs(sortJobs(jobsToDisplay));
   }, [activeSection, sortOrder, allJobs, recommendedJobs]);

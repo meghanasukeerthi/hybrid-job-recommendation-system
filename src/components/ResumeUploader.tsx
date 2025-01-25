@@ -8,19 +8,28 @@ export const ResumeUploader = () => {
   
   const parseResume = async (file: File) => {
     // Mock resume parsing - in a real app, this would use a proper resume parsing service
-    const mockExtractedData = {
-      skills: ["JavaScript", "React", "TypeScript", "Node.js"],
-      experience: "5 years of frontend development",
-      education: "Bachelor's in Computer Science",
+    const text = await file.text();
+    
+    // Simple keyword extraction (this is a basic example)
+    const skills = [
+      "JavaScript", "React", "TypeScript", "Node.js", "Python", "Java",
+      "HTML", "CSS", "SQL", "AWS", "Docker", "Git"
+    ].filter(skill => text.toLowerCase().includes(skill.toLowerCase()));
+
+    // Extract years of experience (looking for patterns like "X years")
+    const experienceMatch = text.match(/(\d+)\s*(?:years?|yrs?)/i);
+    const experience = experienceMatch ? `${experienceMatch[1]} years` : "0 years";
+
+    // Extract education (basic example)
+    const educationKeywords = ["Bachelor", "Master", "PhD", "BSc", "MSc", "degree"];
+    const education = educationKeywords.find(edu => text.includes(edu)) || "Not specified";
+
+    return {
+      skills,
+      experience,
+      education,
+      careerGoals: "Extracted from resume", // Placeholder
     };
-
-    // Show success message
-    toast({
-      title: "Resume Parsed Successfully",
-      description: "Your skills and experience have been extracted from your resume.",
-    });
-
-    return mockExtractedData;
   };
 
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,11 +39,21 @@ export const ResumeUploader = () => {
     try {
       const extractedData = await parseResume(file);
       
-      // Store the extracted data (in a real app, this would update the user's profile in a database)
-      localStorage.setItem('userProfile', JSON.stringify(extractedData));
+      // Merge with existing profile data if it exists
+      const existingProfile = localStorage.getItem('userProfile');
+      const profileData = existingProfile ? 
+        { ...JSON.parse(existingProfile), ...extractedData } : 
+        extractedData;
       
-      // Update recommended jobs based on new skills
-      window.location.reload(); // Refresh to show new recommendations
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      
+      toast({
+        title: "Resume Parsed Successfully",
+        description: `Found ${extractedData.skills.length} skills and ${extractedData.experience} of experience.`,
+      });
+
+      // Refresh to show new recommendations
+      window.location.reload();
     } catch (error) {
       toast({
         title: "Error Parsing Resume",
@@ -48,7 +67,7 @@ export const ResumeUploader = () => {
     <div className="flex items-center gap-2">
       <input
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept=".pdf,.doc,.docx,.txt"
         onChange={handleResumeUpload}
         className="hidden"
         id="resume-upload"
