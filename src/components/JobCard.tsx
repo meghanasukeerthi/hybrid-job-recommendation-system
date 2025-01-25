@@ -53,13 +53,11 @@ export const JobCard = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Persist like animation state
   useEffect(() => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     setIsLiked(likedJobs.includes(id));
   }, [id]);
 
-  // Like mutation
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id!),
     onMutate: async () => {
@@ -101,11 +99,14 @@ export const JobCard = ({
 
   // Comment mutation
   const commentMutation = useMutation({
-    mutationFn: (commentText: string) => addComment(id!, {
-      text: commentText,
-      author: "Current User",
-      date: Date.now()
-    }),
+    mutationFn: (commentText: string) => {
+      const comment: Omit<Comment, 'id'> = {
+        text: commentText,
+        author: "Current User",
+        date: Date.now()
+      };
+      return addComment(id!, comment);
+    },
     onMutate: async (commentText) => {
       const newComment: Comment = {
         text: commentText,
