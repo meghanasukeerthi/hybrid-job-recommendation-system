@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { JobHeader } from "./job/JobHeader";
 import { JobActions } from "./job/JobActions";
-import { JobComments } from "./job/JobComments";
+import { CommentList } from "./job/CommentList";
+import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
 import { Job, Comment } from "@/types/job";
@@ -40,7 +41,7 @@ export const JobCard = ({
   requiredSkills = [],
   likeCount: initialLikeCount,
   experienceRequired,
-  comments: initialComments,
+  comments: initialComments = [],
   category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
   salary,
 }: JobCardProps) => {
@@ -181,15 +182,6 @@ export const JobCard = ({
     commentMutation.mutate(newComment);
   };
 
-  const handleApply = () => {
-    setIsAnimating(true);
-    toast({
-      title: "Application Submitted! 🎉",
-      description: "We've received your application. Good luck!",
-    });
-    setTimeout(() => setIsAnimating(false), 2000);
-  };
-
   const getExperienceLevel = (years: number) => {
     if (years <= 1) return "Entry Level";
     if (years <= 3) return "Junior";
@@ -245,16 +237,25 @@ export const JobCard = ({
           </Badge>
         </div>
         {showComments && (
-          <JobComments
-            comments={comments}
-            newComment={newComment}
-            onCommentChange={setNewComment}
-            onAddComment={handleAddComment}
-          />
+          <div className="space-y-4">
+            <CommentForm
+              newComment={newComment}
+              onCommentChange={setNewComment}
+              onAddComment={handleAddComment}
+            />
+            <CommentList comments={comments} />
+          </div>
         )}
         <div className="flex justify-center w-full">
           <Button 
-            onClick={handleApply} 
+            onClick={() => {
+              setIsAnimating(true);
+              toast({
+                title: "Application Submitted! 🎉",
+                description: "We've received your application. Good luck!",
+              });
+              setTimeout(() => setIsAnimating(false), 2000);
+            }}
             className={cn(
               "w-1/2 transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
               isAnimating && "animate-scale-in"
