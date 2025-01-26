@@ -11,6 +11,7 @@ import { CommentList } from "./job/CommentList";
 import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
+import { bookmarkJob, removeBookmark, isJobBookmarked, trackJobApplication, isJobApplied } from "@/services/userJobService";
 import { Job, Comment } from "@/types/job";
 import { formatDistanceToNow } from "date-fns";
 
