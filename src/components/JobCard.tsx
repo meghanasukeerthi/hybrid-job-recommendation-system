@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Timer } from "lucide-react";
+import { MapPin, Timer, Bookmark } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { CommentList } from "./job/CommentList";
 import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
+import { bookmarkJob, removeBookmark, isJobBookmarked, trackJobApplication, isJobApplied } from "@/services/userJobService";
 import { Job, Comment } from "@/types/job";
 import { formatDistanceToNow } from "date-fns";
 
@@ -51,19 +52,18 @@ export const JobCard = ({
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-    setIsLiked(likedJobs.includes(id));
+    if (id) {
+      setIsBookmarked(isJobBookmarked(id));
+      setHasApplied(isJobApplied(id));
+    }
   }, [id]);
-
-  useEffect(() => {
-    console.log('Comments updated:', comments);
-    setComments(initialComments);
-  }, [initialComments]);
 
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id),
@@ -114,11 +114,9 @@ export const JobCard = ({
         date: Date.now()
       };
       
-      console.log('Sending comment data:', commentData);
       return addComment(id, commentData);
     },
     onSuccess: (updatedJob) => {
-      console.log('Comment added successfully:', updatedJob);
       if (updatedJob && updatedJob.comments) {
         setComments(updatedJob.comments);
         setNewComment("");
@@ -137,7 +135,6 @@ export const JobCard = ({
       }
     },
     onError: (error) => {
-      console.error('Failed to add comment:', error);
       toast({
         title: "Error",
         description: "Failed to add comment. Please try again.",
@@ -145,6 +142,53 @@ export const JobCard = ({
       });
     }
   });
+
+  const handleBookmark = async () => {
+    if (!id) return;
+    try {
+      if (isBookmarked) {
+        await removeBookmark(id);
+        setIsBookmarked(false);
+        toast({
+          title: "Bookmark removed",
+          description: "Job has been removed from your bookmarks",
+        });
+      } else {
+        await bookmarkJob(id);
+        setIsBookmarked(true);
+        toast({
+          title: "Job bookmarked",
+          description: "Job has been added to your bookmarks",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update bookmark",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleApply = async () => {
+    if (!id) return;
+    try {
+      await trackJobApplication(id);
+      setHasApplied(true);
+      setIsAnimating(true);
+      toast({
+        title: "Application Submitted! 🎉",
+        description: "We've received your application. Good luck!",
+      });
+      setTimeout(() => setIsAnimating(false), 2000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit application",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleLike = () => {
     if (!id) return;
@@ -191,17 +235,30 @@ export const JobCard = ({
       <CardHeader>
         <div className="flex justify-between items-start">
           <JobHeader title={title} company={company} />
-          <JobActions
-            type={type}
-            category={category}
-            isLiked={isLiked}
-            likesCount={likesCount}
-            commentsCount={comments.length}
-            onLike={handleLike}
-            onComment={() => setShowComments(!showComments)}
-            onShare={handleShare}
-            isAnimating={isAnimating}
-          />
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBookmark}
+              className={cn(
+                "hover:bg-primary/10",
+                isBookmarked && "text-yellow-500"
+              )}
+            >
+              <Bookmark className={cn("h-5 w-5", isBookmarked && "fill-current")} />
+            </Button>
+            <JobActions
+              type={type}
+              category={category}
+              isLiked={isLiked}
+              likesCount={likesCount}
+              commentsCount={comments.length}
+              onLike={handleLike}
+              onComment={() => setShowComments(!showComments)}
+              onShare={handleShare}
+              isAnimating={isAnimating}
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -249,20 +306,15 @@ export const JobCard = ({
         )}
         <div className="flex justify-center w-full">
           <Button 
-            onClick={() => {
-              setIsAnimating(true);
-              toast({
-                title: "Application Submitted! 🎉",
-                description: "We've received your application. Good luck!",
-              });
-              setTimeout(() => setIsAnimating(false), 2000);
-            }}
+            onClick={handleApply}
+            disabled={hasApplied}
             className={cn(
               "w-1/2 transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
-              isAnimating && "animate-scale-in"
+              isAnimating && "animate-scale-in",
+              hasApplied && "bg-gray-400 cursor-not-allowed"
             )}
           >
-            Apply Now
+            {hasApplied ? "Applied" : "Apply Now"}
           </Button>
         </div>
       </CardContent>

@@ -4,11 +4,18 @@ import { WelcomeHeader } from "@/components/WelcomeHeader";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
+import { JobFilters, JobFilters as JobFiltersType } from "@/components/JobFilters";
 
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [filters, setFilters] = useState<JobFiltersType>({
+    type: "",
+    location: "",
+    minSalary: "",
+    maxSalary: "",
+  });
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
@@ -17,29 +24,28 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (!query) {
-      return;
-    }
-
-    const filtered = jobs.filter(job =>
-      job.title.toLowerCase().includes(query.toLowerCase()) ||
-      job.company.toLowerCase().includes(query.toLowerCase()) ||
-      job.description.toLowerCase().includes(query.toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-      toast({
-        title: "No matches found",
-        description: "Try adjusting your search terms",
-        variant: "destructive"
-      });
-    }
   };
 
-  const handleFilterClick = () => {
-    toast({
-      title: "Filters",
-      description: "Additional filter options coming soon!",
+  const handleFilterChange = (newFilters: JobFiltersType) => {
+    setFilters(newFilters);
+  };
+
+  const filterJobs = (jobs: Job[]) => {
+    return jobs.filter(job => {
+      const matchesSearch = !searchQuery || 
+        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesType = !filters.type || job.type === filters.type;
+      const matchesLocation = !filters.location || 
+        job.location.toLowerCase().includes(filters.location.toLowerCase());
+      
+      const jobSalary = parseInt(job.salary || "0");
+      const matchesMinSalary = !filters.minSalary || jobSalary >= parseInt(filters.minSalary);
+      const matchesMaxSalary = !filters.maxSalary || jobSalary <= parseInt(filters.maxSalary);
+
+      return matchesSearch && matchesType && matchesLocation && matchesMinSalary && matchesMaxSalary;
     });
   };
 
@@ -59,27 +65,31 @@ const Index = () => {
     );
   }
 
-  const filteredJobs = searchQuery
-    ? jobs.filter(job =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : jobs;
+  const filteredJobs = filterJobs(jobs);
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="container py-8 animate-fade-in">
         <WelcomeHeader 
           onSearch={handleSearch}
-          onFilterClick={handleFilterClick}
+          onFilterClick={() => {}}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
         />
-        <JobSectionsCarousel 
-          allJobs={filteredJobs} 
-          sortOrder={sortOrder}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+          <div className="md:col-span-1">
+            <JobFilters 
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
+          <div className="md:col-span-3">
+            <JobSectionsCarousel 
+              allJobs={filteredJobs} 
+              sortOrder={sortOrder}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
