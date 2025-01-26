@@ -122,20 +122,30 @@ export const JobCard = ({
     onSuccess: (updatedJob) => {
       if (updatedJob && updatedJob.comments) {
         const validComments = filterValidComments(updatedJob.comments);
-        setComments(validComments);
-        setNewComment("");
         
-        queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-          if (!oldJobs) return oldJobs;
-          return oldJobs.map(job => 
-            job.id === id ? { ...job, comments: validComments } : job
-          );
-        });
-        
-        toast({
-          title: "Success",
-          description: "Your comment has been posted successfully",
-        });
+        // Only update if we have valid comments
+        if (validComments.length > comments.length) {
+          setComments(validComments);
+          setNewComment("");
+          
+          queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+            if (!oldJobs) return oldJobs;
+            return oldJobs.map(job => 
+              job.id === id ? { ...job, comments: validComments } : job
+            );
+          });
+          
+          toast({
+            title: "Success",
+            description: "Your comment has been posted successfully",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to add comment. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     },
     onError: (error) => {
