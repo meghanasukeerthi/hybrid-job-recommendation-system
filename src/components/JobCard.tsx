@@ -121,13 +121,20 @@ export const JobCard = ({
     },
     onSuccess: (updatedJob) => {
       if (updatedJob && updatedJob.comments) {
-        setComments(updatedJob.comments);
+        const validComments = updatedJob.comments.filter(comment => 
+          comment && 
+          comment.text && 
+          comment.text.trim() !== '' && 
+          comment.author
+        );
+        
+        setComments(validComments);
         setNewComment("");
         
         queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
           if (!oldJobs) return oldJobs;
           return oldJobs.map(job => 
-            job.id === id ? { ...job, comments: updatedJob.comments } : job
+            job.id === id ? { ...job, comments: validComments } : job
           );
         });
         
@@ -140,7 +147,7 @@ export const JobCard = ({
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to add comment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add comment. Please try again.",
         variant: "destructive"
       });
     }
@@ -301,7 +308,12 @@ export const JobCard = ({
               onAddComment={handleAddComment}
             />
             {comments && comments.length > 0 ? (
-              <CommentList comments={comments} />
+              <CommentList comments={comments.filter(comment => 
+                comment && 
+                comment.text && 
+                comment.text.trim() !== '' && 
+                comment.author
+              )} />
             ) : (
               <p className="text-muted-foreground text-sm">No comments yet. Be the first to comment!</p>
             )}
