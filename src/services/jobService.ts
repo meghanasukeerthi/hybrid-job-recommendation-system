@@ -27,11 +27,7 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      text: comment.text,
-      author: comment.author,
-      date: comment.date
-    }),
+    body: JSON.stringify(comment),
   });
   
   if (!response.ok) {
