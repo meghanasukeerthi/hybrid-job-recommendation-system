@@ -4,7 +4,7 @@ import { WelcomeHeader } from "@/components/WelcomeHeader";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
-import { JobFilters, JobFilters as JobFiltersType } from "@/components/JobFilters";
+import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
 
 const Index = () => {
@@ -76,20 +76,14 @@ const Index = () => {
           onFilterClick={() => {}}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-          <div className="md:col-span-1">
-            <JobFilters 
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
-          </div>
-          <div className="md:col-span-3">
-            <JobSectionsCarousel 
-              allJobs={filteredJobs} 
-              sortOrder={sortOrder}
-            />
-          </div>
+        <div className="mt-6">
+          <JobSectionsCarousel 
+            allJobs={filteredJobs} 
+            sortOrder={sortOrder}
+          />
         </div>
       </div>
     </div>
