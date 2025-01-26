@@ -1,19 +1,19 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Timer, Bookmark } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { JobHeader } from "./job/JobHeader";
 import { JobActions } from "./job/JobActions";
+import { JobDetails } from "./job/JobDetails";
 import { CommentList } from "./job/CommentList";
 import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
 import { bookmarkJob, removeBookmark, isJobBookmarked, trackJobApplication, isJobApplied } from "@/services/userJobService";
 import { Job, Comment } from "@/types/job";
-import { formatDistanceToNow } from "date-fns";
+import { validateComment, filterValidComments } from "@/services/commentService";
 
 interface JobCardProps {
   id: number;
@@ -50,7 +50,7 @@ export const JobCard = ({
   const [likesCount, setLikesCount] = useState(initialLikeCount);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [comments, setComments] = useState<Comment[]>(filterValidComments(initialComments));
   const [newComment, setNewComment] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
@@ -121,13 +121,7 @@ export const JobCard = ({
     },
     onSuccess: (updatedJob) => {
       if (updatedJob && updatedJob.comments) {
-        const validComments = updatedJob.comments.filter(comment => 
-          comment && 
-          comment.text && 
-          comment.text.trim() !== '' && 
-          comment.author
-        );
-        
+        const validComments = filterValidComments(updatedJob.comments);
         setComments(validComments);
         setNewComment("");
         
@@ -222,7 +216,7 @@ export const JobCard = ({
   };
 
   const handleAddComment = () => {
-    if (!id || !newComment.trim()) {
+    if (!newComment.trim()) {
       toast({
         title: "Error",
         description: "Please enter a comment before posting",
@@ -231,13 +225,6 @@ export const JobCard = ({
       return;
     }
     commentMutation.mutate(newComment);
-  };
-
-  const getExperienceLevel = (years: number) => {
-    if (years <= 1) return "Entry Level";
-    if (years <= 3) return "Junior";
-    if (years <= 5) return "Mid-Level";
-    return "Senior";
   };
 
   return (
@@ -272,34 +259,15 @@ export const JobCard = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center text-sm text-gray-500 mb-4">
-          <MapPin className="w-4 h-4 mr-1" />
-          {location}
-          <Timer className="w-4 h-4 ml-4 mr-1" />
-          {formatDistanceToNow(new Date(postedDate), { addSuffix: true })}
-          {salary && (
-            <span className="ml-4">
-              ₹ {salary}
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {requiredSkills.map((skill, index) => (
-            <Badge 
-              key={index} 
-              variant="outline"
-              className="hover:bg-primary hover:text-primary-foreground transition-colors"
-            >
-              {skill}
-            </Badge>
-          ))}
-        </div>
-        <div className="mb-4">
-          <Badge variant="secondary" className="hover:bg-primary hover:text-primary-foreground transition-colors">
-            Experience: {experienceRequired.years} years ({getExperienceLevel(experienceRequired.years)})
-          </Badge>
-        </div>
+        <JobDetails
+          location={location}
+          postedDate={postedDate}
+          salary={salary}
+          description={description}
+          requiredSkills={requiredSkills}
+          experienceRequired={experienceRequired}
+        />
+        
         {showComments && (
           <div className="space-y-4">
             <CommentForm
@@ -307,19 +275,11 @@ export const JobCard = ({
               onCommentChange={setNewComment}
               onAddComment={handleAddComment}
             />
-            {comments && comments.length > 0 ? (
-              <CommentList comments={comments.filter(comment => 
-                comment && 
-                comment.text && 
-                comment.text.trim() !== '' && 
-                comment.author
-              )} />
-            ) : (
-              <p className="text-muted-foreground text-sm">No comments yet. Be the first to comment!</p>
-            )}
+            <CommentList comments={comments} />
           </div>
         )}
-        <div className="flex justify-center w-full">
+        
+        <div className="flex justify-center w-full mt-4">
           <Button 
             onClick={handleApply}
             disabled={hasApplied}
