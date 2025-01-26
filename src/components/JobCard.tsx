@@ -109,38 +109,28 @@ export const JobCard = ({
         date: Date.now()
       };
       
-      console.log('Preparing to send comment:', commentData);
+      console.log('Sending comment data:', commentData);
       return addComment(id!, commentData);
-    },
-    onMutate: async (commentText) => {
-      if (!commentText.trim()) return;
-      
-      const optimisticComment = {
-        text: commentText.trim(),
-        author: "Current User",
-        date: Date.now()
-      };
-      
-      setComments(prev => [...prev, optimisticComment]);
-      setNewComment("");
     },
     onSuccess: (updatedJob) => {
       console.log('Comment added successfully:', updatedJob);
-      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-        if (!oldJobs) return oldJobs;
-        return oldJobs.map(job => 
-          job.id === id ? { ...job, comments: updatedJob.comments } : job
-        );
-      });
-      
-      toast({
-        title: "Success",
-        description: "Your comment has been posted successfully",
-      });
+      if (updatedJob && updatedJob.comments) {
+        setComments(updatedJob.comments);
+        queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+          if (!oldJobs) return oldJobs;
+          return oldJobs.map(job => 
+            job.id === id ? { ...job, comments: updatedJob.comments } : job
+          );
+        });
+        
+        toast({
+          title: "Success",
+          description: "Your comment has been posted successfully",
+        });
+      }
     },
     onError: (error) => {
       console.error('Failed to add comment:', error);
-      setComments(initialComments);
       toast({
         title: "Error",
         description: "Failed to add comment. Please try again.",
@@ -243,7 +233,11 @@ export const JobCard = ({
               onCommentChange={setNewComment}
               onAddComment={handleAddComment}
             />
-            <CommentList comments={comments} />
+            {comments && comments.length > 0 ? (
+              <CommentList comments={comments} />
+            ) : (
+              <p className="text-muted-foreground text-sm">No comments yet. Be the first to comment!</p>
+            )}
           </div>
         )}
         <div className="flex justify-center w-full">

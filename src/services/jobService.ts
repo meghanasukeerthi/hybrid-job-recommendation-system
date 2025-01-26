@@ -25,11 +25,7 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      text: comment.text,
-      author: comment.author,
-      date: Date.now()
-    }),
+    body: JSON.stringify(comment),
   });
   
   if (!response.ok) {
@@ -38,5 +34,7 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
     throw new Error('Failed to add comment');
   }
   
-  return response.json();
+  const updatedJob = await response.json();
+  console.log('Updated job after comment:', updatedJob);
+  return updatedJob;
 };
