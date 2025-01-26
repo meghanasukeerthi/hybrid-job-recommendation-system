@@ -14,22 +14,6 @@ import { likeJob, addComment } from "@/services/jobService";
 import { Job, Comment } from "@/types/job";
 import { formatDistanceToNow } from "date-fns";
 
-interface JobCardProps {
-  id?: number;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  description: string;
-  postedDate: number;
-  requiredSkills?: string[];
-  likeCount: number;
-  experienceRequired: { years: number };
-  comments: Comment[];
-  category: 'fresher' | 'experienced' | 'remote' | 'internship';
-  salary?: string;
-}
-
 export const JobCard = ({ 
   id,
   title, 
@@ -59,6 +43,10 @@ export const JobCard = ({
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     setIsLiked(likedJobs.includes(id));
   }, [id]);
+
+  useEffect(() => {
+    console.log('Comments updated:', comments);
+  }, [comments]);
 
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id!),
@@ -116,6 +104,8 @@ export const JobCard = ({
       console.log('Comment added successfully:', updatedJob);
       if (updatedJob && updatedJob.comments) {
         setComments(updatedJob.comments);
+        setNewComment("");
+        
         queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
           if (!oldJobs) return oldJobs;
           return oldJobs.map(job => 

@@ -19,13 +19,19 @@ export const likeJob = async (jobId: number): Promise<Job> => {
 };
 
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
-  console.log('Sending comment to backend:', { jobId, comment });
+  console.log('Adding comment for job:', jobId);
+  console.log('Comment data:', comment);
+
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(comment),
+    body: JSON.stringify({
+      text: comment.text,
+      author: comment.author,
+      date: comment.date
+    }),
   });
   
   if (!response.ok) {
@@ -35,6 +41,6 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   }
   
   const updatedJob = await response.json();
-  console.log('Updated job after comment:', updatedJob);
+  console.log('Server response after adding comment:', updatedJob);
   return updatedJob;
 };
