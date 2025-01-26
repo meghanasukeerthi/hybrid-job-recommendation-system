@@ -31,7 +31,7 @@ export const JobFilters = ({ onFilterChange, filters }: JobFiltersProps) => {
             <SelectValue placeholder="Select job type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="Full-time">Full-time</SelectItem>
             <SelectItem value="Part-time">Part-time</SelectItem>
             <SelectItem value="Contract">Contract</SelectItem>

@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters, JobFilters as JobFiltersType } from "@/components/JobFilters";
+import { Job } from "@/types/job";
 
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
-    type: "",
+    type: "all",
     location: "",
     minSalary: "",
     maxSalary: "",
@@ -37,7 +38,7 @@ const Index = () => {
         job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesType = !filters.type || job.type === filters.type;
+      const matchesType = filters.type === "all" || job.type === filters.type;
       const matchesLocation = !filters.location || 
         job.location.toLowerCase().includes(filters.location.toLowerCase());
       
