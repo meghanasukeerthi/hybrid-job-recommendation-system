@@ -19,6 +19,7 @@ export const likeJob = async (jobId: number): Promise<Job> => {
 };
 
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
+  console.log('Sending comment to backend:', { jobId, comment });
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: {
@@ -27,11 +28,15 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
     body: JSON.stringify({
       text: comment.text,
       author: comment.author,
-      date: comment.date
+      date: Date.now()
     }),
   });
+  
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Comment submission failed:', errorText);
     throw new Error('Failed to add comment');
   }
+  
   return response.json();
 };

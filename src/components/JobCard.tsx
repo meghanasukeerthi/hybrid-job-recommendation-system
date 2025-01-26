@@ -101,40 +101,44 @@ export const JobCard = ({
       if (!commentText.trim()) {
         throw new Error("Comment cannot be empty");
       }
+      
       const commentData = {
         text: commentText.trim(),
         author: "Current User",
         date: Date.now()
       };
-      console.log('Sending comment data:', commentData); // Debug log
+      
+      console.log('Preparing to send comment:', commentData);
       return addComment(id!, commentData);
     },
     onMutate: async (commentText) => {
       if (!commentText.trim()) return;
       
-      const newComment: Comment = {
+      const optimisticComment = {
         text: commentText.trim(),
         author: "Current User",
         date: Date.now()
       };
-      setComments(prev => [...prev, newComment]);
+      
+      setComments(prev => [...prev, optimisticComment]);
       setNewComment("");
     },
     onSuccess: (updatedJob) => {
-      console.log('Updated job after comment:', updatedJob); // Debug log
+      console.log('Comment added successfully:', updatedJob);
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
         return oldJobs.map(job => 
           job.id === id ? { ...job, comments: updatedJob.comments } : job
         );
       });
+      
       toast({
-        title: "Comment added",
+        title: "Success",
         description: "Your comment has been posted successfully",
       });
     },
     onError: (error) => {
-      console.error('Comment error:', error); // Debug log
+      console.error('Failed to add comment:', error);
       setComments(initialComments);
       toast({
         title: "Error",
