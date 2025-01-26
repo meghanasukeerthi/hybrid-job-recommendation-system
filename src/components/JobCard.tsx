@@ -62,7 +62,8 @@ export const JobCard = ({
 
   useEffect(() => {
     console.log('Comments updated:', comments);
-  }, [comments]);
+    setComments(initialComments);
+  }, [initialComments]);
 
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id),
