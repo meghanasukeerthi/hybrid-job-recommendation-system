@@ -10,21 +10,28 @@ export const fetchJobs = async (): Promise<Job[]> => {
 
 // Legacy function maintained for compatibility
 export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
-  return performLikeAction(jobId, isLiked ? 'unlike' : 'like');
+  console.log('Using legacy likeJob function');
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update like status');
+  }
+  return response.json();
 };
 
 export const performLikeAction = async (jobId: number, action: 'like' | 'unlike'): Promise<Job> => {
   console.log('Performing like action:', action);
   
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/perform-like`, {
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ 
-      action,
-      increment: action === 'like' ? 1 : -1
-    })
+    }
   });
 
   if (!response.ok) {

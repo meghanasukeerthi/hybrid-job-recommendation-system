@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { performLikeAction } from "@/services/jobService";
+import { likeJob } from "@/services/jobService";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Job } from "@/types/job";
@@ -27,7 +27,7 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   }, [jobId, initialLikeCount]);
 
   const likeMutation = useMutation({
-    mutationFn: (action: 'like' | 'unlike') => performLikeAction(jobId, action),
+    mutationFn: () => likeJob(jobId, isLiked),
     onSuccess: (updatedJob) => {
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
@@ -59,18 +59,17 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
     if (!wasLiked) {
       likedJobs.push(jobId);
       setLikeCount(prev => prev + 1);
-      likeMutation.mutate('like');
     } else {
       const index = likedJobs.indexOf(jobId);
       if (index > -1) {
         likedJobs.splice(index, 1);
       }
       setLikeCount(prev => prev - 1);
-      likeMutation.mutate('unlike');
     }
     
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
     setIsLiked(!wasLiked);
+    likeMutation.mutate();
     onLike();
   };
 
