@@ -19,7 +19,10 @@ export const likeJob = async (jobId: number): Promise<Job> => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ action: isLiked ? 'unlike' : 'like' })
+    body: JSON.stringify({ 
+      action: isLiked ? 'unlike' : 'like',
+      increment: isLiked ? -1 : 1  // Decrement if unliking, increment if liking
+    })
   });
 
   if (!response.ok) {
@@ -49,4 +52,31 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   const updatedJob = await response.json();
   console.log('Server response after adding comment:', updatedJob);
   return updatedJob;
+};
+
+// Add new functions for bookmark and job tracking
+export const bookmarkJob = async (jobId: number): Promise<void> => {
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to bookmark job');
+  }
+};
+
+export const trackJob = async (jobId: number): Promise<void> => {
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/track`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to track job');
+  }
 };

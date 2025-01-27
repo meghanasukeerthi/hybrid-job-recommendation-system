@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { trackJob } from "@/services/jobService";
 
 interface JobTrackingButtonProps {
   jobId: number;
@@ -11,23 +13,41 @@ interface JobTrackingButtonProps {
 export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps) => {
   const [hasApplied, setHasApplied] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
     setHasApplied(appliedJobs.includes(jobId));
   }, [jobId]);
 
-  const handleApply = () => {
-    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-    
-    if (!hasApplied) {
-      appliedJobs.push(jobId);
-      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      setHasApplied(true);
+  const trackMutation = useMutation({
+    mutationFn: () => trackJob(jobId),
+    onSuccess: () => {
+      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+      
+      if (!hasApplied) {
+        appliedJobs.push(jobId);
+        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+        setHasApplied(true);
+        toast({
+          title: "Application Submitted! 🎉",
+          description: "We've received your application. Good luck!",
+        });
+        queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      }
+    },
+    onError: () => {
       toast({
-        title: "Application Submitted! 🎉",
-        description: "We've received your application. Good luck!",
+        title: "Error",
+        description: "Failed to submit application. Please try again.",
+        variant: "destructive"
       });
+    }
+  });
+
+  const handleApply = () => {
+    if (!hasApplied) {
+      trackMutation.mutate();
     }
   };
 
