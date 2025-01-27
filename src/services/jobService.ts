@@ -8,12 +8,9 @@ export const fetchJobs = async (): Promise<Job[]> => {
   return response.json();
 };
 
-export const likeJob = async (jobId: number): Promise<Job> => {
-  // Get the current like status from localStorage
-  const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-  const isLiked = likedJobs.includes(jobId);
-
-  // Send the appropriate action to the backend
+export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
+  console.log('Sending like/unlike action:', isLiked ? 'unlike' : 'like');
+  
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
     method: 'PUT',
     headers: {
@@ -21,7 +18,7 @@ export const likeJob = async (jobId: number): Promise<Job> => {
     },
     body: JSON.stringify({ 
       action: isLiked ? 'unlike' : 'like',
-      increment: isLiked ? -1 : 1  // Decrement if unliking, increment if liking
+      increment: isLiked ? -1 : 1
     })
   });
 

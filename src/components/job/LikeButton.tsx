@@ -22,8 +22,9 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
 
   const handleLike = () => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+    const wasLiked = likedJobs.includes(jobId);
     
-    if (!isLiked) {
+    if (!wasLiked) {
       likedJobs.push(jobId);
       setLikeCount(prev => prev + 1);
     } else {
@@ -35,8 +36,8 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
     }
     
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
-    setIsLiked(!isLiked);
-    onLike(); // This will trigger the backend update
+    setIsLiked(!wasLiked);
+    onLike();
   };
 
   return (

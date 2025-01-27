@@ -55,7 +55,11 @@ export const JobCard = ({
   const queryClient = useQueryClient();
 
   const likeMutation = useMutation({
-    mutationFn: () => likeJob(id),
+    mutationFn: () => {
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      const isCurrentlyLiked = likedJobs.includes(id);
+      return likeJob(id, isCurrentlyLiked);
+    },
     onSuccess: (updatedJob) => {
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
@@ -70,7 +74,7 @@ export const JobCard = ({
       setIsAnimating(false);
       toast({
         title: "Error",
-        description: "Failed to like the job. Please try again.",
+        description: "Failed to update like status. Please try again.",
         variant: "destructive"
       });
     }
