@@ -17,7 +17,8 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   useEffect(() => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     setIsLiked(likedJobs.includes(jobId));
-  }, [jobId]);
+    setLikeCount(initialLikeCount);
+  }, [jobId, initialLikeCount]);
 
   const handleLike = () => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');

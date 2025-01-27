@@ -52,18 +52,39 @@ export const WelcomeHeader = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="w-80 p-4" 
+            className="w-80 p-4 bg-background border shadow-lg" 
             align="end"
+            side="bottom"
             sideOffset={5}
           >
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Sort By</Label>
+                <div className="space-y-2">
+                  <DropdownMenuItem 
+                    className="w-full cursor-pointer"
+                    onClick={() => onSortChange('newest')}
+                  >
+                    {sortOrder === 'newest' ? '✓ ' : ''}Newest First
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="w-full cursor-pointer"
+                    onClick={() => onSortChange('oldest')}
+                  >
+                    {sortOrder === 'oldest' ? '✓ ' : ''}Oldest First
+                  </DropdownMenuItem>
+                </div>
+              </div>
+
+              <DropdownMenuSeparator />
+
               <div className="space-y-2">
                 <Label>Job Type</Label>
                 <Select
                   value={filters.type}
                   onValueChange={(value) => onFilterChange({ ...filters, type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select job type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -105,15 +126,6 @@ export const WelcomeHeader = ({
                   />
                 </div>
               </div>
-            </div>
-            <DropdownMenuSeparator className="my-4" />
-            <div className="space-y-2">
-              <DropdownMenuItem onClick={() => onSortChange('newest')}>
-                {sortOrder === 'newest' ? '✓ ' : ''}Newest First
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange('oldest')}>
-                {sortOrder === 'oldest' ? '✓ ' : ''}Oldest First
-              </DropdownMenuItem>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
