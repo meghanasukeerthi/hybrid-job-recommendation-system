@@ -8,30 +8,15 @@ export const fetchJobs = async (): Promise<Job[]> => {
   return response.json();
 };
 
-// Legacy function maintained for compatibility
 export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
-  console.log('Using legacy likeJob function');
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update like status');
-  }
-  return response.json();
-};
-
-export const performLikeAction = async (jobId: number, action: 'like' | 'unlike'): Promise<Job> => {
-  console.log('Performing like action:', action);
+  console.log('Performing like action, current state:', isLiked);
   
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({ unlike: isLiked })
   });
 
   if (!response.ok) {
@@ -63,7 +48,6 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   return updatedJob;
 };
 
-// Add new functions for bookmark and job tracking
 export const bookmarkJob = async (jobId: number): Promise<void> => {
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
     method: 'PUT',
