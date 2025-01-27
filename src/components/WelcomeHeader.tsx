@@ -51,7 +51,11 @@ export const WelcomeHeader = ({
               Filters
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-80 p-4">
+          <DropdownMenuContent 
+            className="w-80 p-4" 
+            align="end"
+            sideOffset={5}
+          >
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Job Type</Label>

@@ -3,7 +3,6 @@ import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { bookmarkJob, removeBookmark, isJobBookmarked } from "@/services/userJobService";
 
 interface BookmarkButtonProps {
   jobId: number;
@@ -14,33 +13,32 @@ export const BookmarkButton = ({ jobId }: BookmarkButtonProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsBookmarked(isJobBookmarked(jobId));
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    setIsBookmarked(bookmarks.includes(jobId));
   }, [jobId]);
 
-  const handleBookmark = async () => {
-    try {
-      if (isBookmarked) {
-        await removeBookmark(jobId);
-        setIsBookmarked(false);
-        toast({
-          title: "Bookmark removed",
-          description: "Job has been removed from your bookmarks",
-        });
-      } else {
-        await bookmarkJob(jobId);
-        setIsBookmarked(true);
-        toast({
-          title: "Job bookmarked",
-          description: "Job has been added to your bookmarks",
-        });
-      }
-    } catch (error) {
+  const handleBookmark = () => {
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    
+    if (!isBookmarked) {
+      bookmarks.push(jobId);
       toast({
-        title: "Error",
-        description: "Failed to update bookmark",
-        variant: "destructive"
+        title: "Job bookmarked",
+        description: "Job has been added to your bookmarks",
+      });
+    } else {
+      const index = bookmarks.indexOf(jobId);
+      if (index > -1) {
+        bookmarks.splice(index, 1);
+      }
+      toast({
+        title: "Bookmark removed",
+        description: "Job has been removed from your bookmarks",
       });
     }
+    
+    localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
+    setIsBookmarked(!isBookmarked);
   };
 
   return (

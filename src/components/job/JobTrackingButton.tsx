@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { trackJobApplication, isJobApplied } from "@/services/userJobService";
 
 interface JobTrackingButtonProps {
   jobId: number;
@@ -14,22 +13,20 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
   const { toast } = useToast();
 
   useEffect(() => {
-    setHasApplied(isJobApplied(jobId));
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+    setHasApplied(appliedJobs.includes(jobId));
   }, [jobId]);
 
-  const handleApply = async () => {
-    try {
-      await trackJobApplication(jobId);
+  const handleApply = () => {
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+    
+    if (!hasApplied) {
+      appliedJobs.push(jobId);
+      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
       setHasApplied(true);
       toast({
         title: "Application Submitted! 🎉",
         description: "We've received your application. Good luck!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit application",
-        variant: "destructive"
       });
     }
   };

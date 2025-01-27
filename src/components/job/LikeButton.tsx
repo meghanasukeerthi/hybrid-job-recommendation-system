@@ -12,6 +12,7 @@ interface LikeButtonProps {
 
 export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
 
   useEffect(() => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
@@ -19,10 +20,22 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   }, [jobId]);
 
   const handleLike = () => {
+    const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+    
     if (!isLiked) {
-      onLike();
-      setIsLiked(true);
+      likedJobs.push(jobId);
+      setLikeCount(prev => prev + 1);
+    } else {
+      const index = likedJobs.indexOf(jobId);
+      if (index > -1) {
+        likedJobs.splice(index, 1);
+      }
+      setLikeCount(prev => prev - 1);
     }
+    
+    localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
+    setIsLiked(!isLiked);
+    onLike();
   };
 
   return (
@@ -32,7 +45,6 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
         size="icon"
         className="relative hover-button"
         onClick={handleLike}
-        disabled={isLiked}
       >
         <Heart
           className={cn(
@@ -42,7 +54,7 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
           )}
         />
       </Button>
-      <span className="text-sm text-muted-foreground">{initialLikeCount}</span>
+      <span className="text-sm text-muted-foreground">{likeCount}</span>
     </div>
   );
 };
