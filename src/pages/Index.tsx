@@ -10,7 +10,7 @@ import { Job } from "@/types/job";
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow'>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
     type: "all",
     location: "",
@@ -31,8 +31,8 @@ const Index = () => {
     setFilters(newFilters);
   };
 
-  const filterJobs = (jobs: Job[]) => {
-    return jobs.filter(job => {
+  const filterAndSortJobs = (jobs: Job[]) => {
+    let filteredJobs = jobs.filter(job => {
       const matchesSearch = !searchQuery || 
         job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,6 +47,22 @@ const Index = () => {
       const matchesMaxSalary = !filters.maxSalary || jobSalary <= parseInt(filters.maxSalary);
 
       return matchesSearch && matchesType && matchesLocation && matchesMinSalary && matchesMaxSalary;
+    });
+
+    // Sort the filtered jobs
+    return filteredJobs.sort((a, b) => {
+      switch (sortOrder) {
+        case 'newest':
+          return b.postedDate - a.postedDate;
+        case 'oldest':
+          return a.postedDate - b.postedDate;
+        case 'salaryLowToHigh':
+          return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
+        case 'salaryHighToLow':
+          return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
+        default:
+          return 0;
+      }
     });
   };
 
@@ -66,7 +82,7 @@ const Index = () => {
     );
   }
 
-  const filteredJobs = filterJobs(jobs);
+  const filteredAndSortedJobs = filterAndSortJobs(jobs);
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -81,7 +97,7 @@ const Index = () => {
         />
         <div className="mt-6">
           <JobSectionsCarousel 
-            allJobs={filteredJobs} 
+            allJobs={filteredAndSortedJobs} 
             sortOrder={sortOrder}
           />
         </div>

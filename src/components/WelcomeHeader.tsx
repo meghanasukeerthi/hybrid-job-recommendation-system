@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ListFilter } from "lucide-react";
+import { ListFilter, ArrowUpDown, Briefcase, MapPin } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import {
   DropdownMenu,
@@ -7,6 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -16,8 +18,8 @@ import { JobFilters } from "@/components/JobFilters";
 interface WelcomeHeaderProps {
   onSearch: (query: string) => void;
   onFilterClick: () => void;
-  sortOrder: 'newest' | 'oldest';
-  onSortChange: (order: 'newest' | 'oldest') => void;
+  sortOrder: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
+  onSortChange: (order: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow') => void;
   filters: JobFilters;
   onFilterChange: (filters: JobFilters) => void;
 }
@@ -44,11 +46,10 @@ export const WelcomeHeader = ({
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
-              className="flex items-center gap-2"
-              onClick={onFilterClick}
+              className="flex items-center gap-2 bg-background"
             >
               <ListFilter className="w-5 h-5" />
-              Filters
+              Sort & Filter
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
@@ -57,52 +58,59 @@ export const WelcomeHeader = ({
             side="bottom"
             sideOffset={5}
           >
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Sort By</Label>
-                <div className="space-y-2">
-                  <DropdownMenuItem 
-                    className="w-full cursor-pointer"
-                    onClick={() => onSortChange('newest')}
-                  >
-                    {sortOrder === 'newest' ? '✓ ' : ''}Newest First
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className="w-full cursor-pointer"
-                    onClick={() => onSortChange('oldest')}
-                  >
-                    {sortOrder === 'oldest' ? '✓ ' : ''}Oldest First
-                  </DropdownMenuItem>
-                </div>
-              </div>
+            <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+            <DropdownMenuGroup className="space-y-1 mb-4">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => onSortChange('newest')}
+              >
+                {sortOrder === 'newest' ? '✓ ' : ''}Newest First
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => onSortChange('oldest')}
+              >
+                {sortOrder === 'oldest' ? '✓ ' : ''}Oldest First
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => onSortChange('salaryLowToHigh')}
+              >
+                {sortOrder === 'salaryLowToHigh' ? '✓ ' : ''}Salary: Low to High
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => onSortChange('salaryHighToLow')}
+              >
+                {sortOrder === 'salaryHighToLow' ? '✓ ' : ''}Salary: High to Low
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
 
-              <DropdownMenuSeparator />
+            <DropdownMenuSeparator />
 
-              <div className="space-y-2">
-                <Label>Job Type</Label>
-                <Select
-                  value={filters.type}
-                  onValueChange={(value) => onFilterChange({ ...filters, type: value })}
+            <DropdownMenuLabel>Job Type</DropdownMenuLabel>
+            <DropdownMenuGroup className="space-y-1 mb-4">
+              {['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'].map((type) => (
+                <DropdownMenuItem
+                  key={type}
+                  className="cursor-pointer"
+                  onClick={() => onFilterChange({ ...filters, type: type })}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select job type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Full-time">Full-time</SelectItem>
-                    <SelectItem value="Part-time">Part-time</SelectItem>
-                    <SelectItem value="Contract">Contract</SelectItem>
-                    <SelectItem value="Internship">Internship</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  {filters.type === type ? '✓ ' : ''}{type}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
 
+            <DropdownMenuSeparator />
+
+            <div className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label>Location</Label>
                 <Input
                   placeholder="Enter location"
                   value={filters.location}
                   onChange={(e) => onFilterChange({ ...filters, location: e.target.value })}
+                  className="w-full"
                 />
               </div>
 
@@ -111,7 +119,7 @@ export const WelcomeHeader = ({
                   <Label>Min Salary</Label>
                   <Input
                     type="number"
-                    placeholder="Min salary"
+                    placeholder="Min"
                     value={filters.minSalary}
                     onChange={(e) => onFilterChange({ ...filters, minSalary: e.target.value })}
                   />
@@ -120,7 +128,7 @@ export const WelcomeHeader = ({
                   <Label>Max Salary</Label>
                   <Input
                     type="number"
-                    placeholder="Max salary"
+                    placeholder="Max"
                     value={filters.maxSalary}
                     onChange={(e) => onFilterChange({ ...filters, maxSalary: e.target.value })}
                   />
