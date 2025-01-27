@@ -8,17 +8,17 @@ export const fetchJobs = async (): Promise<Job[]> => {
   return response.json();
 };
 
-export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
-  console.log('Sending like/unlike action:', isLiked ? 'unlike' : 'like');
+export const performLikeAction = async (jobId: number, action: 'like' | 'unlike'): Promise<Job> => {
+  console.log('Performing like action:', action);
   
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/perform-like`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ 
-      action: isLiked ? 'unlike' : 'like',
-      increment: isLiked ? -1 : 1
+      action,
+      increment: action === 'like' ? 1 : -1
     })
   });
 

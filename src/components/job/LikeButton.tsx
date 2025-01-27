@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { performLikeAction } from "@/services/jobService";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface LikeButtonProps {
   jobId: number;
@@ -13,12 +16,40 @@ interface LikeButtonProps {
 export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     setIsLiked(likedJobs.includes(jobId));
     setLikeCount(initialLikeCount);
   }, [jobId, initialLikeCount]);
+
+  const likeMutation = useMutation({
+    mutationFn: (action: 'like' | 'unlike') => performLikeAction(jobId, action),
+    onSuccess: (updatedJob) => {
+      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+        if (!oldJobs) return oldJobs;
+        return oldJobs.map(job => 
+          job.id === jobId ? { ...job, likeCount: updatedJob.likeCount } : job
+        );
+      });
+      toast({
+        title: isLiked ? "Removed Like" : "Added Like",
+        description: isLiked ? "You've unliked this job" : "You've liked this job",
+      });
+    },
+    onError: () => {
+      // Revert local state on error
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
+      setIsLiked(!isLiked);
+      toast({
+        title: "Error",
+        description: "Failed to update like status. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleLike = () => {
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
@@ -27,12 +58,14 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
     if (!wasLiked) {
       likedJobs.push(jobId);
       setLikeCount(prev => prev + 1);
+      likeMutation.mutate('like');
     } else {
       const index = likedJobs.indexOf(jobId);
       if (index > -1) {
         likedJobs.splice(index, 1);
       }
       setLikeCount(prev => prev - 1);
+      likeMutation.mutate('unlike');
     }
     
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
