@@ -8,6 +8,11 @@ export const fetchJobs = async (): Promise<Job[]> => {
   return response.json();
 };
 
+// Legacy function maintained for compatibility
+export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
+  return performLikeAction(jobId, isLiked ? 'unlike' : 'like');
+};
+
 export const performLikeAction = async (jobId: number, action: 'like' | 'unlike'): Promise<Job> => {
   console.log('Performing like action:', action);
   

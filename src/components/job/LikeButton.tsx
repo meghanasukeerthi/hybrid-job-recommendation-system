@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { performLikeAction } from "@/services/jobService";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Job } from "@/types/job";
 
 interface LikeButtonProps {
   jobId: number;
