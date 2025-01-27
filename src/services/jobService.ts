@@ -11,12 +11,12 @@ export const fetchJobs = async (): Promise<Job[]> => {
 export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
   console.log('Performing like action, current state:', isLiked);
   
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
+  // Using query parameter for like/dislike action
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${!isLiked}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ unlike: isLiked })
+    }
   });
 
   if (!response.ok) {
