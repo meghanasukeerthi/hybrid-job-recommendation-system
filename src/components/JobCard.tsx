@@ -1,8 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Bookmark } from "lucide-react";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { JobHeader } from "./job/JobHeader";
 import { JobActions } from "./job/JobActions";
@@ -11,9 +8,11 @@ import { CommentList } from "./job/CommentList";
 import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
-import { bookmarkJob, removeBookmark, isJobBookmarked, trackJobApplication, isJobApplied } from "@/services/userJobService";
 import { Job, Comment } from "@/types/job";
 import { validateComment, filterValidComments } from "@/services/commentService";
+import { LikeButton } from "./job/LikeButton";
+import { BookmarkButton } from "./job/BookmarkButton";
+import { JobTrackingButton } from "./job/JobTrackingButton";
 
 interface JobCardProps {
   id: number;
@@ -46,37 +45,17 @@ export const JobCard = ({
   category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
   salary,
 }: JobCardProps) => {
-  const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikeCount);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>(filterValidComments(initialComments));
   const [newComment, setNewComment] = useState("");
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (id) {
-      setIsBookmarked(isJobBookmarked(id));
-      setHasApplied(isJobApplied(id));
-    }
-  }, [id]);
-
   const likeMutation = useMutation({
     mutationFn: () => likeJob(id),
-    onMutate: async () => {
-      setLikesCount(prev => prev + 1);
-      setIsLiked(true);
-      setIsAnimating(true);
-      
-      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-      if (!likedJobs.includes(id)) {
-        localStorage.setItem('likedJobs', JSON.stringify([...likedJobs, id]));
-      }
-    },
     onSuccess: (updatedJob) => {
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
@@ -88,12 +67,7 @@ export const JobCard = ({
     },
     onError: () => {
       setLikesCount(prev => prev - 1);
-      setIsLiked(false);
       setIsAnimating(false);
-      
-      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-      localStorage.setItem('likedJobs', JSON.stringify(likedJobs.filter((jobId: number) => jobId !== id)));
-      
       toast({
         title: "Error",
         description: "Failed to like the job. Please try again.",
@@ -107,107 +81,37 @@ export const JobCard = ({
       if (!commentText.trim()) {
         throw new Error("Comment cannot be empty");
       }
-      if (!id) {
-        throw new Error("Job ID is required");
-      }
-      
-      const commentData = {
+      return addComment(id, {
         text: commentText.trim(),
         author: "Current User",
         date: Date.now()
-      };
-      
-      return addComment(id, commentData);
+      });
     },
     onSuccess: (updatedJob) => {
       if (updatedJob && updatedJob.comments) {
         const validComments = filterValidComments(updatedJob.comments);
-        
-        // Only update if we have valid comments
-        if (validComments.length > comments.length) {
-          setComments(validComments);
-          setNewComment("");
-          
-          queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-            if (!oldJobs) return oldJobs;
-            return oldJobs.map(job => 
-              job.id === id ? { ...job, comments: validComments } : job
-            );
-          });
-          
-          toast({
-            title: "Success",
-            description: "Your comment has been posted successfully",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to add comment. Please try again.",
-            variant: "destructive"
-          });
-        }
+        setComments(validComments);
+        setNewComment("");
+        queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
+          if (!oldJobs) return oldJobs;
+          return oldJobs.map(job => 
+            job.id === id ? { ...job, comments: validComments } : job
+          );
+        });
+        toast({
+          title: "Success",
+          description: "Your comment has been posted successfully",
+        });
       }
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add comment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add comment",
         variant: "destructive"
       });
     }
   });
-
-  const handleBookmark = async () => {
-    if (!id) return;
-    try {
-      if (isBookmarked) {
-        await removeBookmark(id);
-        setIsBookmarked(false);
-        toast({
-          title: "Bookmark removed",
-          description: "Job has been removed from your bookmarks",
-        });
-      } else {
-        await bookmarkJob(id);
-        setIsBookmarked(true);
-        toast({
-          title: "Job bookmarked",
-          description: "Job has been added to your bookmarks",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update bookmark",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleApply = async () => {
-    if (!id) return;
-    try {
-      await trackJobApplication(id);
-      setHasApplied(true);
-      setIsAnimating(true);
-      toast({
-        title: "Application Submitted! 🎉",
-        description: "We've received your application. Good luck!",
-      });
-      setTimeout(() => setIsAnimating(false), 2000);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit application",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleLike = () => {
-    if (!id) return;
-    likeMutation.mutate();
-  };
 
   const handleShare = async () => {
     try {
@@ -243,28 +147,21 @@ export const JobCard = ({
         <div className="flex justify-between items-start">
           <JobHeader title={title} company={company} />
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBookmark}
-              className={cn(
-                "hover:bg-primary/10",
-                isBookmarked && "text-yellow-500"
-              )}
-            >
-              <Bookmark className={cn("h-5 w-5", isBookmarked && "fill-current")} />
-            </Button>
+            <BookmarkButton jobId={id} />
             <JobActions
               type={type}
               category={category}
-              isLiked={isLiked}
-              likesCount={likesCount}
               commentsCount={comments.length}
-              onLike={handleLike}
               onComment={() => setShowComments(!showComments)}
               onShare={handleShare}
-              isAnimating={isAnimating}
-            />
+            >
+              <LikeButton
+                jobId={id}
+                initialLikeCount={likesCount}
+                onLike={() => likeMutation.mutate()}
+                isAnimating={isAnimating}
+              />
+            </JobActions>
           </div>
         </div>
       </CardHeader>
@@ -290,17 +187,7 @@ export const JobCard = ({
         )}
         
         <div className="flex justify-center w-full mt-4">
-          <Button 
-            onClick={handleApply}
-            disabled={hasApplied}
-            className={cn(
-              "w-1/2 transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
-              isAnimating && "animate-scale-in",
-              hasApplied && "bg-gray-400 cursor-not-allowed"
-            )}
-          >
-            {hasApplied ? "Applied" : "Apply Now"}
-          </Button>
+          <JobTrackingButton jobId={id} isAnimating={isAnimating} />
         </div>
       </CardContent>
     </Card>
