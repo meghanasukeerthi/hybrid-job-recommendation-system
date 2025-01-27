@@ -9,11 +9,21 @@ export const fetchJobs = async (): Promise<Job[]> => {
 };
 
 export const likeJob = async (jobId: number): Promise<Job> => {
+  // Get the current like status from localStorage
+  const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+  const isLiked = likedJobs.includes(jobId);
+
+  // Send the appropriate action to the backend
   const response = await fetch(`http://localhost:8080/jobs/${jobId}/like`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ action: isLiked ? 'unlike' : 'like' })
   });
+
   if (!response.ok) {
-    throw new Error('Failed to like job');
+    throw new Error('Failed to update like status');
   }
   return response.json();
 };

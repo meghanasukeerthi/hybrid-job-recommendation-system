@@ -36,7 +36,7 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
     
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
     setIsLiked(!isLiked);
-    onLike();
+    onLike(); // This will trigger the backend update
   };
 
   return (
