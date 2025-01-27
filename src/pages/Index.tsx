@@ -6,11 +6,15 @@ import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
+import { JobSalaryFilter } from "@/components/job/JobSalaryFilter";
+import { ApplicationTracker } from "@/components/job/ApplicationTracker";
+
+type SortOrder = 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
 
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow'>('newest');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
     type: "all",
     location: "",
@@ -49,7 +53,6 @@ const Index = () => {
       return matchesSearch && matchesType && matchesLocation && matchesMinSalary && matchesMaxSalary;
     });
 
-    // Sort the filtered jobs
     return filteredJobs.sort((a, b) => {
       switch (sortOrder) {
         case 'newest':
@@ -95,6 +98,13 @@ const Index = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
         />
+        <div className="flex justify-between items-center mb-6">
+          <JobSalaryFilter 
+            onSortChange={(order) => setSortOrder(order)}
+            currentSort={sortOrder}
+          />
+          <ApplicationTracker jobs={jobs} />
+        </div>
         <div className="mt-6">
           <JobSectionsCarousel 
             allJobs={filteredAndSortedJobs} 

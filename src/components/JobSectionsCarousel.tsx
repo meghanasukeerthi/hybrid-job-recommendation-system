@@ -10,7 +10,7 @@ import { Button } from "./ui/button";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
-  sortOrder: 'newest' | 'oldest';
+  sortOrder: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
 }
 
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
