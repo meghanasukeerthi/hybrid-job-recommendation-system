@@ -60,18 +60,19 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     setRecommendedJobs(recommended);
   }, [allJobs]);
 
-  // Sort jobs by comment count first, then by date if comment counts are equal
   const sortJobs = (jobs: Job[]) => {
     return [...jobs].sort((a, b) => {
-      // First sort by comment count (descending)
-      const commentDiff = b.comments.length - a.comments.length;
-      if (commentDiff !== 0) return commentDiff;
-      
-      // If comment counts are equal, use the date sorting
-      if (sortOrder === 'newest') {
-        return b.postedDate - a.postedDate;
-      } else {
-        return a.postedDate - b.postedDate;
+      switch (sortOrder) {
+        case 'newest':
+          return b.postedDate - a.postedDate;
+        case 'oldest':
+          return a.postedDate - b.postedDate;
+        case 'salaryLowToHigh':
+          return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
+        case 'salaryHighToLow':
+          return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
+        default:
+          return 0;
       }
     });
   };

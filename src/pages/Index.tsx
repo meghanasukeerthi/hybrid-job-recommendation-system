@@ -6,7 +6,6 @@ import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
-import { JobSalaryFilter } from "@/components/job/JobSalaryFilter";
 import { ApplicationTracker } from "@/components/job/ApplicationTracker";
 
 type SortOrder = 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
@@ -53,20 +52,7 @@ const Index = () => {
       return matchesSearch && matchesType && matchesLocation && matchesMinSalary && matchesMaxSalary;
     });
 
-    return filteredJobs.sort((a, b) => {
-      switch (sortOrder) {
-        case 'newest':
-          return b.postedDate - a.postedDate;
-        case 'oldest':
-          return a.postedDate - b.postedDate;
-        case 'salaryLowToHigh':
-          return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
-        case 'salaryHighToLow':
-          return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
-        default:
-          return 0;
-      }
-    });
+    return filteredJobs;
   };
 
   if (isLoading) {
@@ -98,11 +84,7 @@ const Index = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
         />
-        <div className="flex justify-between items-center mb-6">
-          <JobSalaryFilter 
-            onSortChange={(order) => setSortOrder(order)}
-            currentSort={sortOrder}
-          />
+        <div className="flex justify-end items-center mb-6">
           <ApplicationTracker jobs={jobs} />
         </div>
         <div className="mt-6">
