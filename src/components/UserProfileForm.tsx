@@ -29,7 +29,14 @@ export const UserProfileForm = () => {
   const navigate = useNavigate();
   
   const existingProfile = localStorage.getItem('userProfile');
-  const parsedProfile = existingProfile ? JSON.parse(existingProfile) : {};
+  const parsedProfile = existingProfile ? JSON.parse(existingProfile) : {
+    fullName: "",
+    email: "",
+    skills: "",
+    experience: "",
+    education: "Bachelor of Technology",
+    careerGoals: "To become an Associate Java Developer"
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,8 +45,8 @@ export const UserProfileForm = () => {
       email: parsedProfile.email || "",
       skills: parsedProfile.skills?.join(", ") || "",
       experience: parsedProfile.experience || "",
-      education: parsedProfile.education || "",
-      careerGoals: parsedProfile.careerGoals || "",
+      education: parsedProfile.education || "Bachelor of Technology",
+      careerGoals: parsedProfile.careerGoals || "To become an Associate Java Developer",
     },
   });
 
@@ -57,7 +64,6 @@ export const UserProfileForm = () => {
       description: "Your profile has been successfully updated. Recommendations will be refreshed.",
     });
 
-    // Navigate back to home page to see updated recommendations
     navigate("/");
   };
 
@@ -100,7 +106,7 @@ export const UserProfileForm = () => {
               <FormLabel>Skills (comma-separated)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="React, TypeScript, Node.js, etc."
+                  placeholder="Java, Spring Boot, Hibernate, MySQL, Git, Maven"
                   {...field}
                 />
               </FormControl>
@@ -117,7 +123,7 @@ export const UserProfileForm = () => {
               <FormLabel>Experience</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Your work experience..."
+                  placeholder="Experience with Java development, including internships or projects..."
                   {...field}
                 />
               </FormControl>
@@ -134,7 +140,7 @@ export const UserProfileForm = () => {
               <FormLabel>Education</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Your educational background..."
+                  placeholder="Bachelor of Technology"
                   {...field}
                 />
               </FormControl>
@@ -151,7 +157,7 @@ export const UserProfileForm = () => {
               <FormLabel>Career Goals</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Your career aspirations..."
+                  placeholder="To become an Associate Java Developer"
                   {...field}
                 />
               </FormControl>
