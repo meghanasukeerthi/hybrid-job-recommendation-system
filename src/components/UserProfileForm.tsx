@@ -17,8 +17,8 @@ export const UserProfileForm = () => {
     email: "",
     skills: "",
     experience: "",
-    education: "Bachelor of Technology",
-    careerGoals: "To become an Associate Java Developer"
+    education: "",
+    careerGoals: ""
   };
   
   const parsedProfile = existingProfile ? JSON.parse(existingProfile) : defaultValues;

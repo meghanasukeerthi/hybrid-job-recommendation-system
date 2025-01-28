@@ -21,16 +21,16 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
     
-    // Initial placeholder profile if none exists
-    const defaultProfile = {
-      skills: ["JavaScript", "React", "TypeScript"],
+    // Initial placeholder profile for recommendations if none exists
+    const placeholderProfile = {
+      skills: ["Java", "Spring Boot", "Hibernate", "MySQL", "Git", "Maven"],
       experience: "2 years",
-      education: "Bachelor's in Computer Science",
-      careerGoals: "Frontend Developer"
+      education: "Bachelor of Technology",
+      careerGoals: "To become an Associate Java Developer"
     };
     
-    // If no profile exists, use default profile
-    const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultProfile;
+    // Use placeholder profile for recommendations if no profile exists
+    const userProfile = userProfileStr ? JSON.parse(userProfileStr) : placeholderProfile;
     
     // Function to check if job matches user profile
     const matchesUserProfile = (job: Job) => {

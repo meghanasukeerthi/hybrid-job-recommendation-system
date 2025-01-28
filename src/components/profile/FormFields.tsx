@@ -79,7 +79,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormLabel>Experience</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Experience with Java development, including internships or projects..."
+                placeholder="2 years of experience in software development"
                 {...field}
               />
             </FormControl>
