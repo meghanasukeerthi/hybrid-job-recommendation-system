@@ -20,10 +20,7 @@ export const ApplicationTracker = ({ jobs }: ApplicationTrackerProps) => {
   return (
     <div className="flex items-center gap-4 p-4 bg-card rounded-lg shadow-sm">
       <Badge variant="secondary" className="text-sm">
-        Applied: {appliedCount}/{totalJobs}
-      </Badge>
-      <Badge variant="outline" className="text-sm">
-        Success Rate: {totalJobs > 0 ? Math.round((appliedCount / totalJobs) * 100) : 0}%
+        Applications: {appliedCount}/{totalJobs}
       </Badge>
     </div>
   );

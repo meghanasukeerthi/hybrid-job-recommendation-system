@@ -76,6 +76,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="container py-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-6">
+          <ApplicationTracker jobs={jobs} />
+        </div>
         <WelcomeHeader 
           onSearch={handleSearch}
           onFilterClick={() => {}}
@@ -84,9 +87,6 @@ const Index = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
         />
-        <div className="flex justify-end items-center mb-6">
-          <ApplicationTracker jobs={jobs} />
-        </div>
         <div className="mt-6">
           <JobSectionsCarousel 
             allJobs={filteredAndSortedJobs} 
