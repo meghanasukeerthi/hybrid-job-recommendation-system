@@ -1,35 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-
-const formSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  skills: z.string().min(2, "Please enter your skills"),
-  experience: z.string().min(2, "Please enter your experience"),
-  education: z.string().min(2, "Please enter your education"),
-  careerGoals: z.string().min(2, "Please enter your career goals"),
-});
+import { FormFields, formSchema } from "./profile/FormFields";
+import * as z from "zod";
 
 export const UserProfileForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
   const existingProfile = localStorage.getItem('userProfile');
-  const parsedProfile = existingProfile ? JSON.parse(existingProfile) : {
+  const defaultValues = {
     fullName: "",
     email: "",
     skills: "",
@@ -37,16 +20,18 @@ export const UserProfileForm = () => {
     education: "Bachelor of Technology",
     careerGoals: "To become an Associate Java Developer"
   };
+  
+  const parsedProfile = existingProfile ? JSON.parse(existingProfile) : defaultValues;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: parsedProfile.fullName || "",
-      email: parsedProfile.email || "",
-      skills: parsedProfile.skills?.join(", ") || "",
-      experience: parsedProfile.experience || "",
-      education: parsedProfile.education || "Bachelor of Technology",
-      careerGoals: parsedProfile.careerGoals || "To become an Associate Java Developer",
+      fullName: parsedProfile.fullName || defaultValues.fullName,
+      email: parsedProfile.email || defaultValues.email,
+      skills: parsedProfile.skills?.join(", ") || defaultValues.skills,
+      experience: parsedProfile.experience || defaultValues.experience,
+      education: parsedProfile.education || defaultValues.education,
+      careerGoals: parsedProfile.careerGoals || defaultValues.careerGoals,
     },
   });
 
@@ -70,102 +55,7 @@ export const UserProfileForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="john@example.com" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="skills"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Skills (comma-separated)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Java, Spring Boot, Hibernate, MySQL, Git, Maven"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="experience"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Experience</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Experience with Java development, including internships or projects..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="education"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Education</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Bachelor of Technology"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="careerGoals"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Career Goals</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="To become an Associate Java Developer"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <FormFields form={form} />
         <Button type="submit" className="w-full">
           Update Profile
         </Button>
