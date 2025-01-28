@@ -30,7 +30,7 @@ export const ResumeUploadForm = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/resume/upload', {
+      const response = await fetch('/api/resume/upload', {  // Updated endpoint URL
         method: 'POST',
         body: formData,
       });
@@ -48,6 +48,7 @@ export const ResumeUploadForm = () => {
         description: "Failed to upload and parse resume. Please try again.",
         variant: "destructive",
       });
+      console.error('Resume upload error:', error);
     } finally {
       setIsUploading(false);
     }

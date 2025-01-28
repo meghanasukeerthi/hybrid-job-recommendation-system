@@ -3,7 +3,7 @@ export const parseResume = async (file: File): Promise<any> => {
   formData.append('file', file);
 
   try {
-    const response = await fetch('/resume/upload', {
+    const response = await fetch('/api/resume/upload', {  // Updated endpoint URL
       method: 'POST',
       body: formData,
     });
