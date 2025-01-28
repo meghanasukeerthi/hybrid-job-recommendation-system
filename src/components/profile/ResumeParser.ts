@@ -25,12 +25,12 @@ export const parseResume = async (file: File) => {
 
     // Extract years of experience
     const experienceMatch = fullText.match(/(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?experience/i);
-    const experience = experienceMatch ? `${experienceMatch[1]} years of experience in software development` : "";
+    const experience = experienceMatch ? `${experienceMatch[1]} years of experience` : "";
 
     // Extract education
     const educationKeywords = ["Bachelor", "Master", "PhD", "BSc", "MSc", "B.E.", "B.Tech"];
     const educationMatch = educationKeywords.find(edu => fullText.includes(edu));
-    const education = educationMatch ? `${educationMatch}` : "Bachelor of Technology";
+    const education = educationMatch ? `${educationMatch}` : "";
 
     // Extract email
     const emailMatch = fullText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -40,13 +40,17 @@ export const parseResume = async (file: File) => {
     const nameMatch = fullText.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/m);
     const fullName = nameMatch ? nameMatch[1] : "";
 
+    // Extract career goals if mentioned
+    const careerGoalsMatch = fullText.match(/(?:career goals?|objectives?|aspirations?)[:.]?\s*([^.]+)/i);
+    const careerGoals = careerGoalsMatch ? careerGoalsMatch[1].trim() : "";
+
     return {
       fullName,
       email,
       skills,
       experience,
       education,
-      careerGoals: "To become an Associate Java Developer",
+      careerGoals,
     };
   }
   throw new Error("Unsupported file format");

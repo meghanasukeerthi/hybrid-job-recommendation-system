@@ -26,17 +26,17 @@ export const UserProfileForm = () => {
   // Ensure skills is properly formatted as a string
   const skillsString = Array.isArray(parsedProfile.skills) 
     ? parsedProfile.skills.join(", ")
-    : parsedProfile.skills || defaultValues.skills;
+    : parsedProfile.skills || "";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: parsedProfile.fullName || defaultValues.fullName,
-      email: parsedProfile.email || defaultValues.email,
+      fullName: parsedProfile.fullName || "",
+      email: parsedProfile.email || "",
       skills: skillsString,
-      experience: parsedProfile.experience || defaultValues.experience,
-      education: parsedProfile.education || defaultValues.education,
-      careerGoals: parsedProfile.careerGoals || defaultValues.careerGoals,
+      experience: parsedProfile.experience || "",
+      education: parsedProfile.education || "",
+      careerGoals: parsedProfile.careerGoals || "",
     },
   });
 
