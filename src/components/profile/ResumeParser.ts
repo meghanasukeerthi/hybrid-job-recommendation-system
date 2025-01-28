@@ -1,57 +1,45 @@
-import * as pdfjs from 'pdfjs-dist';
+export const parseResume = async (file: File): Promise<any> => {
+  const formData = new FormData();
+  formData.append('file', file);
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  try {
+    const response = await fetch('/resume/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-export const parseResume = async (file: File) => {
-  if (file.type === 'application/pdf') {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      fullText += pageText + ' ';
+    if (!response.ok) {
+      throw new Error('Failed to parse resume');
     }
+
+    const data = await response.json();
     
-    // Extract skills (common programming languages and technologies)
-    const skills = [
-      "JavaScript", "React", "TypeScript", "Node.js", "Python", "Java",
-      "HTML", "CSS", "SQL", "AWS", "Docker", "Git", "Angular", "Vue",
-      "C++", "C#", "Ruby", "PHP", "Swift", "Kotlin", "Spring Boot",
-      "Hibernate", "MySQL", "Maven", "JUnit", "REST API"
-    ].filter(skill => fullText.toLowerCase().includes(skill.toLowerCase()));
-
-    // Extract years of experience
-    const experienceMatch = fullText.match(/(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?experience/i);
-    const experience = experienceMatch ? `${experienceMatch[1]} years of experience` : "";
-
-    // Extract education
-    const educationKeywords = ["Bachelor", "Master", "PhD", "BSc", "MSc", "B.E.", "B.Tech"];
-    const educationMatch = educationKeywords.find(edu => fullText.includes(edu));
-    const education = educationMatch ? `${educationMatch}` : "";
-
-    // Extract email
-    const emailMatch = fullText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const email = emailMatch ? emailMatch[0] : "";
-
-    // Extract name (basic approach - first line or first capitalized words)
-    const nameMatch = fullText.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/m);
-    const fullName = nameMatch ? nameMatch[1] : "";
-
-    // Extract career goals if mentioned
-    const careerGoalsMatch = fullText.match(/(?:career goals?|objectives?|aspirations?)[:.]?\s*([^.]+)/i);
-    const careerGoals = careerGoalsMatch ? careerGoalsMatch[1].trim() : "";
-
-    return {
-      fullName,
-      email,
-      skills,
-      experience,
-      education,
-      careerGoals,
+    // Parse the Gemini API response to extract structured data
+    const parsedData = {
+      fullName: extractField(data, "Full Name"),
+      email: extractField(data, "Email"),
+      skills: extractField(data, "Skills").split(',').map((s: string) => s.trim()),
+      experience: extractField(data, "Experience"),
+      education: extractField(data, "Education"),
+      careerGoals: extractField(data, "Career Goals")
     };
+
+    return parsedData;
+  } catch (error) {
+    console.error('Error parsing resume:', error);
+    throw error;
   }
-  throw new Error("Unsupported file format");
+};
+
+const extractField = (data: any, fieldName: string): string => {
+  try {
+    // Navigate through Gemini API response structure to find the field
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const lines = text.split('\n');
+    const fieldLine = lines.find(line => line.startsWith(fieldName + ':'));
+    return fieldLine ? fieldLine.split(':')[1].trim() : '';
+  } catch (error) {
+    console.error(`Error extracting ${fieldName}:`, error);
+    return '';
+  }
 };

@@ -13,20 +13,53 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 
 export const ResumeUploader = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [extractedData, setExtractedData] = useState<any>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload a file smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
+    setUploadProgress(0);
+
     try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 200);
+
       const parsed = await parseResume(file);
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
       setExtractedData(parsed);
       setShowReview(true);
     } catch (error) {
@@ -38,6 +71,7 @@ export const ResumeUploader = () => {
       });
     } finally {
       setIsLoading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
@@ -80,6 +114,11 @@ export const ResumeUploader = () => {
             {isLoading ? "Processing..." : "Upload Resume"}
           </Button>
         </label>
+        {uploadProgress > 0 && (
+          <div className="w-full max-w-xs">
+            <Progress value={uploadProgress} className="h-2" />
+          </div>
+        )}
       </div>
 
       <Dialog open={showReview} onOpenChange={setShowReview}>
