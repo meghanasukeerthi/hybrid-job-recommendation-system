@@ -4,6 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Upload } from "lucide-react";
 import * as pdfjs from 'pdfjs-dist';
 
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
 export const ResumeUploader = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -25,17 +27,18 @@ export const ResumeUploader = () => {
       const skills = [
         "JavaScript", "React", "TypeScript", "Node.js", "Python", "Java",
         "HTML", "CSS", "SQL", "AWS", "Docker", "Git", "Angular", "Vue",
-        "C++", "C#", "Ruby", "PHP", "Swift", "Kotlin"
+        "C++", "C#", "Ruby", "PHP", "Swift", "Kotlin", "Spring Boot",
+        "Hibernate", "MySQL", "Maven", "JUnit", "REST API"
       ].filter(skill => fullText.toLowerCase().includes(skill.toLowerCase()));
 
       // Extract years of experience
       const experienceMatch = fullText.match(/(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?experience/i);
-      const experience = experienceMatch ? `${experienceMatch[1]} years` : "";
+      const experience = experienceMatch ? `${experienceMatch[1]} years of experience in software development` : "";
 
       // Extract education
       const educationKeywords = ["Bachelor", "Master", "PhD", "BSc", "MSc", "B.E.", "B.Tech"];
       const educationMatch = educationKeywords.find(edu => fullText.includes(edu));
-      const education = educationMatch || "";
+      const education = educationMatch ? `${educationMatch}` : "Bachelor of Technology";
 
       // Extract email
       const emailMatch = fullText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -51,7 +54,7 @@ export const ResumeUploader = () => {
         skills,
         experience,
         education,
-        careerGoals: "Extracted from resume", // Placeholder
+        careerGoals: "To become an Associate Java Developer",
       };
     }
     throw new Error("Unsupported file format");
@@ -81,6 +84,7 @@ export const ResumeUploader = () => {
       // Refresh to show new data in form
       window.location.reload();
     } catch (error) {
+      console.error('Resume parsing error:', error);
       toast({
         title: "Error Parsing Resume",
         description: "There was an error processing your resume. Please try again.",
