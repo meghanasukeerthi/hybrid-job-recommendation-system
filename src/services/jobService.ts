@@ -62,14 +62,10 @@ export const bookmarkJob = async (jobId: number): Promise<void> => {
 };
 
 export const trackJob = async (jobId: number): Promise<void> => {
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/track`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to track job');
+  // Instead of making an API call, we'll handle this locally
+  const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+  if (!appliedJobs.includes(jobId)) {
+    appliedJobs.push(jobId);
+    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
   }
 };

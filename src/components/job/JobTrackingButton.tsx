@@ -23,18 +23,12 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
   const trackMutation = useMutation({
     mutationFn: () => trackJob(jobId),
     onSuccess: () => {
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      
-      if (!hasApplied) {
-        appliedJobs.push(jobId);
-        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-        setHasApplied(true);
-        toast({
-          title: "Application Submitted! 🎉",
-          description: "We've received your application. Good luck!",
-        });
-        queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      }
+      setHasApplied(true);
+      toast({
+        title: "Application Submitted! 🎉",
+        description: "We've received your application. Good luck!",
+      });
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
     },
     onError: () => {
       toast({
