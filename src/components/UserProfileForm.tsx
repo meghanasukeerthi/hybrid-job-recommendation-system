@@ -6,39 +6,51 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { FormFields, formSchema } from "./profile/FormFields";
 import * as z from "zod";
+import { useEffect } from "react";
 
 export const UserProfileForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const existingProfile = localStorage.getItem('userProfile');
-  const defaultValues = {
-    fullName: "",
-    email: "",
-    skills: "",
-    experience: "",
-    education: "",
-    careerGoals: ""
-  };
-  
-  const parsedProfile = existingProfile ? JSON.parse(existingProfile) : defaultValues;
-
-  // Ensure skills is properly formatted as a string
-  const skillsString = Array.isArray(parsedProfile.skills) 
-    ? parsedProfile.skills.join(", ")
-    : parsedProfile.skills || "";
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: parsedProfile.fullName || "",
-      email: parsedProfile.email || "",
-      skills: skillsString,
-      experience: parsedProfile.experience || "",
-      education: parsedProfile.education || "",
-      careerGoals: parsedProfile.careerGoals || "",
+      fullName: "",
+      email: "",
+      skills: "",
+      experience: "",
+      education: "",
+      careerGoals: ""
     },
   });
+
+  useEffect(() => {
+    const loadProfileData = () => {
+      const existingProfile = localStorage.getItem('userProfile');
+      if (existingProfile) {
+        const parsedProfile = JSON.parse(existingProfile);
+        const skillsString = Array.isArray(parsedProfile.skills) 
+          ? parsedProfile.skills.join(", ")
+          : parsedProfile.skills || "";
+
+        form.reset({
+          fullName: parsedProfile.fullName || "",
+          email: parsedProfile.email || "",
+          skills: skillsString,
+          experience: parsedProfile.experience || "",
+          education: parsedProfile.education || "",
+          careerGoals: parsedProfile.careerGoals || "",
+        });
+      }
+    };
+
+    loadProfileData();
+    window.addEventListener('storage', loadProfileData);
+    
+    return () => {
+      window.removeEventListener('storage', loadProfileData);
+    };
+  }, [form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const profileData = {

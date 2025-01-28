@@ -1,11 +1,31 @@
 import { UserProfileForm } from "@/components/UserProfileForm";
-import { ResumeUploader } from "@/components/ResumeUploader";
 import { Card, CardContent } from "@/components/ui/card";
+import { ResumeUploadForm } from "@/components/profile/ResumeUploadForm";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
-  // Get application count from localStorage
-  const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
-  const applicationCount = applications.length;
+  const [applicationCount, setApplicationCount] = useState(0);
+
+  useEffect(() => {
+    const updateApplicationCount = () => {
+      const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+      setApplicationCount(applications.length);
+    };
+
+    // Initial count
+    updateApplicationCount();
+
+    // Listen for storage changes
+    window.addEventListener('storage', updateApplicationCount);
+    
+    // Custom event for real-time updates
+    window.addEventListener('applicationCountUpdated', updateApplicationCount);
+
+    return () => {
+      window.removeEventListener('storage', updateApplicationCount);
+      window.removeEventListener('applicationCountUpdated', updateApplicationCount);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -23,7 +43,7 @@ const Profile = () => {
         </div>
         <div className="bg-card rounded-lg shadow p-6">
           <div className="mb-6">
-            <ResumeUploader />
+            <ResumeUploadForm />
           </div>
           <UserProfileForm />
         </div>
