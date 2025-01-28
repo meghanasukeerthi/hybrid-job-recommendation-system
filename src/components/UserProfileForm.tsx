@@ -23,12 +23,17 @@ export const UserProfileForm = () => {
   
   const parsedProfile = existingProfile ? JSON.parse(existingProfile) : defaultValues;
 
+  // Ensure skills is properly formatted as a string
+  const skillsString = Array.isArray(parsedProfile.skills) 
+    ? parsedProfile.skills.join(", ")
+    : parsedProfile.skills || defaultValues.skills;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: parsedProfile.fullName || defaultValues.fullName,
       email: parsedProfile.email || defaultValues.email,
-      skills: parsedProfile.skills?.join(", ") || defaultValues.skills,
+      skills: skillsString,
       experience: parsedProfile.experience || defaultValues.experience,
       education: parsedProfile.education || defaultValues.education,
       careerGoals: parsedProfile.careerGoals || defaultValues.careerGoals,
