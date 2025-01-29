@@ -1,71 +1,49 @@
-import { Job, Comment } from "@/types/job";
+import { Job } from "@/types/job";
 
-export const fetchJobs = async (): Promise<Job[]> => {
-  const response = await fetch('http://localhost:8080/alljobs');
-  if (!response.ok) {
-    throw new Error('Failed to fetch jobs');
+export const trackJobApplication = async (jobId: number) => {
+  // For now, we'll use localStorage. In a real app, this would be a backend call
+  const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+  if (!applications.includes(jobId)) {
+    applications.push(jobId);
+    localStorage.setItem('jobApplications', JSON.stringify(applications));
   }
-  return response.json();
+  return applications;
 };
 
-export const likeJob = async (jobId: number, isLiked: boolean): Promise<Job> => {
-  console.log('Performing like action, current state:', isLiked);
-  
-  // Using query parameter for like/dislike action
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${!isLiked}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update like status');
+export const bookmarkJob = async (jobId: number) => {
+  const bookmarks = JSON.parse(localStorage.getItem('jobBookmarks') || '[]');
+  if (!bookmarks.includes(jobId)) {
+    bookmarks.push(jobId);
+    localStorage.setItem('jobBookmarks', JSON.stringify(bookmarks));
   }
-  return response.json();
+  return bookmarks;
 };
 
-export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
-  console.log('Adding comment for job:', jobId);
-  console.log('Comment data:', comment);
-
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(comment),
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Comment submission failed:', errorText);
-    throw new Error('Failed to add comment');
-  }
-  
-  const updatedJob = await response.json();
-  console.log('Server response after adding comment:', updatedJob);
-  return updatedJob;
+export const removeBookmark = async (jobId: number) => {
+  const bookmarks = JSON.parse(localStorage.getItem('jobBookmarks') || '[]');
+  const updatedBookmarks = bookmarks.filter((id: number) => id !== jobId);
+  localStorage.setItem('jobBookmarks', JSON.stringify(updatedBookmarks));
+  return updatedBookmarks;
 };
 
-export const bookmarkJob = async (jobId: number): Promise<void> => {
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to bookmark job');
-  }
+export const isJobBookmarked = (jobId: number): boolean => {
+  const bookmarks = JSON.parse(localStorage.getItem('jobBookmarks') || '[]');
+  return bookmarks.includes(jobId);
 };
 
-export const trackJob = async (jobId: number): Promise<void> => {
-  // Instead of making an API call, we'll handle this locally
+export const isJobApplied = (jobId: number): boolean => {
+  const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+  return applications.includes(jobId);
+};
+
+export const trackJob = async (jobId: number) => {
   const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
   if (!appliedJobs.includes(jobId)) {
     appliedJobs.push(jobId);
     localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+    
+    // Dispatch custom event for real-time updates
+    window.dispatchEvent(new Event('applicationCountUpdated'));
   }
+  return appliedJobs;
 };
