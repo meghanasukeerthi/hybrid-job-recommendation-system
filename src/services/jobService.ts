@@ -1,41 +1,16 @@
 import { Job, Comment } from "@/types/job";
 
+const API_BASE_URL = 'http://localhost:8080'; // Update this to match your Spring Boot server URL
+
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
-    // For development, return mock data since we don't have a backend yet
-    return [
-      {
-        id: 1,
-        title: "Senior React Developer",
-        company: "Tech Corp",
-        location: "San Francisco, CA",
-        type: "Full-time",
-        description: "We are looking for an experienced React developer...",
-        postedDate: Date.now() - 86400000, // 1 day ago
-        requiredSkills: ["React", "TypeScript", "Node.js"],
-        experienceRequired: { years: 5 },
-        comments: [],
-        likeCount: 0,
-        category: "experienced",
-        salary: "120000"
-      },
-      {
-        id: 2,
-        title: "Junior Frontend Developer",
-        company: "Startup Inc",
-        location: "Remote",
-        type: "Full-time",
-        description: "Great opportunity for a junior developer...",
-        postedDate: Date.now() - 172800000, // 2 days ago
-        requiredSkills: ["HTML", "CSS", "JavaScript"],
-        experienceRequired: { years: 1 },
-        comments: [],
-        likeCount: 0,
-        category: "fresher",
-        salary: "70000"
-      }
-    ];
+    const response = await fetch(`${API_BASE_URL}/alljobs`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch jobs');
+    }
+    const jobs = await response.json();
+    return jobs;
   } catch (error) {
     console.error('Error fetching jobs:', error);
     throw new Error('Failed to fetch jobs. Please try again later.');
@@ -45,29 +20,32 @@ export const fetchJobs = async (): Promise<Job[]> => {
 // Like/unlike a job
 export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise<Job> => {
   try {
-    // Simulate API call
-    const jobs = await fetchJobs();
-    const job = jobs.find(j => j.id === jobId);
+    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${!isCurrentlyLiked}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
     
-    if (!job) {
-      throw new Error('Job not found');
+    if (!response.ok) {
+      throw new Error('Failed to update like status');
     }
-
-    // Update localStorage
+    
+    const updatedJob = await response.json();
+    
+    // Update localStorage to maintain UI state
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     if (!isCurrentlyLiked) {
       likedJobs.push(jobId);
-      job.likeCount += 1;
     } else {
       const index = likedJobs.indexOf(jobId);
       if (index > -1) {
         likedJobs.splice(index, 1);
-        job.likeCount -= 1;
       }
     }
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
     
-    return job;
+    return updatedJob;
   } catch (error) {
     console.error('Error updating like status:', error);
     throw error;
@@ -77,21 +55,19 @@ export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
   try {
-    // Simulate API call
-    const jobs = await fetchJobs();
-    const job = jobs.find(j => j.id === jobId);
+    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(comment),
+    });
     
-    if (!job) {
-      throw new Error('Job not found');
+    if (!response.ok) {
+      throw new Error('Failed to add comment');
     }
-
-    const newComment = {
-      id: Date.now(),
-      ...comment
-    };
-
-    job.comments.push(newComment);
-    return job;
+    
+    return response.json();
   } catch (error) {
     console.error('Error adding comment:', error);
     throw error;
@@ -118,7 +94,7 @@ export const trackJob = async (jobId: number): Promise<void> => {
 // Bookmark a job
 export const bookmarkJob = async (jobId: number): Promise<Job> => {
   try {
-    // Simulate API call
+    // For now, we'll just handle bookmarks client-side since there's no backend endpoint
     const jobs = await fetchJobs();
     const job = jobs.find(j => j.id === jobId);
     
