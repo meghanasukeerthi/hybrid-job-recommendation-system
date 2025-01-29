@@ -3,47 +3,71 @@ import { Job, Comment } from "@/types/job";
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
-    const response = await fetch('/api/jobs');
-    if (!response.ok) {
-      throw new Error('Failed to fetch jobs');
-    }
-    return response.json();
+    // For development, return mock data since we don't have a backend yet
+    return [
+      {
+        id: 1,
+        title: "Senior React Developer",
+        company: "Tech Corp",
+        location: "San Francisco, CA",
+        type: "Full-time",
+        description: "We are looking for an experienced React developer...",
+        postedDate: Date.now() - 86400000, // 1 day ago
+        requiredSkills: ["React", "TypeScript", "Node.js"],
+        experienceRequired: { years: 5 },
+        comments: [],
+        likeCount: 0,
+        category: "experienced",
+        salary: "120000"
+      },
+      {
+        id: 2,
+        title: "Junior Frontend Developer",
+        company: "Startup Inc",
+        location: "Remote",
+        type: "Full-time",
+        description: "Great opportunity for a junior developer...",
+        postedDate: Date.now() - 172800000, // 2 days ago
+        requiredSkills: ["HTML", "CSS", "JavaScript"],
+        experienceRequired: { years: 1 },
+        comments: [],
+        likeCount: 0,
+        category: "fresher",
+        salary: "70000"
+      }
+    ];
   } catch (error) {
     console.error('Error fetching jobs:', error);
-    return [];
+    throw new Error('Failed to fetch jobs. Please try again later.');
   }
 };
 
 // Like/unlike a job
 export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise<Job> => {
   try {
-    const response = await fetch(`/api/jobs/${jobId}/like`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ isLiked: !isCurrentlyLiked }),
-    });
+    // Simulate API call
+    const jobs = await fetchJobs();
+    const job = jobs.find(j => j.id === jobId);
     
-    if (!response.ok) {
-      throw new Error('Failed to update like status');
+    if (!job) {
+      throw new Error('Job not found');
     }
-    
-    const updatedJob = await response.json();
-    
+
     // Update localStorage
     const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
     if (!isCurrentlyLiked) {
       likedJobs.push(jobId);
+      job.likeCount += 1;
     } else {
       const index = likedJobs.indexOf(jobId);
       if (index > -1) {
         likedJobs.splice(index, 1);
+        job.likeCount -= 1;
       }
     }
     localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
     
-    return updatedJob;
+    return job;
   } catch (error) {
     console.error('Error updating like status:', error);
     throw error;
@@ -53,19 +77,21 @@ export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
   try {
-    const response = await fetch(`/api/jobs/${jobId}/comments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(comment),
-    });
+    // Simulate API call
+    const jobs = await fetchJobs();
+    const job = jobs.find(j => j.id === jobId);
     
-    if (!response.ok) {
-      throw new Error('Failed to add comment');
+    if (!job) {
+      throw new Error('Job not found');
     }
-    
-    return response.json();
+
+    const newComment = {
+      id: Date.now(),
+      ...comment
+    };
+
+    job.comments.push(newComment);
+    return job;
   } catch (error) {
     console.error('Error adding comment:', error);
     throw error;
@@ -92,18 +118,13 @@ export const trackJob = async (jobId: number): Promise<void> => {
 // Bookmark a job
 export const bookmarkJob = async (jobId: number): Promise<Job> => {
   try {
-    const response = await fetch(`/api/jobs/${jobId}/bookmark`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
+    // Simulate API call
+    const jobs = await fetchJobs();
+    const job = jobs.find(j => j.id === jobId);
     
-    if (!response.ok) {
-      throw new Error('Failed to bookmark job');
+    if (!job) {
+      throw new Error('Job not found');
     }
-    
-    const updatedJob = await response.json();
     
     // Update localStorage
     const bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
@@ -112,7 +133,7 @@ export const bookmarkJob = async (jobId: number): Promise<Job> => {
       localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
     }
     
-    return updatedJob;
+    return job;
   } catch (error) {
     console.error('Error bookmarking job:', error);
     throw error;
