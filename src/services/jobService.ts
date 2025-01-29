@@ -88,3 +88,44 @@ export const trackJob = async (jobId: number): Promise<void> => {
     throw error;
   }
 };
+
+// Bookmark a job
+export const bookmarkJob = async (jobId: number): Promise<Job> => {
+  try {
+    const response = await fetch(`/api/jobs/${jobId}/bookmark`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to bookmark job');
+    }
+    
+    const updatedJob = await response.json();
+    
+    // Update localStorage
+    const bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    if (!bookmarkedJobs.includes(jobId)) {
+      bookmarkedJobs.push(jobId);
+      localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
+    }
+    
+    return updatedJob;
+  } catch (error) {
+    console.error('Error bookmarking job:', error);
+    throw error;
+  }
+};
+
+// Helper functions for checking job status
+export const isJobBookmarked = (jobId: number): boolean => {
+  const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+  return bookmarks.includes(jobId);
+};
+
+export const isJobApplied = (jobId: number): boolean => {
+  const applications = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+  return applications.includes(jobId);
+};
