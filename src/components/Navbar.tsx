@@ -2,32 +2,20 @@ import { Link } from "react-router-dom";
 import { UserCircle, Home, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 const Navbar = () => {
-  const [applicationCount, setApplicationCount] = useState(0);
-
-  useEffect(() => {
-    const updateApplicationCount = () => {
+  // Use React Query to track applications
+  const { data: applicationCount = 0 } = useQuery({
+    queryKey: ['applicationCount'],
+    queryFn: () => {
       const applications = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      setApplicationCount(applications.length);
-    };
-
-    // Initial count
-    updateApplicationCount();
-
-    // Listen for storage changes
-    window.addEventListener('storage', updateApplicationCount);
-    
-    // Listen for custom event for real-time updates
-    window.addEventListener('applicationCountUpdated', updateApplicationCount);
-
-    return () => {
-      window.removeEventListener('storage', updateApplicationCount);
-      window.removeEventListener('applicationCountUpdated', updateApplicationCount);
-    };
-  }, []);
+      return applications.length;
+    },
+    // Enable real-time updates
+    refetchInterval: 1000
+  });
 
   return (
     <header className="bg-card shadow-md backdrop-blur-sm sticky top-0 z-10">
