@@ -6,7 +6,6 @@ import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
-import { ApplicationTracker } from "@/components/job/ApplicationTracker";
 
 type SortOrder = 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
 
@@ -76,9 +75,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="container py-8 animate-fade-in">
-        <div className="flex justify-between items-center mb-6">
-          <ApplicationTracker jobs={jobs} />
-        </div>
         <WelcomeHeader 
           onSearch={handleSearch}
           onFilterClick={() => {}}
