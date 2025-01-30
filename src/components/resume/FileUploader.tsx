@@ -20,7 +20,10 @@ export const FileUploader = ({
     <div className="flex flex-col gap-4">
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error}
+            {error.includes('500') && ' (Server error - please try again later)'}
+          </AlertDescription>
         </Alert>
       )}
       
@@ -31,6 +34,7 @@ export const FileUploader = ({
           onChange={onFileSelect}
           className="hidden"
           id="resume-upload"
+          disabled={isLoading}
         />
         <label htmlFor="resume-upload">
           <Button 
