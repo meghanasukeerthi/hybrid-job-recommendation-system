@@ -14,43 +14,50 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
   formData.append('file', file);
 
   try {
-    console.log('Starting resume upload...');
-    console.log('File details:', {
-      name: file.name,
-      type: file.type,
-      size: file.size
+    console.log('Starting resume upload...', {
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size
     });
-    
+
     const response = await fetch('/resume/upload', {
       method: 'POST',
       body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
     });
 
-    console.log('Response received:', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
-    });
-
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Resume upload failed:', {
+      console.error('Upload failed:', {
         status: response.status,
         statusText: response.statusText,
-        errorText: errorText
+        error: errorText
       });
-      throw new Error(`Failed to parse resume: ${response.status} ${errorText || 'Unknown error'}`);
+      
+      if (response.status === 500) {
+        throw new Error('Server error: Please try again later');
+      }
+      
+      throw new Error(errorText || 'Failed to upload resume');
     }
 
-    const data = await response.json();
-    console.log('Successfully parsed resume data:', data);
-
-    if (!data || typeof data !== 'object') {
-      console.error('Invalid response format:', data);
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Invalid content type:', contentType);
       throw new Error('Invalid response format from server');
     }
 
-    // Ensure all required fields are present with fallbacks
+    const data = await response.json();
+    console.log('Parsed resume data:', data);
+
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response format from server');
+    }
+
     const parsedData: ResumeData = {
       fullName: data.fullName || '',
       email: data.email || '',
@@ -60,7 +67,6 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       careerGoals: data.careerGoals || ''
     };
 
-    console.log('Normalized resume data:', parsedData);
     return parsedData;
 
   } catch (error) {

@@ -7,10 +7,11 @@ export default defineConfig({
   server: {
     port: 8080,
     proxy: {
-      '/resume': {
+      '/resume/upload': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        secure: false
+        secure: false,
+        rewrite: (path) => path
       },
       '/alljobs': {
         target: 'http://localhost:8080',

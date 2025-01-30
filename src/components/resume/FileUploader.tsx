@@ -22,7 +22,7 @@ export const FileUploader = ({
         <Alert variant="destructive">
           <AlertDescription>
             {error}
-            {error.includes('500') && ' (Server error - please try again later)'}
+            {error.includes('Server error') && ' - Our team has been notified.'}
           </AlertDescription>
         </Alert>
       )}
@@ -41,9 +41,12 @@ export const FileUploader = ({
             variant="outline" 
             className="cursor-pointer flex items-center gap-2"
             disabled={isLoading}
+            asChild
           >
-            <Upload className="w-4 h-4" />
-            {isLoading ? "Processing..." : "Upload Resume"}
+            <span>
+              <Upload className="w-4 h-4" />
+              {isLoading ? "Processing..." : "Upload Resume"}
+            </span>
           </Button>
         </label>
         {uploadProgress > 0 && (
