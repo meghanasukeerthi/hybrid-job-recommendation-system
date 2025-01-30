@@ -16,27 +16,36 @@ export const parseResume = async (file: File): Promise<any> => {
       throw new Error('Failed to parse resume. Please try again.');
     }
 
-    // Try to parse the response as JSON
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.indexOf("application/json") !== -1) {
-      const data = await response.json();
-      
-      // Parse the response data into the expected format
-      const parsedData = {
-        fullName: data.fullName || '',
-        email: data.email || '',
-        skills: Array.isArray(data.skills) ? data.skills : (data.skills || '').split(',').map((s: string) => s.trim()),
-        experience: data.experience || '',
-        education: data.education || '',
-        careerGoals: data.careerGoals || ''
+    // Get the response text
+    const responseText = await response.text();
+    
+    try {
+      // First try to parse as JSON in case the backend response format changes
+      const jsonData = JSON.parse(responseText);
+      return {
+        fullName: jsonData.fullName || '',
+        email: jsonData.email || '',
+        skills: Array.isArray(jsonData.skills) ? jsonData.skills : (jsonData.skills || '').split(',').map((s: string) => s.trim()),
+        experience: jsonData.experience || '',
+        education: jsonData.education || '',
+        careerGoals: jsonData.careerGoals || ''
       };
-
-      return parsedData;
-    } else {
-      // If response is not JSON, handle it as text
-      const textResponse = await response.text();
-      console.error('Invalid response format:', textResponse);
-      throw new Error('Invalid response format from server');
+    } catch (e) {
+      // If JSON parsing fails, treat it as a string response
+      console.log('Parsing response as string:', responseText);
+      
+      // Try to extract information from the string response
+      // This is a basic example - adjust based on your actual response format
+      const lines = responseText.split('\n').filter(line => line.trim());
+      
+      return {
+        fullName: lines[0] || '',
+        email: lines.find(l => l.includes('@')) || '',
+        skills: lines.find(l => l.toLowerCase().includes('skills'))?.split(':')[1]?.split(',').map(s => s.trim()) || [],
+        experience: lines.find(l => l.toLowerCase().includes('experience'))?.split(':')[1] || '',
+        education: lines.find(l => l.toLowerCase().includes('education'))?.split(':')[1] || '',
+        careerGoals: lines.find(l => l.toLowerCase().includes('career'))?.split(':')[1] || ''
+      };
     }
   } catch (error) {
     console.error('Resume parsing error:', error);
