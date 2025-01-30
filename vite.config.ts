@@ -7,9 +7,10 @@ export default defineConfig({
   server: {
     port: 8080,
     proxy: {
-      '/resume': 'http://localhost:8080',
-      '/alljobs': 'http://localhost:8080',
-      '/jobs': 'http://localhost:8080'
+      '/resume': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
     }
   },
   resolve: {
