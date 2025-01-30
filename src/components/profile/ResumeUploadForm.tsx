@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 
 export const ResumeUploadForm = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -15,7 +15,6 @@ export const ResumeUploadForm = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid file type",
@@ -30,7 +29,7 @@ export const ResumeUploadForm = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/resume/upload', {  // Updated endpoint URL
+      const response = await fetch('/resume/upload', {
         method: 'POST',
         body: formData,
       });
@@ -55,12 +54,8 @@ export const ResumeUploadForm = () => {
   };
 
   const handleConfirm = () => {
-    // Store the parsed data in localStorage
     localStorage.setItem('userProfile', JSON.stringify(parsedData));
-    
-    // Trigger a refresh of the form
     window.dispatchEvent(new Event('storage'));
-    
     setShowReview(false);
     toast({
       title: "Success",
@@ -98,6 +93,9 @@ export const ResumeUploadForm = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Review Parsed Data</DialogTitle>
+            <DialogDescription>
+              Review the information extracted from your resume before saving.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {parsedData && (
