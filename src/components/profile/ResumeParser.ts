@@ -26,9 +26,11 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       headers: {
         'Accept': 'application/json',
       },
+      credentials: 'include'
     });
 
     console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -39,20 +41,22 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       });
       
       if (response.status === 500) {
-        throw new Error('Server error: Please try again later');
+        throw new Error('Server error: The file could not be processed. Please try a different PDF file or contact support.');
       }
       
       throw new Error(errorText || 'Failed to upload resume');
     }
 
+    let data;
     const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('Invalid content type:', contentType);
+    
+    try {
+      data = await response.json();
+      console.log('Parsed resume data:', data);
+    } catch (error) {
+      console.error('Failed to parse JSON response:', error);
       throw new Error('Invalid response format from server');
     }
-
-    const data = await response.json();
-    console.log('Parsed resume data:', data);
 
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid response format from server');

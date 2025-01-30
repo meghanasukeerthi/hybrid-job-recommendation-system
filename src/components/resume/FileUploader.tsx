@@ -22,7 +22,12 @@ export const FileUploader = ({
         <Alert variant="destructive">
           <AlertDescription>
             {error}
-            {error.includes('Server error') && ' - Our team has been notified.'}
+            {error.includes('Server error') && (
+              <div className="mt-2 text-sm">
+                Try uploading a different PDF file or ensure your file is not corrupted.
+                If the problem persists, please contact support.
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       )}
