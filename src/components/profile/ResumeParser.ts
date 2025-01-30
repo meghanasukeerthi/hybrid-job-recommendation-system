@@ -16,7 +16,7 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
   try {
     console.log('Sending request to:', `${API_BASE_URL}/resume/upload`);
     
-    const response = await fetch(`${API_BASE_URL}/resume/upload`, {
+    const response = await fetch(`/resume/upload`, {
       method: 'POST',
       body: formData,
     });
