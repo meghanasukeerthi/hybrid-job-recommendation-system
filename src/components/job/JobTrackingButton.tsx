@@ -26,14 +26,18 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
       setHasApplied(true);
       toast({
         title: "Application Submitted! 🎉",
-        description: "We've received your application. Good luck!",
+        description: "Your application has been tracked successfully. Good luck!",
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      
+      // Trigger a refresh of the application count
+      window.dispatchEvent(new Event('applicationCountUpdated'));
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Application tracking error:', error);
       toast({
-        title: "Error",
-        description: "Failed to submit application. Please try again.",
+        title: "Application Failed",
+        description: "There was an error tracking your application. Please try again.",
         variant: "destructive"
       });
     }
@@ -48,14 +52,15 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
   return (
     <Button 
       onClick={handleApply}
-      disabled={hasApplied}
+      disabled={hasApplied || trackMutation.isPending}
       className={cn(
-        "w-1/2 transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
+        "w-full transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
         isAnimating && "animate-scale-in",
-        hasApplied && "bg-gray-400 cursor-not-allowed"
+        hasApplied && "bg-green-500 hover:bg-green-600",
+        trackMutation.isPending && "opacity-70 cursor-wait"
       )}
     >
-      {hasApplied ? "Applied" : "Apply Now"}
+      {trackMutation.isPending ? "Applying..." : hasApplied ? "Applied ✓" : "Apply Now"}
     </Button>
   );
 };

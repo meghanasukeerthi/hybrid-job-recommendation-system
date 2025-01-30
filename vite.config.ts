@@ -9,7 +9,13 @@ export default defineConfig({
     proxy: {
       '/resume': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false
+      },
+      '/alljobs': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
       }
     }
   },
