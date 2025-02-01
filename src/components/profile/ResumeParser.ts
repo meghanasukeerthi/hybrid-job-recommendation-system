@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 interface ResumeData {
   fullName: string;
   email: string;
@@ -25,14 +23,12 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       body: formData,
       headers: {
         'Accept': 'application/json',
-      },
-      credentials: 'include'
+      }
     });
 
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
-    // Get the response text first for logging
     const responseText = await response.text();
     console.log('Raw response:', responseText);
 
@@ -50,7 +46,6 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       throw new Error(responseText || 'Failed to upload resume');
     }
 
-    // Try to parse the response text as JSON
     let data;
     try {
       data = JSON.parse(responseText);
@@ -64,10 +59,11 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       throw new Error('Invalid response format from server');
     }
 
+    // Convert the Spring Boot response format to match our frontend format
     const parsedData: ResumeData = {
       fullName: data.fullName || '',
       email: data.email || '',
-      skills: Array.isArray(data.skills) ? data.skills : (data.skills || '').split(',').map((s: string) => s.trim()),
+      skills: Array.isArray(data.skills) ? data.skills : [],
       experience: data.experience || '',
       education: data.education || '',
       careerGoals: data.careerGoals || ''

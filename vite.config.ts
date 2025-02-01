@@ -8,7 +8,7 @@ export default defineConfig({
     port: 8080,
     proxy: {
       '/resume/upload': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:9000',
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -24,7 +24,6 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             console.log('Response Headers:', proxyRes.headers);
             
-            // Log response body for debugging
             let body = '';
             proxyRes.on('data', function(chunk) {
               body += chunk;
@@ -34,11 +33,6 @@ export default defineConfig({
             });
           });
         }
-      },
-      '/alljobs': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false
       }
     }
   },
