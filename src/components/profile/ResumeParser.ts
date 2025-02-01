@@ -25,9 +25,10 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     if (!response.ok) {
       if (response.status === 500) {
         throw new Error(
-          'Cannot connect to the resume parsing service. Please ensure your Spring backend server is running ' +
-          'and accessible at http://localhost:8080. The server should be configured to accept PDF files ' +
-          'and have a valid Gemini API key.'
+          'Cannot connect to the resume parsing service. Please ensure:\n' +
+          '1. Your Spring backend server is running on http://localhost:8080\n' +
+          '2. You have configured a valid Gemini API key in your Spring application\n' +
+          '3. The /resume/upload endpoint is properly mapped in your Spring controller'
         );
       }
       const errorText = await response.text();
