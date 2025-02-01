@@ -23,44 +23,24 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       body: formData,
       headers: {
         'Accept': 'application/json',
-      },
-      credentials: 'include',
+      }
     });
 
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
-    const responseText = await response.text();
-    console.log('Raw response:', responseText);
-
     if (!response.ok) {
-      console.error('Upload failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        responseText
-      });
-      
-      if (response.status === 500) {
-        throw new Error('Server error: The file could not be processed. Please try a different PDF file or ensure your backend service is running on port 8080.');
-      }
-      
-      throw new Error(responseText || 'Failed to upload resume');
+      throw new Error('Failed to upload resume');
     }
 
-    let data;
-    try {
-      data = JSON.parse(responseText);
-      console.log('Parsed resume data:', data);
-    } catch (error) {
-      console.error('Failed to parse JSON response:', error);
-      throw new Error('Invalid response format from server');
-    }
+    const data = await response.json();
+    console.log('Parsed resume data:', data);
 
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid response format from server');
     }
 
-    const parsedData: ResumeData = {
+    return {
       fullName: data.fullName || '',
       email: data.email || '',
       skills: Array.isArray(data.skills) ? data.skills : [],
@@ -68,8 +48,6 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       education: data.education || '',
       careerGoals: data.careerGoals || ''
     };
-
-    return parsedData;
 
   } catch (error) {
     console.error('Resume parsing error:', error);

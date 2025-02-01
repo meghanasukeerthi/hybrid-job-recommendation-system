@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { parseResume } from "./profile/ResumeParser";
-import { FileUploader } from "./resume/FileUploader";
+import { validateFile, handleUploadProgress } from "@/utils/uploadUtils";
+import { UploadProgress } from "./resume/UploadProgress";
+import { UploadError } from "./resume/UploadError";
 import { ResumeReviewDialog } from "./resume/ResumeReviewDialog";
+import { Button } from "./ui/button";
+import { Upload } from "lucide-react";
 
 export const ResumeUploader = () => {
   const { toast } = useToast();
@@ -20,23 +24,10 @@ export const ResumeUploader = () => {
     setIsLoading(true);
     setUploadProgress(0);
 
-    if (file.type !== 'application/pdf') {
-      setError("Please upload a PDF file");
-      setIsLoading(false);
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Please upload a file smaller than 5MB");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 200);
-
+      validateFile(file);
+      
+      const progressInterval = handleUploadProgress(setUploadProgress);
       const parsed = await parseResume(file);
       
       clearInterval(progressInterval);
@@ -47,10 +38,10 @@ export const ResumeUploader = () => {
       setError(null);
     } catch (error) {
       console.error('Resume parsing error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload and parse resume. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to upload and parse resume');
       toast({
         title: "Upload Failed",
-        description: error instanceof Error ? error.message : 'Failed to upload and parse resume. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to upload and parse resume',
         variant: "destructive",
       });
     } finally {
@@ -86,13 +77,34 @@ export const ResumeUploader = () => {
   };
 
   return (
-    <>
-      <FileUploader
-        isLoading={isLoading}
-        error={error}
-        uploadProgress={uploadProgress}
-        onFileSelect={handleResumeUpload}
-      />
+    <div className="space-y-4">
+      <UploadError error={error} />
+      
+      <div className="flex items-center gap-4">
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleResumeUpload}
+          disabled={isLoading}
+          className="hidden"
+          id="resume-upload"
+        />
+        <label htmlFor="resume-upload">
+          <Button 
+            variant="outline" 
+            className="cursor-pointer flex items-center gap-2"
+            disabled={isLoading}
+            asChild
+          >
+            <span>
+              <Upload className="w-4 h-4" />
+              {isLoading ? "Processing..." : "Upload Resume"}
+            </span>
+          </Button>
+        </label>
+        
+        <UploadProgress progress={uploadProgress} />
+      </div>
 
       <ResumeReviewDialog
         showReview={showReview}
@@ -101,6 +113,6 @@ export const ResumeUploader = () => {
         setExtractedData={setExtractedData}
         onSave={handleSaveExtractedData}
       />
-    </>
+    </div>
   );
 };
