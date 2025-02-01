@@ -23,9 +23,11 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
+      if (response.status === 500) {
+        throw new Error('The server encountered an error while processing your request. Please ensure the upload service is running and try again later.');
+      }
       const errorText = await response.text();
-      console.error('Server error response:', errorText);
-      throw new Error(`Server error (${response.status}): ${errorText || 'The server encountered an error while processing your request. Please try again later.'}`);
+      throw new Error(`Upload failed (${response.status}): ${errorText || 'Unknown error occurred'}`);
     }
 
     const contentType = response.headers.get('content-type');
