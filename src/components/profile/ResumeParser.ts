@@ -40,7 +40,7 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       });
       
       if (response.status === 500) {
-        throw new Error('Server error: The file could not be processed. Please try a different PDF file or contact support.');
+        throw new Error('Server error: The file could not be processed. Please try a different PDF file or ensure your backend service is running on port 8080.');
       }
       
       throw new Error(responseText || 'Failed to upload resume');
@@ -59,7 +59,6 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       throw new Error('Invalid response format from server');
     }
 
-    // Convert the Spring Boot response format to match our frontend format
     const parsedData: ResumeData = {
       fullName: data.fullName || '',
       email: data.email || '',
