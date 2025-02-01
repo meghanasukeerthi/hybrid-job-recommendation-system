@@ -1,11 +1,4 @@
-interface ResumeData {
-  fullName: string;
-  email: string;
-  skills: string[];
-  experience: string;
-  education: string;
-  careerGoals: string;
-}
+import { ResumeData } from "@/types/resume";
 
 export const parseResume = async (file: File): Promise<ResumeData> => {
   const formData = new FormData();
@@ -32,19 +25,19 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Server error response:', errorText);
-      throw new Error(`Server error: ${errorText || 'Unknown error occurred'}`);
+      throw new Error(`Server error (${response.status}): ${errorText || 'The server encountered an error while processing your request. Please try again later.'}`);
     }
 
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Invalid response format from server');
+      throw new Error('Invalid response format from server. Expected JSON but received: ' + contentType);
     }
 
     const data = await response.json();
     console.log('Parsed resume data:', data);
 
     if (!data || typeof data !== 'object') {
-      throw new Error('Invalid response format from server');
+      throw new Error('Invalid response format from server: Expected object but received: ' + typeof data);
     }
 
     return {
@@ -59,8 +52,8 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
   } catch (error) {
     console.error('Resume parsing error:', error);
     if (error instanceof Error) {
-      throw new Error(`Failed to parse resume: ${error.message}`);
+      throw new Error(`Resume upload failed: ${error.message}`);
     }
-    throw new Error('Failed to parse resume');
+    throw new Error('Failed to parse resume: Unknown error occurred');
   }
 };

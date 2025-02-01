@@ -7,12 +7,13 @@ import { UploadError } from "./resume/UploadError";
 import { ResumeReviewDialog } from "./resume/ResumeReviewDialog";
 import { Button } from "./ui/button";
 import { Upload } from "lucide-react";
+import { ResumeData } from "@/types/resume";
 
 export const ResumeUploader = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showReview, setShowReview] = useState(false);
-  const [extractedData, setExtractedData] = useState<any>(null);
+  const [extractedData, setExtractedData] = useState<ResumeData | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,22 +27,20 @@ export const ResumeUploader = () => {
 
     try {
       validateFile(file);
-      
       const progressInterval = handleUploadProgress(setUploadProgress);
       const parsed = await parseResume(file);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
-
       setExtractedData(parsed);
       setShowReview(true);
-      setError(null);
     } catch (error) {
       console.error('Resume parsing error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload and parse resume');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload and parse resume';
+      setError(errorMessage);
       toast({
         title: "Upload Failed",
-        description: error instanceof Error ? error.message : 'Failed to upload and parse resume',
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -51,6 +50,8 @@ export const ResumeUploader = () => {
   };
 
   const handleSaveExtractedData = () => {
+    if (!extractedData) return;
+    
     try {
       const formattedData = {
         ...extractedData,
