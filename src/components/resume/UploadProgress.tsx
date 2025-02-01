@@ -8,7 +8,7 @@ export const UploadProgress = ({ progress }: UploadProgressProps) => {
   if (progress === 0) return null;
   
   return (
-    <div className="w-full max-w-xs mt-2">
+    <div className="w-full max-w-xs">
       <Progress value={progress} className="h-2" />
     </div>
   );

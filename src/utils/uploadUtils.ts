@@ -1,10 +1,11 @@
-export const validateFile = (file: File) => {
+export const validateFile = (file: File): void => {
   if (file.type !== 'application/pdf') {
     throw new Error("Please upload a PDF file");
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error("Please upload a file smaller than 5MB");
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  if (file.size > MAX_SIZE) {
+    throw new Error("File size must be less than 5MB");
   }
 };
 

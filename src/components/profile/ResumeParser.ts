@@ -30,7 +30,14 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
-      throw new Error('Failed to upload resume');
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`Server error: ${errorText || 'Unknown error occurred'}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Invalid response format from server');
     }
 
     const data = await response.json();
@@ -51,6 +58,9 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
 
   } catch (error) {
     console.error('Resume parsing error:', error);
-    throw error instanceof Error ? error : new Error('Failed to parse resume');
+    if (error instanceof Error) {
+      throw new Error(`Failed to parse resume: ${error.message}`);
+    }
+    throw new Error('Failed to parse resume');
   }
 };

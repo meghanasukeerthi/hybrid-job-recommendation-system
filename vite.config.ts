@@ -17,19 +17,22 @@ export default defineConfig({
             console.log('proxy error', err);
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-            console.log('Request Headers:', req.headers);
+            // Add CORS headers
+            proxyReq.setHeader('Access-Control-Allow-Origin', '*');
+            proxyReq.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+            proxyReq.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            
+            console.log('Sending Request:', req.method, req.url);
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-            console.log('Response Headers:', proxyRes.headers);
+            console.log('Received Response:', proxyRes.statusCode, req.url);
             
-            let body = '';
-            proxyRes.on('data', function(chunk) {
-              body += chunk;
+            let responseBody = '';
+            proxyRes.on('data', chunk => {
+              responseBody += chunk;
             });
-            proxyRes.on('end', function() {
-              console.log('Response Body:', body);
+            proxyRes.on('end', () => {
+              console.log('Response Body:', responseBody);
             });
           });
         }
