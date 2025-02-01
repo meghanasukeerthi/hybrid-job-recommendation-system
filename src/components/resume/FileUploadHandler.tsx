@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
-import { parseResume } from "../profile/ResumeParser";
 import { validateFile, handleUploadProgress } from "@/utils/uploadUtils";
+import { parseResume } from "../profile/ResumeParser";
 import { UploadProgress } from "./UploadProgress";
 import { UploadError } from "./UploadError";
 import { ResumeData } from "@/types/resume";

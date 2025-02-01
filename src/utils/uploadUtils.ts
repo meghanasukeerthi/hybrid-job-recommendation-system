@@ -11,8 +11,10 @@ export const validateFile = (file: File): void => {
 
 export const handleUploadProgress = (
   setProgress: (value: number) => void
-): NodeJS.Timer => {
+): NodeJS.Timeout => {
+  let currentProgress = 0;
   return setInterval(() => {
-    setProgress(prev => Math.min(prev + 10, 90));
+    currentProgress = Math.min(currentProgress + 10, 90);
+    setProgress(currentProgress);
   }, 200);
 };
