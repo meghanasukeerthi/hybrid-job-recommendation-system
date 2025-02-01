@@ -18,9 +18,20 @@ export default defineConfig({
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Sending Request to the Target:', req.method, req.url);
+            console.log('Request Headers:', req.headers);
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            console.log('Response Headers:', proxyRes.headers);
+            
+            // Log response body for debugging
+            let body = '';
+            proxyRes.on('data', function(chunk) {
+              body += chunk;
+            });
+            proxyRes.on('end', function() {
+              console.log('Response Body:', body);
+            });
           });
         }
       },

@@ -26,6 +26,9 @@ export const FileUploader = ({
               <div className="mt-2 text-sm">
                 Try uploading a different PDF file or ensure your file is not corrupted.
                 If the problem persists, please contact support.
+                <div className="mt-1 text-xs opacity-75">
+                  Error details have been logged for our technical team to investigate.
+                </div>
               </div>
             )}
           </AlertDescription>

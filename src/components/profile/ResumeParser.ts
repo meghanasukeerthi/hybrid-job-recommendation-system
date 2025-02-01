@@ -32,26 +32,28 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
+    // Get the response text first for logging
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
       console.error('Upload failed:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorText
+        responseText
       });
       
       if (response.status === 500) {
         throw new Error('Server error: The file could not be processed. Please try a different PDF file or contact support.');
       }
       
-      throw new Error(errorText || 'Failed to upload resume');
+      throw new Error(responseText || 'Failed to upload resume');
     }
 
+    // Try to parse the response text as JSON
     let data;
-    const contentType = response.headers.get('content-type');
-    
     try {
-      data = await response.json();
+      data = JSON.parse(responseText);
       console.log('Parsed resume data:', data);
     } catch (error) {
       console.error('Failed to parse JSON response:', error);
