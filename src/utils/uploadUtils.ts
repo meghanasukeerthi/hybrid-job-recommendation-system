@@ -10,9 +10,12 @@ export const validateFile = (file: File): void => {
 };
 
 export const handleUploadProgress = (
-  setProgress: (value: number) => void
+  setProgress: React.Dispatch<React.SetStateAction<number>>
 ): NodeJS.Timeout => {
   return setInterval(() => {
-    setProgress((prev) => Math.min(prev + 10, 90));
+    setProgress(prev => {
+      const nextValue = typeof prev === 'number' ? Math.min(prev + 10, 90) : 0;
+      return nextValue;
+    });
   }, 200) as NodeJS.Timeout;
 };
