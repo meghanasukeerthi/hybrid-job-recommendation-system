@@ -23,7 +23,8 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       body: formData,
       headers: {
         'Accept': 'application/json',
-      }
+      },
+      credentials: 'include',
     });
 
     console.log('Response status:', response.status);
