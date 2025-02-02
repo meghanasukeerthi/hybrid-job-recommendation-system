@@ -13,8 +13,8 @@ export interface Experience {
 export interface ResumeData {
   fullName: string;
   email: string;
-  skills: string[] | string;
-  experience: string;
-  education: string;
+  skills: string[];
+  experience: Experience[];
+  education: Education[];
   careerGoals: string;
 }

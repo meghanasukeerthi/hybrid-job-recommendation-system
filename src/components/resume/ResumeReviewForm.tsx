@@ -36,7 +36,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
         <Label htmlFor="skills">Skills (comma-separated)</Label>
         <Textarea
           id="skills"
-          value={Array.isArray(extractedData.skills) ? extractedData.skills.join(", ") : extractedData.skills}
+          value={Array.isArray(extractedData.skills) ? extractedData.skills.join(", ") : ""}
           onChange={(e) => onDataChange({
             ...extractedData,
             skills: e.target.value.split(",").map(s => s.trim())
@@ -55,7 +55,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
       
       <div className="grid gap-2">
         <Label htmlFor="education">Education</Label>
-        <Input
+        <Textarea
           id="education"
           value={extractedData.education}
           onChange={(e) => onDataChange({ ...extractedData, education: e.target.value })}
