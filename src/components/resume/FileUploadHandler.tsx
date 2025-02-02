@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import { validateFile, handleUploadProgress } from "@/utils/uploadUtils";
 import { parseResume } from "../profile/ResumeParser";
 import { UploadProgress } from "./UploadProgress";
 import { UploadError } from "./UploadError";
@@ -22,6 +21,15 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.includes('pdf')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log('File selected:', {
       name: file.name,
       type: file.type,
@@ -33,10 +41,11 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
     setUploadProgress(0);
 
     try {
-      validateFile(file);
-      const progressInterval = handleUploadProgress(setUploadProgress);
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
       
-      console.log('Starting file upload process...');
       const parsed = await parseResume(file);
       
       clearInterval(progressInterval);
@@ -56,6 +65,8 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
         : 'Failed to upload and parse resume. Please try again.';
       
       setError(errorMessage);
+      setUploadProgress(0);
+      
       toast({
         title: "Upload Failed",
         description: errorMessage,
@@ -63,7 +74,6 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
       });
     } finally {
       setIsLoading(false);
-      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
