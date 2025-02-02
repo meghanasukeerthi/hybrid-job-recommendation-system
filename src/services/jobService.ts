@@ -1,11 +1,10 @@
 import { Job, Comment } from "@/types/job";
-
-const API_BASE_URL = 'http://localhost:8080'; // Update this to match your Spring Boot server URL
+import { sampleJobs } from "@/data/sampleJobs";
 
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/alljobs`);
+    const response = await fetch(`http://localhost:8080/alljobs`);
     if (!response.ok) {
       throw new Error('Failed to fetch jobs');
     }
@@ -20,7 +19,7 @@ export const fetchJobs = async (): Promise<Job[]> => {
 // Like/unlike a job
 export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise<Job> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${!isCurrentlyLiked}`, {
+    const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${!isCurrentlyLiked}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +54,7 @@ export const likeJob = async (jobId: number, isCurrentlyLiked: boolean): Promise
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
+    const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
