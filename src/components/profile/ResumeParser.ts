@@ -14,13 +14,9 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     const response = await fetch('/resume/upload', {
       method: 'POST',
       body: formData,
-      headers: {
-        'Accept': 'application/json',
-      }
     });
 
     console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       if (response.status === 500) {
@@ -31,28 +27,18 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
           '3. The /resume/upload endpoint is properly mapped in your Spring controller'
         );
       }
-      const errorText = await response.text();
-      throw new Error(`Upload failed (${response.status}): ${errorText || 'Unknown error occurred'}`);
-    }
-
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Invalid response format from server. Expected JSON but received: ' + contentType);
+      throw new Error(`Upload failed (${response.status}): ${await response.text() || 'Unknown error occurred'}`);
     }
 
     const data = await response.json();
     console.log('Parsed resume data:', data);
 
-    if (!data || typeof data !== 'object') {
-      throw new Error('Invalid response format from server: Expected object but received: ' + typeof data);
-    }
-
     return {
       fullName: data.fullName || '',
       email: data.email || '',
       skills: Array.isArray(data.skills) ? data.skills : [],
-      experience: data.experience || '',
-      education: data.education || '',
+      experience: Array.isArray(data.experience) ? data.experience.join('\n') : data.experience || '',
+      education: Array.isArray(data.education) ? data.education.join('\n') : data.education || '',
       careerGoals: data.careerGoals || ''
     };
 
