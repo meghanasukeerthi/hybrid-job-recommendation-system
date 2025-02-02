@@ -1,4 +1,4 @@
-import { ResumeData, Education, Experience } from "@/types/resume";
+import { ResumeData } from "@/types/resume";
 
 export const parseResume = async (file: File): Promise<ResumeData> => {
   const formData = new FormData();
@@ -14,20 +14,30 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     const response = await fetch('/resume/upload', {
       method: 'POST',
       body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
     });
 
     console.log('Response status:', response.status);
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Upload failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
+      
       if (response.status === 500) {
         throw new Error(
           'Cannot connect to the resume parsing service. Please ensure:\n' +
           '1. Your Spring backend server is running on http://localhost:8080\n' +
-          '2. You have configured a valid Gemini API key in your Spring application\n' +
+          '2. You have configured a valid API key in your Spring application\n' +
           '3. The /resume/upload endpoint is properly mapped in your Spring controller'
         );
       }
-      throw new Error(`Upload failed (${response.status}): ${await response.text() || 'Unknown error occurred'}`);
+      throw new Error(`Upload failed (${response.status}): ${errorText || 'Unknown error occurred'}`);
     }
 
     const data = await response.json();
@@ -37,8 +47,8 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       fullName: data.fullName || '',
       email: data.email || '',
       skills: Array.isArray(data.skills) ? data.skills : [],
-      experience: data.experience || [],
-      education: data.education || [],
+      experience: Array.isArray(data.experience) ? data.experience : [],
+      education: Array.isArray(data.education) ? data.education : [],
       careerGoals: data.careerGoals || ''
     };
 
