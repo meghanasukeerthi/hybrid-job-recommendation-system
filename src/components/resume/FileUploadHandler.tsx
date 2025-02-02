@@ -22,6 +22,12 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('File selected:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+
     setError(null);
     setIsLoading(true);
     setUploadProgress(0);
@@ -30,13 +36,13 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
       validateFile(file);
       const progressInterval = handleUploadProgress(setUploadProgress);
       
-      console.log('Uploading file:', file.name);
+      console.log('Starting file upload process...');
       const parsed = await parseResume(file);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
       
-      console.log('Upload successful:', parsed);
+      console.log('Upload and parse successful:', parsed);
       onUploadSuccess(parsed);
       
       toast({

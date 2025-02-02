@@ -8,28 +8,47 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     console.log('Starting resume upload...', {
       fileName: file.name,
       fileType: file.type,
-      fileSize: file.size
+      fileSize: file.size,
+      formData: Array.from(formData.entries())
     });
 
     const response = await fetch('http://localhost:8080/resume/upload', {
       method: 'POST',
       body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
     });
 
-    console.log('Response status:', response.status);
+    console.log('Response headers:', {
+      contentType: response.headers.get('content-type'),
+      status: response.status,
+      statusText: response.statusText
+    });
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Upload failed:', {
         status: response.status,
         statusText: response.statusText,
-        errorText
+        errorText,
+        headers: Object.fromEntries(response.headers.entries())
       });
       throw new Error(`Upload failed (${response.status}): ${errorText || 'Unknown error occurred'}`);
     }
 
-    const data = await response.json();
-    console.log('Parsed resume data:', data);
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('Parsed resume data:', data);
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      console.error('Raw response that failed to parse:', responseText);
+      throw new Error('Failed to parse server response as JSON');
+    }
 
     // Transform the data to match our ResumeData interface
     return {
@@ -51,6 +70,12 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
 
   } catch (error) {
     console.error('Resume parsing error:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
     throw error instanceof Error ? error : new Error('Failed to parse resume');
   }
 };
