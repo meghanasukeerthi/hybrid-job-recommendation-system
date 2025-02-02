@@ -29,16 +29,25 @@ export const FileUploadHandler = ({ onUploadSuccess }: FileUploadHandlerProps) =
     try {
       validateFile(file);
       const progressInterval = handleUploadProgress(setUploadProgress);
+      
+      console.log('Uploading file:', file.name);
       const parsed = await parseResume(file);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
+      
+      console.log('Upload successful:', parsed);
       onUploadSuccess(parsed);
+      
+      toast({
+        title: "Success",
+        description: "Resume uploaded and parsed successfully",
+      });
     } catch (error) {
       console.error('Resume upload error:', error);
       const errorMessage = error instanceof Error 
         ? error.message 
-        : 'Server error: The upload service is currently unavailable. Please try again later.';
+        : 'Failed to upload and parse resume. Please try again.';
       
       setError(errorMessage);
       toast({

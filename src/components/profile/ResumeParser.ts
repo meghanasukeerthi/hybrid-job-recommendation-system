@@ -1,62 +1,28 @@
-import { ResumeData } from "@/types/resume";
-
-export const parseResume = async (file: File): Promise<ResumeData> => {
+export const parseResume = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
   try {
-    console.log('Starting resume upload...', {
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size
-    });
-
-    const response = await fetch('/resume/upload', {
+    const response = await fetch('http://localhost:8080/resume/upload', {
       method: 'POST',
       body: formData,
-      headers: {
-        'Accept': 'application/json',
-      },
     });
 
-    console.log('Response status:', response.status);
-    
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Upload failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorText
-      });
-      
-      if (response.status === 500) {
-        throw new Error(
-          'Cannot connect to the resume parsing service. Please ensure:\n' +
-          '1. Your Spring backend server is running on http://localhost:8080\n' +
-          '2. You have configured a valid API key in your Spring application\n' +
-          '3. The /resume/upload endpoint is properly mapped in your Spring controller'
-        );
-      }
-      throw new Error(`Upload failed (${response.status}): ${errorText || 'Unknown error occurred'}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Received non-JSON response:", await response.text());
+      throw new Error("Server returned non-JSON response");
     }
 
     const data = await response.json();
     console.log('Parsed resume data:', data);
-
-    return {
-      fullName: data.fullName || '',
-      email: data.email || '',
-      skills: Array.isArray(data.skills) ? data.skills : [],
-      experience: Array.isArray(data.experience) ? data.experience : [],
-      education: Array.isArray(data.education) ? data.education : [],
-      careerGoals: data.careerGoals || ''
-    };
-
+    return data;
   } catch (error) {
     console.error('Resume parsing error:', error);
-    if (error instanceof Error) {
-      throw new Error(`Resume upload failed: ${error.message}`);
-    }
-    throw new Error('Failed to parse resume: Unknown error occurred');
+    throw new Error(error instanceof Error ? error.message : 'Failed to parse resume');
   }
 };
