@@ -24,7 +24,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
   };
 
   const parseExperience = (text: string): Experience[] => {
-    return text.split('\n').map(line => {
+    return text.split('\n').filter(Boolean).map(line => {
       const match = line.match(/^(.*?) at (.*?)(?:\s*\((.*?)\))?$/);
       return {
         jobTitle: match?.[1] || '',
@@ -35,7 +35,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
   };
 
   const parseEducation = (text: string): Education[] => {
-    return text.split('\n').map(line => {
+    return text.split('\n').filter(Boolean).map(line => {
       const match = line.match(/^(.*?) from (.*?)\s*\((.*?)\)$/);
       return {
         degree: match?.[1] || '',
@@ -73,7 +73,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
           value={extractedData.skills.join(", ")}
           onChange={(e) => onDataChange({
             ...extractedData,
-            skills: e.target.value.split(",").map(s => s.trim())
+            skills: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
           })}
         />
       </div>
