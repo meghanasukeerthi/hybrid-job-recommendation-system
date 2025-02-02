@@ -1,4 +1,4 @@
-import { ResumeData } from "@/types/resume";
+import { ResumeData, Education, Experience } from "@/types/resume";
 
 export const parseResume = async (file: File): Promise<ResumeData> => {
   const formData = new FormData();
@@ -33,22 +33,12 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
     const data = await response.json();
     console.log('Parsed resume data:', data);
 
-    // Format experience array into a readable string
-    const formattedExperience = data.experience
-      .map((exp: Experience) => `${exp.jobTitle} at ${exp.company}${exp.duration ? ` (${exp.duration})` : ''}`)
-      .join('\n');
-
-    // Format education array into a readable string
-    const formattedEducation = data.education
-      .map((edu: Education) => `${edu.degree} from ${edu.institution} (${edu.year})`)
-      .join('\n');
-
     return {
       fullName: data.fullName || '',
       email: data.email || '',
       skills: Array.isArray(data.skills) ? data.skills : [],
-      experience: formattedExperience,
-      education: formattedEducation,
+      experience: data.experience || [],
+      education: data.education || [],
       careerGoals: data.careerGoals || ''
     };
 

@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ResumeData } from "@/types/resume";
+import { ResumeData, Experience, Education } from "@/types/resume";
 
 interface ResumeReviewFormProps {
   extractedData: ResumeData | null;
@@ -10,6 +10,40 @@ interface ResumeReviewFormProps {
 
 export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFormProps) => {
   if (!extractedData) return null;
+
+  const formatExperience = (experience: Experience[]) => {
+    return experience
+      .map(exp => `${exp.jobTitle} at ${exp.company}${exp.duration ? ` (${exp.duration})` : ''}`)
+      .join('\n');
+  };
+
+  const formatEducation = (education: Education[]) => {
+    return education
+      .map(edu => `${edu.degree} from ${edu.institution} (${edu.year})`)
+      .join('\n');
+  };
+
+  const parseExperience = (text: string): Experience[] => {
+    return text.split('\n').map(line => {
+      const match = line.match(/^(.*?) at (.*?)(?:\s*\((.*?)\))?$/);
+      return {
+        jobTitle: match?.[1] || '',
+        company: match?.[2] || '',
+        duration: match?.[3] || ''
+      };
+    });
+  };
+
+  const parseEducation = (text: string): Education[] => {
+    return text.split('\n').map(line => {
+      const match = line.match(/^(.*?) from (.*?)\s*\((.*?)\)$/);
+      return {
+        degree: match?.[1] || '',
+        institution: match?.[2] || '',
+        year: match?.[3] || ''
+      };
+    });
+  };
 
   return (
     <div className="grid gap-4 py-4">
@@ -36,7 +70,7 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
         <Label htmlFor="skills">Skills (comma-separated)</Label>
         <Textarea
           id="skills"
-          value={Array.isArray(extractedData.skills) ? extractedData.skills.join(", ") : ""}
+          value={extractedData.skills.join(", ")}
           onChange={(e) => onDataChange({
             ...extractedData,
             skills: e.target.value.split(",").map(s => s.trim())
@@ -48,8 +82,11 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
         <Label htmlFor="experience">Experience</Label>
         <Textarea
           id="experience"
-          value={extractedData.experience}
-          onChange={(e) => onDataChange({ ...extractedData, experience: e.target.value })}
+          value={formatExperience(extractedData.experience)}
+          onChange={(e) => onDataChange({
+            ...extractedData,
+            experience: parseExperience(e.target.value)
+          })}
         />
       </div>
       
@@ -57,8 +94,11 @@ export const ResumeReviewForm = ({ extractedData, onDataChange }: ResumeReviewFo
         <Label htmlFor="education">Education</Label>
         <Textarea
           id="education"
-          value={extractedData.education}
-          onChange={(e) => onDataChange({ ...extractedData, education: e.target.value })}
+          value={formatEducation(extractedData.education)}
+          onChange={(e) => onDataChange({
+            ...extractedData,
+            education: parseEducation(e.target.value)
+          })}
         />
       </div>
       
