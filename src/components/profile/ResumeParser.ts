@@ -12,7 +12,7 @@ export const parseResume = async (file: File): Promise<ResumeData> => {
       formData: Array.from(formData.entries())
     });
 
-    const response = await fetch('http://localhost:8080/resume/upload', {
+    const response = await fetch('/resume/upload', {
       method: 'POST',
       body: formData,
       headers: {

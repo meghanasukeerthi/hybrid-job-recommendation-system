@@ -28,6 +28,8 @@ export default defineConfig(({ mode }) => ({
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Sending Request:', req.method, req.url);
+            // Add CORS headers
+            proxyReq.setHeader('Origin', 'https://lovable.dev');
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response:', proxyRes.statusCode, req.url);
