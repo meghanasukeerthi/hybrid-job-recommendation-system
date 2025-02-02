@@ -1,5 +1,4 @@
 import { Job, Comment } from "@/types/job";
-import { sampleJobs } from "@/data/sampleJobs";
 
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
@@ -93,19 +92,22 @@ export const trackJob = async (jobId: number): Promise<void> => {
 // Bookmark a job
 export const bookmarkJob = async (jobId: number): Promise<Job> => {
   try {
-    // For now, we'll just handle bookmarks client-side since there's no backend endpoint
-    const jobs = await fetchJobs();
-    const job = jobs.find(j => j.id === jobId);
-    
-    if (!job) {
-      throw new Error('Job not found');
-    }
-    
-    // Update localStorage
+    // For now, we'll just handle bookmarks client-side
     const bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
     if (!bookmarkedJobs.includes(jobId)) {
       bookmarkedJobs.push(jobId);
       localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
+    }
+    
+    const response = await fetch(`http://localhost:8080/alljobs`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch jobs');
+    }
+    const jobs = await response.json();
+    const job = jobs.find((j: Job) => j.id === jobId);
+    
+    if (!job) {
+      throw new Error('Job not found');
     }
     
     return job;
