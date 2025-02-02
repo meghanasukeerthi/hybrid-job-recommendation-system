@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { ResumeData } from "@/types/resume";
 
 export const ResumeUploadForm = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showReview, setShowReview] = useState(false);
-  const [parsedData, setParsedData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<ResumeData | null>(null);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,22 +40,33 @@ export const ResumeUploadForm = () => {
       }
 
       const data = await response.json();
+      console.log('Parsed resume data:', data);
       setParsedData(data);
       setShowReview(true);
     } catch (error) {
+      console.error('Resume upload error:', error);
       toast({
         title: "Upload failed",
         description: "Failed to upload and parse resume. Please try again.",
         variant: "destructive",
       });
-      console.error('Resume upload error:', error);
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleConfirm = () => {
-    localStorage.setItem('userProfile', JSON.stringify(parsedData));
+    if (!parsedData) return;
+
+    // Format the data to match the expected structure
+    const formattedData = {
+      ...parsedData,
+      skills: Array.isArray(parsedData.skills) ? parsedData.skills : [],
+      experience: Array.isArray(parsedData.experience) ? parsedData.experience : [],
+      education: Array.isArray(parsedData.education) ? parsedData.education : []
+    };
+
+    localStorage.setItem('userProfile', JSON.stringify(formattedData));
     window.dispatchEvent(new Event('storage'));
     setShowReview(false);
     toast({
@@ -110,15 +122,27 @@ export const ResumeUploadForm = () => {
                 </div>
                 <div>
                   <h4 className="font-medium">Skills</h4>
-                  <p>{Array.isArray(parsedData.skills) ? parsedData.skills.join(', ') : parsedData.skills}</p>
+                  <p>{parsedData.skills.join(', ')}</p>
                 </div>
                 <div>
                   <h4 className="font-medium">Experience</h4>
-                  <p>{parsedData.experience}</p>
+                  {parsedData.experience.map((exp, index) => (
+                    <p key={index}>
+                      {exp.jobTitle} at {exp.company} ({exp.duration})
+                    </p>
+                  ))}
                 </div>
                 <div>
                   <h4 className="font-medium">Education</h4>
-                  <p>{parsedData.education}</p>
+                  {parsedData.education.map((edu, index) => (
+                    <p key={index}>
+                      {edu.degree} from {edu.institution} ({edu.year})
+                    </p>
+                  ))}
+                </div>
+                <div>
+                  <h4 className="font-medium">Career Goals</h4>
+                  <p>{parsedData.careerGoals}</p>
                 </div>
               </>
             )}
