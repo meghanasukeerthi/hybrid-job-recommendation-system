@@ -1,6 +1,5 @@
 import { UserProfileForm } from "@/components/UserProfileForm";
 import { Card, CardContent } from "@/components/ui/card";
-import { ResumeUpload } from "@/components/resume/ResumeUpload";
 import { useEffect, useState } from "react";
 
 const Profile = () => {
@@ -37,9 +36,6 @@ const Profile = () => {
           </Card>
         </div>
         <div className="bg-card rounded-lg shadow p-6">
-          <div className="mb-6">
-            <ResumeUpload />
-          </div>
           <UserProfileForm />
         </div>
       </div>
