@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { FormFields, formSchema } from "./profile/FormFields";
+import { ResumeUpload } from "./ResumeUpload";
 import * as z from "zod";
 import { useEffect } from "react";
 
@@ -69,9 +70,28 @@ export const UserProfileForm = () => {
     navigate("/");
   };
 
+  const handleResumeData = (data: {
+    fullName: string;
+    email: string;
+    skills: string[];
+    experience: string;
+    education: string;
+    careerGoals: string;
+  }) => {
+    form.reset({
+      fullName: data.fullName,
+      email: data.email,
+      skills: data.skills.join(", "),
+      experience: data.experience,
+      education: data.education,
+      careerGoals: data.careerGoals,
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <ResumeUpload onResumeData={handleResumeData} />
         <FormFields form={form} />
         <Button type="submit" className="w-full">
           Update Profile
