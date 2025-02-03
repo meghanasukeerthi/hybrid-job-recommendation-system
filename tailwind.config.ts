@@ -79,13 +79,13 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" }
         },
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" }
+        "spin": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
         },
-        glow: {
-          "0%, 100%": { textShadow: "0 0 10px rgba(37, 99, 235, 0.5)" },
-          "50%": { textShadow: "0 0 20px rgba(37, 99, 235, 0.8)" }
+        "tooltip-fade": {
+          "0%": { opacity: "0", transform: "translateY(5px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" }
         }
       },
       animation: {
@@ -94,8 +94,8 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
-        "float": "float 3s ease-in-out infinite",
-        "glow": "glow 2s ease-in-out infinite"
+        "spin": "spin 1s linear infinite",
+        "tooltip-fade": "tooltip-fade 0.2s ease-out"
       },
     },
   },

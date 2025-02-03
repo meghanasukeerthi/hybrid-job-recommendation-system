@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { trackJob } from "@/services/jobService";
+import { LoadingSpinner } from "../ui/loading-spinner";
 
 interface JobTrackingButtonProps {
   jobId: number;
@@ -30,7 +31,6 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       
-      // Trigger a refresh of the application count
       window.dispatchEvent(new Event('applicationCountUpdated'));
     },
     onError: (error) => {
@@ -54,13 +54,25 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
       onClick={handleApply}
       disabled={hasApplied || trackMutation.isPending}
       className={cn(
-        "w-full transform transition-all duration-300 hover:bg-purple-600 hover:text-white active:scale-95 rounded-lg shadow-lg hover:shadow-purple-500/50",
+        "w-full transform transition-all duration-300",
+        "hover:scale-105 active:scale-95",
+        "rounded-lg shadow-lg hover:shadow-purple-500/50",
+        "bg-primary hover:bg-purple-600 hover:text-white",
         isAnimating && "animate-scale-in",
         hasApplied && "bg-green-500 hover:bg-green-600",
         trackMutation.isPending && "opacity-70 cursor-wait"
       )}
     >
-      {trackMutation.isPending ? "Applying..." : hasApplied ? "Applied ✓" : "Apply Now"}
+      {trackMutation.isPending ? (
+        <div className="flex items-center gap-2">
+          <LoadingSpinner className="w-4 h-4" />
+          <span>Applying...</span>
+        </div>
+      ) : hasApplied ? (
+        "Applied ✓"
+      ) : (
+        "Apply Now"
+      )}
     </Button>
   );
 };

@@ -13,6 +13,13 @@ import { validateComment, filterValidComments } from "@/services/commentService"
 import { LikeButton } from "./job/LikeButton";
 import { BookmarkButton } from "./job/BookmarkButton";
 import { JobTrackingButton } from "./job/JobTrackingButton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { LoadingSpinner } from "./ui/loading-spinner";
 
 interface JobCardProps {
   id: number;
@@ -151,7 +158,18 @@ export const JobCard = ({
         <div className="flex justify-between items-start">
           <JobHeader title={title} company={company} />
           <div className="flex gap-2">
-            <BookmarkButton jobId={id} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <BookmarkButton jobId={id} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="animate-tooltip-fade">
+                  <p>Save this job</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <JobActions
               type={type}
               category={category}
@@ -180,7 +198,7 @@ export const JobCard = ({
         />
         
         {showComments && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-accordion-down">
             <CommentForm
               newComment={newComment}
               onCommentChange={setNewComment}
@@ -191,7 +209,11 @@ export const JobCard = ({
         )}
         
         <div className="flex justify-center w-full mt-4">
-          <JobTrackingButton jobId={id} isAnimating={isAnimating} />
+          {commentMutation.isPending ? (
+            <LoadingSpinner className="w-6 h-6" />
+          ) : (
+            <JobTrackingButton jobId={id} isAnimating={isAnimating} />
+          )}
         </div>
       </CardContent>
     </Card>
