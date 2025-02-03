@@ -1,6 +1,6 @@
 import { UserProfileForm } from "@/components/UserProfileForm";
 import { Card, CardContent } from "@/components/ui/card";
-import { ResumeUploadForm } from "@/components/profile/ResumeUploadForm";
+import { ResumeUpload } from "@/components/resume/ResumeUpload";
 import { useEffect, useState } from "react";
 
 const Profile = () => {
@@ -12,13 +12,8 @@ const Profile = () => {
       setApplicationCount(applications.length);
     };
 
-    // Initial count
     updateApplicationCount();
-
-    // Listen for storage changes
     window.addEventListener('storage', updateApplicationCount);
-    
-    // Custom event for real-time updates
     window.addEventListener('applicationCountUpdated', updateApplicationCount);
 
     return () => {
@@ -43,7 +38,7 @@ const Profile = () => {
         </div>
         <div className="bg-card rounded-lg shadow p-6">
           <div className="mb-6">
-            <ResumeUploadForm />
+            <ResumeUpload />
           </div>
           <UserProfileForm />
         </div>
