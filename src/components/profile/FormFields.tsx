@@ -63,6 +63,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormControl>
               <Textarea
                 placeholder="Java, Spring Boot, Hibernate, MySQL, Git, Maven"
+                className="min-h-[120px]"
                 {...field}
               />
             </FormControl>
@@ -80,6 +81,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormControl>
               <Textarea
                 placeholder="2 years of experience in software development"
+                className="min-h-[150px]"
                 {...field}
               />
             </FormControl>
@@ -97,6 +99,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormControl>
               <Textarea
                 placeholder="Bachelor of Technology"
+                className="min-h-[120px]"
                 {...field}
               />
             </FormControl>
@@ -114,6 +117,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormControl>
               <Textarea
                 placeholder="To become an Associate Java Developer"
+                className="min-h-[150px]"
                 {...field}
               />
             </FormControl>
