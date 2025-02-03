@@ -78,6 +78,14 @@ export default {
         "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" }
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" }
+        },
+        glow: {
+          "0%, 100%": { textShadow: "0 0 10px rgba(37, 99, 235, 0.5)" },
+          "50%": { textShadow: "0 0 20px rgba(37, 99, 235, 0.8)" }
         }
       },
       animation: {
@@ -85,7 +93,9 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
-        "fade-in": "fade-in 0.3s ease-out"
+        "fade-in": "fade-in 0.3s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "glow": "glow 2s ease-in-out infinite"
       },
     },
   },
