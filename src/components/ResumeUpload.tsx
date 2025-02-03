@@ -75,11 +75,14 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
   };
 
   return (
-    <div className="mb-6">
-      <div className="text-lg font-semibold mb-2 text-center">
-        Resume Parser - Auto-fill Profile from PDF Resume
+    <div className="mb-8 bg-accent/30 rounded-lg p-6 backdrop-blur-sm border border-border/50">
+      <div className="text-2xl font-bold mb-3 text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+        Resume Parser
       </div>
-      <p className="text-sm text-muted-foreground mb-4 text-center">
+      <div className="text-lg font-semibold mb-2 text-center">
+        Auto-fill Profile from PDF Resume
+      </div>
+      <p className="text-sm text-muted-foreground mb-6 text-center max-w-md mx-auto">
         Upload your resume in PDF format to automatically fill out the profile form below
       </p>
       <input
@@ -89,15 +92,15 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
         className="hidden"
         id="resume-upload"
       />
-      <label htmlFor="resume-upload">
+      <label htmlFor="resume-upload" className="block w-full max-w-md mx-auto">
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full bg-background/50 hover:bg-background/80 border-2 border-primary/20 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-primary/25"
           disabled={isUploading}
           asChild
         >
-          <span>
-            <Upload className="mr-2" />
+          <span className="flex items-center justify-center gap-2 py-6">
+            <Upload className="w-5 h-5" />
             {isUploading ? "Processing..." : "Upload Resume (PDF)"}
           </span>
         </Button>
