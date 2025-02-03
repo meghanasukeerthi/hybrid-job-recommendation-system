@@ -75,12 +75,9 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
   };
 
   return (
-    <div className="mb-8 backdrop-blur-xl bg-white/5 rounded-lg p-6 border border-white/10 
-                    shadow-[0_4px_12px_-2px_rgba(0,0,0,0.2)] 
-                    hover:shadow-[0_4px_16px_-2px_rgba(0,0,0,0.3)] 
-                    transition-all duration-300
-                    dark:bg-black/40 dark:border-white/10">
-      <div className="text-2xl font-bold mb-3 text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-glow">
+    <div className="mb-8 glass-effect rounded-lg p-6 border border-white/10 
+                    shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="text-2xl font-bold mb-3 text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
         Resume Parser
       </div>
       <div className="text-lg font-semibold mb-2 text-center">
@@ -99,17 +96,12 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
       <label htmlFor="resume-upload" className="block w-full max-w-md mx-auto">
         <Button
           variant="outline"
-          className="w-full bg-background/50 hover:bg-background/80 border-2 border-primary/20 
-                   hover:border-primary transition-all duration-300 
-                   shadow-[4px_4px_10px_rgba(0,0,0,0.1),-4px_-4px_10px_rgba(255,255,255,0.9)]
-                   hover:shadow-[6px_6px_12px_rgba(0,0,0,0.15),-6px_-6px_12px_rgba(255,255,255,0.95)]
-                   hover:transform hover:scale-[1.02] active:scale-[0.98]
-                   dark:shadow-[4px_4px_10px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(255,255,255,0.05)]
-                   dark:hover:shadow-[6px_6px_12px_rgba(0,0,0,0.35),-6px_-6px_12px_rgba(255,255,255,0.06)]"
+          className="w-full hover-button glass-effect border-2 border-primary/20 
+                   hover:border-primary transition-all duration-300"
           disabled={isUploading}
           asChild
         >
-          <span className="flex items-center justify-center gap-2 py-6 animate-float">
+          <span className="flex items-center justify-center gap-2 py-6">
             <Upload className="w-5 h-5" />
             {isUploading ? "Processing..." : "Upload Resume (PDF)"}
           </span>
