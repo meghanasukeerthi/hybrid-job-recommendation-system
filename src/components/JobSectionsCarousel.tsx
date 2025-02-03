@@ -35,7 +35,6 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     // Enhanced job matching logic with scoring system
     const calculateJobScore = (job: Job) => {
       let score = 0;
-      const maxScore = 100;
       
       // Skills match (40% weight)
       if (userProfile.skills && userProfile.skills.length > 0) {
@@ -54,14 +53,11 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
         const jobYears = job.experienceRequired.years;
         
-        // Perfect match if within ±1 year
         if (Math.abs(userYears - jobYears) <= 1) {
           score += 30;
         } else if (userYears >= jobYears) {
-          // Overqualified but still relevant
           score += 20;
         } else {
-          // Underqualified but might be interesting
           score += Math.max(0, 15 - (jobYears - userYears) * 5);
         }
       }
