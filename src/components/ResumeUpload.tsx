@@ -76,6 +76,12 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
 
   return (
     <div className="mb-6">
+      <div className="text-lg font-semibold mb-2 text-center">
+        Resume Parser - Auto-fill Profile from PDF Resume
+      </div>
+      <p className="text-sm text-muted-foreground mb-4 text-center">
+        Upload your resume in PDF format to automatically fill out the profile form below
+      </p>
       <input
         type="file"
         accept=".pdf"
