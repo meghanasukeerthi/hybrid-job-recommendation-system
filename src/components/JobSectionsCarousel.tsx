@@ -7,6 +7,7 @@ import { JobList } from "./JobList";
 import { Job } from "@/types/job";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { toast } from "./ui/use-toast";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
@@ -23,29 +24,28 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     
     // Initial placeholder profile for recommendations if none exists
     const placeholderProfile = {
-      skills: ["Java", "Spring Boot", "React", "TypeScript", "Git", "AWS"],
+      skills: ["Java", "Spring Boot", "React", "TypeScript"],
       experience: "3 years",
       education: "Bachelor of Computer Science",
-      careerGoals: "To become a Senior Full Stack Developer"
+      careerGoals: "Full Stack Developer"
     };
     
-    // Use placeholder profile for recommendations if no profile exists
     const userProfile = userProfileStr ? JSON.parse(userProfileStr) : placeholderProfile;
     
-    // Enhanced job matching logic
-    const matchesUserProfile = (job: Job) => {
-      let matchScore = 0;
+    // Enhanced job matching logic with scoring system
+    const calculateJobScore = (job: Job) => {
+      let score = 0;
       const maxScore = 100;
       
-      // Skills match (50% weight)
+      // Skills match (40% weight)
       if (userProfile.skills && userProfile.skills.length > 0) {
-        const matchingSkills = job.requiredSkills.filter(jobSkill =>
+        const skillMatches = job.requiredSkills.filter(jobSkill =>
           userProfile.skills.some((userSkill: string) => 
             jobSkill.toLowerCase().includes(userSkill.toLowerCase()) ||
             userSkill.toLowerCase().includes(jobSkill.toLowerCase())
           )
         );
-        matchScore += (matchingSkills.length / job.requiredSkills.length) * 50;
+        score += (skillMatches.length / job.requiredSkills.length) * 40;
       }
 
       // Experience match (30% weight)
@@ -53,25 +53,59 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         const userYearsMatch = userProfile.experience.match(/(\d+)/);
         const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
         const jobYears = job.experienceRequired.years;
-        const experienceMatch = Math.min(userYears / jobYears, 1.5);
-        matchScore += experienceMatch * 30;
+        
+        // Perfect match if within ±1 year
+        if (Math.abs(userYears - jobYears) <= 1) {
+          score += 30;
+        } else if (userYears >= jobYears) {
+          // Overqualified but still relevant
+          score += 20;
+        } else {
+          // Underqualified but might be interesting
+          score += Math.max(0, 15 - (jobYears - userYears) * 5);
+        }
       }
 
-      // Career goals match (20% weight)
-      if (userProfile.careerGoals && job.description) {
-        const goalKeywords = userProfile.careerGoals.toLowerCase().split(' ');
-        const descriptionMatches = goalKeywords.some(keyword => 
-          job.description.toLowerCase().includes(keyword)
+      // Education and career goals match (30% weight)
+      if (userProfile.education || userProfile.careerGoals) {
+        const profileKeywords = [
+          ...(userProfile.education?.toLowerCase().split(' ') || []),
+          ...(userProfile.careerGoals?.toLowerCase().split(' ') || [])
+        ];
+        
+        const keywordMatches = profileKeywords.filter(keyword =>
+          job.description.toLowerCase().includes(keyword) ||
+          job.title.toLowerCase().includes(keyword)
         );
-        if (descriptionMatches) matchScore += 20;
+        
+        score += (keywordMatches.length / profileKeywords.length) * 30;
       }
 
-      return matchScore >= 60; // 60% match threshold
+      return score;
     };
 
-    const recommended = allJobs.filter(matchesUserProfile);
-    setRecommendedJobs(recommended);
-  }, [allJobs]);
+    // Filter and sort jobs based on scores
+    const scoredJobs = allJobs.map(job => ({
+      job,
+      score: calculateJobScore(job)
+    }));
+
+    // Filter out jobs with 0 score and sort by score
+    const filteredAndSortedJobs = scoredJobs
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(({ job }) => job);
+
+    setRecommendedJobs(filteredAndSortedJobs);
+
+    // Show toast with recommendation count
+    if (activeSection === 'recommended') {
+      toast({
+        title: "Job Recommendations Updated",
+        description: `Found ${filteredAndSortedJobs.length} jobs matching your profile`,
+      });
+    }
+  }, [allJobs, activeSection]);
 
   const sortJobs = (jobs: Job[]) => {
     return [...jobs].sort((a, b) => {
