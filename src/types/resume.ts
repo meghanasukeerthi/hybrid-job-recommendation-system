@@ -1,13 +1,13 @@
-export interface Education {
-  degree: string;
-  institution: string;
-  year: string;
-}
-
 export interface Experience {
   jobTitle: string;
   company: string;
   duration: string;
+}
+
+export interface Education {
+  degree: string;
+  institution: string;
+  year: string;
 }
 
 export interface ResumeData {
