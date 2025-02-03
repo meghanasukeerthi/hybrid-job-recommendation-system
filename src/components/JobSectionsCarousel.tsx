@@ -23,37 +23,50 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     
     // Initial placeholder profile for recommendations if none exists
     const placeholderProfile = {
-      skills: ["Java", "Spring Boot", "Hibernate", "MySQL", "Git", "Maven"],
-      experience: "2 years",
-      education: "Bachelor of Technology",
-      careerGoals: "To become an Associate Java Developer"
+      skills: ["Java", "Spring Boot", "React", "TypeScript", "Git", "AWS"],
+      experience: "3 years",
+      education: "Bachelor of Computer Science",
+      careerGoals: "To become a Senior Full Stack Developer"
     };
     
     // Use placeholder profile for recommendations if no profile exists
     const userProfile = userProfileStr ? JSON.parse(userProfileStr) : placeholderProfile;
     
-    // Function to check if job matches user profile
+    // Enhanced job matching logic
     const matchesUserProfile = (job: Job) => {
-      // Check skills match - one skill match is enough
+      let matchScore = 0;
+      const maxScore = 100;
+      
+      // Skills match (50% weight)
       if (userProfile.skills && userProfile.skills.length > 0) {
-        const hasMatchingSkill = job.requiredSkills.some(jobSkill =>
+        const matchingSkills = job.requiredSkills.filter(jobSkill =>
           userProfile.skills.some((userSkill: string) => 
-            jobSkill.toLowerCase() === userSkill.toLowerCase()
+            jobSkill.toLowerCase().includes(userSkill.toLowerCase()) ||
+            userSkill.toLowerCase().includes(jobSkill.toLowerCase())
           )
         );
-        if (hasMatchingSkill) return true;
+        matchScore += (matchingSkills.length / job.requiredSkills.length) * 50;
       }
 
-      // Check experience match - 70% match required
+      // Experience match (30% weight)
       if (userProfile.experience) {
         const userYearsMatch = userProfile.experience.match(/(\d+)/);
         const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
         const jobYears = job.experienceRequired.years;
-        const matchPercentage = (userYears / jobYears) * 100;
-        if (matchPercentage >= 70) return true;
+        const experienceMatch = Math.min(userYears / jobYears, 1.5);
+        matchScore += experienceMatch * 30;
       }
 
-      return false;
+      // Career goals match (20% weight)
+      if (userProfile.careerGoals && job.description) {
+        const goalKeywords = userProfile.careerGoals.toLowerCase().split(' ');
+        const descriptionMatches = goalKeywords.some(keyword => 
+          job.description.toLowerCase().includes(keyword)
+        );
+        if (descriptionMatches) matchScore += 20;
+      }
+
+      return matchScore >= 60; // 60% match threshold
     };
 
     const recommended = allJobs.filter(matchesUserProfile);

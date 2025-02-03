@@ -33,7 +33,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
           <FormItem>
             <FormLabel>Full Name</FormLabel>
             <FormControl>
-              <Input placeholder="John Doe" {...field} />
+              <Input placeholder="e.g., John Doe" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -47,7 +47,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input placeholder="john@example.com" type="email" {...field} />
+              <Input placeholder="e.g., john.doe@example.com" type="email" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -62,7 +62,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormLabel>Skills (comma-separated)</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Java, Spring Boot, Hibernate, MySQL, Git, Maven"
+                placeholder="e.g., Java, Spring Boot, React, TypeScript, Git, AWS"
                 className="min-h-[120px]"
                 {...field}
               />
@@ -80,7 +80,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormLabel>Experience</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="2 years of experience in software development"
+                placeholder="e.g., 3 years as Full Stack Developer at Tech Corp, specializing in Java and React development"
                 className="min-h-[150px]"
                 {...field}
               />
@@ -98,7 +98,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormLabel>Education</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Bachelor of Technology"
+                placeholder="e.g., Bachelor of Computer Science from University of Technology (2020)"
                 className="min-h-[120px]"
                 {...field}
               />
@@ -116,7 +116,7 @@ export const FormFields = ({ form }: FormFieldsProps) => {
             <FormLabel>Career Goals</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="To become an Associate Java Developer"
+                placeholder="e.g., Seeking to advance as a Senior Full Stack Developer, focusing on cloud technologies and microservices architecture"
                 className="min-h-[150px]"
                 {...field}
               />

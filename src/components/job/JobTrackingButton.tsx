@@ -26,18 +26,25 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
     onSuccess: () => {
       setHasApplied(true);
       toast({
-        title: "Application Submitted! 🎉",
-        description: "Your application has been tracked successfully. Good luck!",
+        title: "Application Tracked Successfully! 🎉",
+        description: "Your application has been recorded. Track your progress in the Applications section.",
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      
+      // Update application count
+      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+      if (!appliedJobs.includes(jobId)) {
+        appliedJobs.push(jobId);
+        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+      }
       
       window.dispatchEvent(new Event('applicationCountUpdated'));
     },
     onError: (error) => {
       console.error('Application tracking error:', error);
       toast({
-        title: "Application Failed",
-        description: "There was an error tracking your application. Please try again.",
+        title: "Application Tracking Failed",
+        description: "There was an error recording your application. Please try again.",
         variant: "destructive"
       });
     }
@@ -54,7 +61,7 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
       onClick={handleApply}
       disabled={hasApplied || trackMutation.isPending}
       className={cn(
-        "w-full transform transition-all duration-300",
+        "w-2/3 mx-auto transform transition-all duration-300",
         "hover:scale-105 active:scale-95",
         "rounded-lg shadow-lg hover:shadow-purple-500/50",
         "bg-primary hover:bg-purple-600 hover:text-white",
