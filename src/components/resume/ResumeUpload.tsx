@@ -28,26 +28,17 @@ export const ResumeUpload = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('/resume/upload', formData, {
+      const response = await axios.post<ResumeData>('/resume/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (!response.data) {
-        throw new Error('No data received from server');
+      if (response.data.fullName === "Error") {
+        throw new Error(response.data.careerGoals); // Error message is stored in careerGoals
       }
 
-      const parsedData: ResumeData = {
-        fullName: response.data.fullName || '',
-        email: response.data.email || '',
-        skills: Array.isArray(response.data.skills) ? response.data.skills : [],
-        experience: Array.isArray(response.data.experience) ? response.data.experience : [],
-        education: Array.isArray(response.data.education) ? response.data.education : [],
-        careerGoals: response.data.careerGoals || ''
-      };
-
-      localStorage.setItem('userProfile', JSON.stringify(parsedData));
+      localStorage.setItem('userProfile', JSON.stringify(response.data));
       
       toast({
         title: "Success",
@@ -59,7 +50,7 @@ export const ResumeUpload = () => {
       console.error('Resume upload error:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload and parse resume. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload and parse resume. Please try again.",
         variant: "destructive",
       });
     } finally {
