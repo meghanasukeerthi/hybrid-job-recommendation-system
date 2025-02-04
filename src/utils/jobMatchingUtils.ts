@@ -7,49 +7,40 @@ interface UserProfile {
   careerGoals: string;
 }
 
-export const calculateJobScore = (job: Job, userProfile: UserProfile): number => {
-  let score = 0;
-  
-  // Skills match (40% weight)
-  if (userProfile.skills && userProfile.skills.length > 0) {
-    const skillMatches = job.requiredSkills.filter(jobSkill =>
-      userProfile.skills.some(userSkill => 
-        jobSkill.toLowerCase().includes(userSkill.toLowerCase()) ||
-        userSkill.toLowerCase().includes(jobSkill.toLowerCase())
-      )
-    );
-    score += (skillMatches.length / job.requiredSkills.length) * 40;
-  }
-
-  // Experience match (30% weight)
-  if (userProfile.experience) {
-    const userYearsMatch = userProfile.experience.match(/(\d+)/);
-    const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
-    const jobYears = job.experienceRequired.years;
-    
-    if (Math.abs(userYears - jobYears) <= 1) {
-      score += 30;
-    } else if (userYears >= jobYears) {
-      score += 20;
-    } else {
-      score += Math.max(0, 15 - (jobYears - userYears) * 5);
-    }
-  }
-
-  // Education and career goals match (30% weight)
-  const profileKeywords = [
-    ...(userProfile.education?.toLowerCase().split(' ') || []),
-    ...(userProfile.careerGoals?.toLowerCase().split(' ') || [])
-  ];
-  
-  const keywordMatches = profileKeywords.filter(keyword =>
-    job.description.toLowerCase().includes(keyword) ||
-    job.title.toLowerCase().includes(keyword)
+const calculateSkillScore = (jobSkills: string[], userSkills: string[]): number => {
+  const matches = jobSkills.filter(jobSkill =>
+    userSkills.some(userSkill => 
+      jobSkill.toLowerCase().includes(userSkill.toLowerCase()) ||
+      userSkill.toLowerCase().includes(jobSkill.toLowerCase())
+    )
   );
-  
-  score += (keywordMatches.length / profileKeywords.length) * 30;
+  return matches.length > 0 ? (matches.length / jobSkills.length) * 40 : 0;
+};
 
-  return score;
+const calculateExperienceScore = (jobExperience: number, userExperience: string): number => {
+  const userYearsMatch = userExperience.match(/(\d+)/);
+  const userYears = userYearsMatch ? parseInt(userYearsMatch[0]) : 0;
+  
+  if (Math.abs(userYears - jobExperience) <= 1) return 30;
+  if (userYears >= jobExperience) return 20;
+  return Math.max(0, 15 - (jobExperience - userYears) * 5);
+};
+
+const calculateEducationScore = (jobDescription: string, education: string): number => {
+  const educationKeywords = education.toLowerCase().split(/\s+/);
+  const matches = educationKeywords.filter(keyword => 
+    jobDescription.toLowerCase().includes(keyword)
+  );
+  return matches.length > 0 ? (matches.length / educationKeywords.length) * 30 : 0;
+};
+
+export const calculateJobScore = (job: Job, userProfile: UserProfile): number => {
+  const skillScore = calculateSkillScore(job.requiredSkills, userProfile.skills);
+  const experienceScore = calculateExperienceScore(job.experienceRequired.years, userProfile.experience);
+  const educationScore = calculateEducationScore(job.description, userProfile.education);
+  
+  const totalScore = skillScore + experienceScore + educationScore;
+  return Math.round(totalScore);
 };
 
 export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[] => {
@@ -58,8 +49,9 @@ export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[]
     score: calculateJobScore(job, userProfile)
   }));
 
+  // Filter out jobs with score 0 and sort by score
   return scoredJobs
-    .filter(({ score }) => score > 0)
+    .filter(({ score }) => score > 30) // Minimum threshold for recommendations
     .sort((a, b) => b.score - a.score)
     .map(({ job }) => job);
 };

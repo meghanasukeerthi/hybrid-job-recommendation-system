@@ -6,9 +6,9 @@ import {
 import { JobList } from "./JobList";
 import { Job } from "@/types/job";
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import { toast } from "./ui/use-toast";
 import { getRecommendedJobs } from "@/utils/jobMatchingUtils";
+import { JobSectionButtons } from "./job/JobSectionButtons";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
@@ -35,6 +35,7 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     setRecommendedJobs(filteredJobs);
 
     if (activeSection === 'recommended') {
+      setDisplayedJobs(filteredJobs);
       toast({
         title: "Job Recommendations Updated",
         description: `Found ${filteredJobs.length} jobs matching your profile`,
@@ -66,22 +67,12 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-center gap-4 mb-6">
-        <Button
-          variant={activeSection === 'all' ? 'default' : 'outline'}
-          onClick={() => setActiveSection('all')}
-          className="min-w-[120px]"
-        >
-          All Jobs ({allJobs.length})
-        </Button>
-        <Button
-          variant={activeSection === 'recommended' ? 'default' : 'outline'}
-          onClick={() => setActiveSection('recommended')}
-          className="min-w-[120px]"
-        >
-          Recommended ({recommendedJobs.length})
-        </Button>
-      </div>
+      <JobSectionButtons
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        allJobsCount={allJobs.length}
+        recommendedJobsCount={recommendedJobs.length}
+      />
       <Carousel className="w-full">
         <CarouselContent>
           <CarouselItem>
