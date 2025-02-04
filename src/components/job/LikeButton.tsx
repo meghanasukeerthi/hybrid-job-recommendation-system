@@ -16,6 +16,7 @@ interface LikeButtonProps {
 export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [showAnimation, setShowAnimation] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -27,7 +28,6 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   const likeMutation = useMutation({
     mutationFn: () => likeJob(jobId, !isLiked),
     onMutate: async () => {
-      // Optimistically update the UI
       const previousLikeCount = likeCount;
       const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
       setLikeCount(newLikeCount);
@@ -36,6 +36,8 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
       const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
       if (!isLiked) {
         likedJobs.push(jobId);
+        setShowAnimation(true);
+        setTimeout(() => setShowAnimation(false), 1000);
       } else {
         const index = likedJobs.indexOf(jobId);
         if (index > -1) {
@@ -56,7 +58,6 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
       setIsLiked(!isLiked);
     },
     onError: (_, __, context) => {
-      // Revert on error
       if (context) {
         setLikeCount(context.previousLikeCount);
         setIsLiked(!isLiked);
@@ -78,7 +79,7 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   };
 
   return (
-    <div className="flex flex-col items-center mini-hover">
+    <div className="flex flex-col items-center mini-hover relative">
       <Button
         variant="ghost"
         size="icon"
@@ -89,13 +90,14 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
           className={cn(
             "w-5 h-5 transition-all duration-300",
             isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
-            isAnimating && "animate-[scale-in_0.2s_ease-out]"
+            showAnimation && "animate-[scale-in_0.2s_ease-out]"
           )}
         />
-        {isAnimating && (
+        {showAnimation && (
           <Heart
             className={cn(
-              "absolute w-8 h-8 text-red-500 fill-red-500 animate-[scale-in_0.2s_ease-out,fade-out_0.3s_ease-out]",
+              "absolute w-8 h-8 text-red-500 fill-red-500",
+              "animate-[scale-in_0.2s_ease-out,fade-out_0.3s_ease-out]",
               "opacity-0 scale-150"
             )}
           />
