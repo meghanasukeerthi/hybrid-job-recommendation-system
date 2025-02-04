@@ -1,25 +1,12 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { JobHeader } from "./job/JobHeader";
-import { JobActions } from "./job/JobActions";
-import { JobDetails } from "./job/JobDetails";
-import { CommentList } from "./job/CommentList";
-import { CommentForm } from "./job/CommentForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
 import { Job, Comment } from "@/types/job";
 import { validateComment, filterValidComments } from "@/services/commentService";
-import { LikeButton } from "./job/LikeButton";
-import { BookmarkButton } from "./job/BookmarkButton";
-import { JobTrackingButton } from "./job/JobTrackingButton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { LoadingSpinner } from "./ui/loading-spinner";
+import { JobCardHeader } from "./job/JobCardHeader";
+import { JobCardContent } from "./job/JobCardContent";
 
 interface JobCardProps {
   id: number;
@@ -49,7 +36,7 @@ export const JobCard = ({
   likeCount: initialLikeCount,
   experienceRequired,
   comments: initialComments = [],
-  category = experienceRequired.years <= 1 ? 'fresher' : 'experienced',
+  category,
   salary,
 }: JobCardProps) => {
   const [likesCount, setLikesCount] = useState(initialLikeCount);
@@ -62,11 +49,7 @@ export const JobCard = ({
   const queryClient = useQueryClient();
 
   const likeMutation = useMutation({
-    mutationFn: () => {
-      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-      const isCurrentlyLiked = likedJobs.includes(id);
-      return likeJob(id, isCurrentlyLiked);
-    },
+    mutationFn: () => likeJob(id, !isAnimating),
     onSuccess: (updatedJob) => {
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
@@ -79,11 +62,6 @@ export const JobCard = ({
     onError: () => {
       setLikesCount(prev => prev - 1);
       setIsAnimating(false);
-      toast({
-        title: "Error",
-        description: "Failed to update like status. Please try again.",
-        variant: "destructive"
-      });
     }
   });
 
@@ -109,18 +87,7 @@ export const JobCard = ({
             job.id === id ? { ...job, comments: validComments } : job
           );
         });
-        toast({
-          title: "Success",
-          description: "Your comment has been posted successfully",
-        });
       }
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add comment",
-        variant: "destructive"
-      });
     }
   });
 
@@ -133,88 +100,43 @@ export const JobCard = ({
       });
     } catch (err) {
       navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied!",
-        description: "Job post link has been copied to clipboard",
-      });
     }
-  };
-
-  const handleAddComment = () => {
-    if (!newComment.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a comment before posting",
-        variant: "destructive"
-      });
-      return;
-    }
-    commentMutation.mutate(newComment);
   };
 
   return (
     <Card className="animate-fade-in hover:shadow-lg transition-shadow duration-300">
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <JobHeader title={title} company={company} />
-          <div className="flex gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <BookmarkButton jobId={id} />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="animate-tooltip-fade">
-                  <p>Save this job</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <JobActions
-              type={type}
-              category={category}
-              commentsCount={comments.length}
-              onComment={() => setShowComments(!showComments)}
-              onShare={handleShare}
-            >
-              <LikeButton
-                jobId={id}
-                initialLikeCount={likesCount}
-                onLike={() => likeMutation.mutate()}
-                isAnimating={isAnimating}
-              />
-            </JobActions>
-          </div>
-        </div>
+        <JobCardHeader
+          id={id}
+          title={title}
+          company={company}
+          type={type}
+          category={category}
+          commentsCount={comments.length}
+          likesCount={likesCount}
+          onShare={handleShare}
+          onComment={() => setShowComments(!showComments)}
+          onLike={() => likeMutation.mutate()}
+          isAnimating={isAnimating}
+        />
       </CardHeader>
       <CardContent>
-        <JobDetails
+        <JobCardContent
           location={location}
           postedDate={postedDate}
           salary={salary}
           description={description}
           requiredSkills={requiredSkills}
           experienceRequired={experienceRequired}
+          showComments={showComments}
+          comments={comments}
+          newComment={newComment}
+          onCommentChange={setNewComment}
+          onAddComment={() => commentMutation.mutate(newComment)}
+          isCommentLoading={commentMutation.isPending}
+          jobId={id}
+          isAnimating={isAnimating}
         />
-        
-        {showComments && (
-          <div className="space-y-4 animate-accordion-down">
-            <CommentForm
-              newComment={newComment}
-              onCommentChange={setNewComment}
-              onAddComment={handleAddComment}
-            />
-            <CommentList comments={comments} />
-          </div>
-        )}
-        
-        <div className="flex justify-center w-full mt-4">
-          {commentMutation.isPending ? (
-            <LoadingSpinner className="w-6 h-6" />
-          ) : (
-            <JobTrackingButton jobId={id} isAnimating={isAnimating} />
-          )}
-        </div>
       </CardContent>
     </Card>
   );

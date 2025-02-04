@@ -7,12 +7,10 @@ import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
 
-type SortOrder = 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
-
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow' | 'likesHighToLow'>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
     type: "all",
     location: "",
