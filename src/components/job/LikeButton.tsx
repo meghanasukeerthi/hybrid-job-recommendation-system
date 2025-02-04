@@ -3,7 +3,6 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { likeJob } from "@/services/jobService";
-import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Job } from "@/types/job";
 
@@ -17,7 +16,6 @@ interface LikeButtonProps {
 export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: LikeButtonProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -27,7 +25,27 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   }, [jobId, initialLikeCount]);
 
   const likeMutation = useMutation({
-    mutationFn: () => likeJob(jobId, isLiked),
+    mutationFn: () => likeJob(jobId, !isLiked),
+    onMutate: async () => {
+      // Optimistically update the UI
+      const previousLikeCount = likeCount;
+      const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
+      setLikeCount(newLikeCount);
+      
+      // Update localStorage
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      if (!isLiked) {
+        likedJobs.push(jobId);
+      } else {
+        const index = likedJobs.indexOf(jobId);
+        if (index > -1) {
+          likedJobs.splice(index, 1);
+        }
+      }
+      localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
+      
+      return { previousLikeCount };
+    },
     onSuccess: (updatedJob) => {
       queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
         if (!oldJobs) return oldJobs;
@@ -35,40 +53,26 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
           job.id === jobId ? { ...job, likeCount: updatedJob.likeCount } : job
         );
       });
-      toast({
-        title: isLiked ? "Removed Like" : "Added Like",
-        description: isLiked ? "You've unliked this job" : "You've liked this job",
-      });
-    },
-    onError: () => {
-      // Revert local state on error
-      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
       setIsLiked(!isLiked);
-      toast({
-        title: "Error",
-        description: "Failed to update like status. Please try again.",
-        variant: "destructive"
-      });
+    },
+    onError: (_, __, context) => {
+      // Revert on error
+      if (context) {
+        setLikeCount(context.previousLikeCount);
+        setIsLiked(!isLiked);
+        const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+        const index = likedJobs.indexOf(jobId);
+        if (index > -1) {
+          likedJobs.splice(index, 1);
+        } else {
+          likedJobs.push(jobId);
+        }
+        localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
+      }
     }
   });
 
   const handleLike = () => {
-    const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
-    const wasLiked = likedJobs.includes(jobId);
-    
-    if (!wasLiked) {
-      likedJobs.push(jobId);
-      setLikeCount(prev => prev + 1);
-    } else {
-      const index = likedJobs.indexOf(jobId);
-      if (index > -1) {
-        likedJobs.splice(index, 1);
-      }
-      setLikeCount(prev => prev - 1);
-    }
-    
-    localStorage.setItem('likedJobs', JSON.stringify(likedJobs));
-    setIsLiked(!wasLiked);
     likeMutation.mutate();
     onLike();
   };
@@ -85,9 +89,17 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
           className={cn(
             "w-5 h-5 transition-all duration-300",
             isLiked ? "fill-red-500 text-red-500" : "text-gray-500",
-            isAnimating && "animate-scale-in"
+            isAnimating && "animate-[scale-in_0.2s_ease-out]"
           )}
         />
+        {isAnimating && (
+          <Heart
+            className={cn(
+              "absolute w-8 h-8 text-red-500 fill-red-500 animate-[scale-in_0.2s_ease-out,fade-out_0.3s_ease-out]",
+              "opacity-0 scale-150"
+            )}
+          />
+        )}
       </Button>
       <span className="text-sm text-muted-foreground">{likeCount}</span>
     </div>
