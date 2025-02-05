@@ -117,6 +117,52 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   }
 };
 
+// Track job application
+export const trackJob = async (jobId: number): Promise<void> => {
+  try {
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+    if (!appliedJobs.includes(jobId)) {
+      appliedJobs.push(jobId);
+      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+      
+      // Dispatch custom event for real-time updates
+      window.dispatchEvent(new Event('applicationCountUpdated'));
+    }
+  } catch (error) {
+    console.error('Error tracking job application:', error);
+    throw error;
+  }
+};
+
+// Bookmark a job
+export const bookmarkJob = async (jobId: number): Promise<Job> => {
+  try {
+    // For now, we'll just handle bookmarks client-side
+    const bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    if (!bookmarkedJobs.includes(jobId)) {
+      bookmarkedJobs.push(jobId);
+      localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
+    }
+    
+    const response = await fetch(`http://localhost:8080/alljobs`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch jobs');
+    }
+    const jobs = await response.json();
+    const job = jobs.find((j: Job) => j.id === jobId);
+    
+    if (!job) {
+      throw new Error('Job not found');
+    }
+    
+    return job;
+  } catch (error) {
+    // Use mock data if API fails
+    const job = mockJobs.find(j => j.id === jobId);
+    return job || mockJobs[0];
+  }
+};
+
 // Helper functions for checking job status
 export const isJobBookmarked = (jobId: number): boolean => {
   const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
