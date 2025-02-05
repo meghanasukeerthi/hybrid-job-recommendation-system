@@ -6,9 +6,6 @@ import { LoadingSpinner } from "../ui/loading-spinner";
 import { Comment } from "@/types/job";
 
 interface JobCardContentProps {
-  location: string;
-  postedDate: number;
-  salary?: string;
   description: string;
   requiredSkills: string[];
   experienceRequired: { years: number };
@@ -20,6 +17,9 @@ interface JobCardContentProps {
   isCommentLoading: boolean;
   jobId: number;
   isAnimating: boolean;
+  location: string;
+  postedDate: number;
+  salary?: string;
 }
 
 export const JobCardContent = ({

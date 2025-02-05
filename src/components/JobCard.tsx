@@ -139,8 +139,10 @@ export const JobCard = ({
           isCommentLoading={commentMutation.isPending}
           jobId={id}
           isAnimating={isAnimating}
+          location={location}
+          postedDate={postedDate}
+          salary={salary}
         />
-        <JobSkills skills={requiredSkills} />
       </CardContent>
     </Card>
   );
