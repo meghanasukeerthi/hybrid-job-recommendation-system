@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
 import { UserCircle, Home, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -6,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  
   // Use React Query to track applications
   const { data: applicationCount = 0 } = useQuery({
     queryKey: ['applicationCount'],
@@ -13,9 +16,12 @@ const Navbar = () => {
       const applications = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
       return applications.length;
     },
-    // Enable real-time updates
     refetchInterval: 1000
   });
+
+  const handleHomeClick = () => {
+    navigate('/');
+  };
 
   return (
     <header className="bg-card shadow-md backdrop-blur-sm sticky top-0 z-10">
@@ -28,11 +34,14 @@ const Navbar = () => {
           >
             AI-Powered Job Portal
           </Link>
-          <Link to="/">
-            <Button variant="ghost" size="icon">
-              <Home className="w-5 h-5" />
-            </Button>
-          </Link>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleHomeClick}
+            aria-label="Go to home page"
+          >
+            <Home className="w-5 h-5" />
+          </Button>
         </div>
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-2">

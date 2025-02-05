@@ -95,18 +95,20 @@ export const UserProfileForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <ResumeUpload onResumeData={handleResumeData} />
-        <BasicInfoFields form={form} />
-        <SkillsExperienceFields form={form} />
-        <EducationGoalsFields form={form} />
-        <div className="flex flex-col gap-4">
+      <div className="space-y-6">
+        <div className="flex justify-end mb-4">
+          <ClearProfileButton onClear={form.reset} />
+        </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <ResumeUpload onResumeData={handleResumeData} />
+          <BasicInfoFields form={form} />
+          <SkillsExperienceFields form={form} />
+          <EducationGoalsFields form={form} />
           <Button type="submit" className="w-full">
             Update Profile
           </Button>
-          <ClearProfileButton onClear={form.reset} />
-        </div>
-      </form>
+        </form>
+      </div>
     </Form>
   );
 };
