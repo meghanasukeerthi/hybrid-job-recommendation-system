@@ -1,6 +1,5 @@
 import { JobDetails } from "./JobDetails";
-import { CommentList } from "./CommentList";
-import { CommentForm } from "./CommentForm";
+import { JobComments } from "./JobComments";
 import { JobTrackingButton } from "./JobTrackingButton";
 import { LoadingSpinner } from "../ui/loading-spinner";
 import { Comment } from "@/types/job";
@@ -49,16 +48,14 @@ export const JobCardContent = ({
         experienceRequired={experienceRequired}
       />
       
-      {showComments && (
-        <div className="space-y-4 animate-accordion-down">
-          <CommentForm
-            newComment={newComment}
-            onCommentChange={onCommentChange}
-            onAddComment={onAddComment}
-          />
-          <CommentList comments={comments} />
-        </div>
-      )}
+      <JobComments
+        showComments={showComments}
+        comments={comments}
+        newComment={newComment}
+        onCommentChange={onCommentChange}
+        onAddComment={onAddComment}
+        isCommentLoading={isCommentLoading}
+      />
       
       <div className="flex justify-center w-full mt-4">
         {isCommentLoading ? (

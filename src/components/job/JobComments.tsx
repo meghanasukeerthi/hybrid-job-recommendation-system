@@ -1,26 +1,34 @@
-import { CommentForm } from "./CommentForm";
-import { CommentList } from "./CommentList";
 import { Comment } from "@/types/job";
+import { CommentList } from "./CommentList";
+import { CommentForm } from "./CommentForm";
 
 interface JobCommentsProps {
+  showComments: boolean;
   comments: Comment[];
   newComment: string;
-  onCommentChange: (value: string) => void;
+  onCommentChange: (comment: string) => void;
   onAddComment: () => void;
+  isCommentLoading: boolean;
 }
 
 export const JobComments = ({
+  showComments,
   comments,
   newComment,
   onCommentChange,
-  onAddComment
-}: JobCommentsProps) => (
-  <div className="mt-4 space-y-4 animate-slide-in">
-    <CommentForm
-      newComment={newComment}
-      onCommentChange={onCommentChange}
-      onAddComment={onAddComment}
-    />
-    <CommentList comments={comments} />
-  </div>
-);
+  onAddComment,
+  isCommentLoading
+}: JobCommentsProps) => {
+  if (!showComments) return null;
+
+  return (
+    <div className="space-y-4 animate-accordion-down">
+      <CommentForm
+        newComment={newComment}
+        onCommentChange={onCommentChange}
+        onAddComment={onAddComment}
+      />
+      <CommentList comments={comments} />
+    </div>
+  );
+};

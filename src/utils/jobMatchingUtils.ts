@@ -58,7 +58,7 @@ export const calculateJobScore = (job: Job, userProfile: UserProfile): number =>
 };
 
 export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[] => {
-  const MINIMUM_SCORE = 2.4;
+  const MINIMUM_SCORE = 2.7; // Updated minimum score
   
   const scoredJobs = jobs.map(job => ({
     job,
