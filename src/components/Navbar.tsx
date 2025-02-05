@@ -36,11 +36,12 @@ const Navbar = () => {
           </Link>
           <Button 
             variant="ghost" 
-            size="icon" 
             onClick={handleHomeClick}
+            className="flex items-center gap-2"
             aria-label="Go to home page"
           >
             <Home className="w-5 h-5" />
+            Home
           </Button>
         </div>
         <div className="flex gap-4 items-center">

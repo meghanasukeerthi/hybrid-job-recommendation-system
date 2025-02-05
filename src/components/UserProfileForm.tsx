@@ -96,11 +96,11 @@ export const UserProfileForm = () => {
   return (
     <Form {...form}>
       <div className="space-y-6">
-        <div className="flex justify-end mb-4">
-          <ClearProfileButton onClear={form.reset} />
-        </div>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <ResumeUpload onResumeData={handleResumeData} />
+          <div className="mt-4 mb-6">
+            <ClearProfileButton onClear={form.reset} />
+          </div>
           <BasicInfoFields form={form} />
           <SkillsExperienceFields form={form} />
           <EducationGoalsFields form={form} />
