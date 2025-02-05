@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeJob, addComment } from "@/services/jobService";
 import { Job, Comment } from "@/types/job";
-import { validateComment, filterValidComments } from "@/services/commentService";
+import { filterValidComments } from "@/services/commentService";
 import { JobCardHeader } from "./job/JobCardHeader";
 import { JobCardContent } from "./job/JobCardContent";
+import { JobMetadata } from "./job/JobMetadata";
+import { JobSkills } from "./job/JobSkills";
 
 interface JobCardProps {
   id: number;
@@ -45,7 +46,6 @@ export const JobCard = ({
   const [comments, setComments] = useState<Comment[]>(filterValidComments(initialComments));
   const [newComment, setNewComment] = useState("");
 
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const likeMutation = useMutation({
@@ -119,12 +119,15 @@ export const JobCard = ({
           onLike={() => likeMutation.mutate()}
           isAnimating={isAnimating}
         />
+        <JobMetadata
+          location={location}
+          type={type}
+          postedDate={postedDate}
+          salary={salary}
+        />
       </CardHeader>
       <CardContent>
         <JobCardContent
-          location={location}
-          postedDate={postedDate}
-          salary={salary}
           description={description}
           requiredSkills={requiredSkills}
           experienceRequired={experienceRequired}
@@ -137,6 +140,7 @@ export const JobCard = ({
           jobId={id}
           isAnimating={isAnimating}
         />
+        <JobSkills skills={requiredSkills} />
       </CardContent>
     </Card>
   );

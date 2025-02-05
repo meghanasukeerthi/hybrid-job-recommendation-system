@@ -6,7 +6,7 @@ import {
 import { JobList } from "./JobList";
 import { Job } from "@/types/job";
 import { useEffect, useState } from "react";
-import { toast } from "./ui/use-toast";
+import { toast } from "sonner";
 import { getRecommendedJobs } from "@/utils/jobMatchingUtils";
 import { JobSectionButtons } from "./job/JobSectionButtons";
 
@@ -15,6 +15,13 @@ interface JobSectionsCarouselProps {
   sortOrder: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
 }
 
+const defaultUserProfile = {
+  skills: ["JavaScript", "React", "TypeScript", "Node.js"],
+  experience: "2 years",
+  education: "Bachelor's in Computer Science",
+  careerGoals: "Full Stack Developer"
+};
+
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
@@ -22,24 +29,14 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
+    const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultUserProfile;
     
-    const placeholderProfile = {
-      skills: ["Java", "Spring Boot", "React", "TypeScript"],
-      experience: "3 years",
-      education: "Bachelor of Computer Science",
-      careerGoals: "Full Stack Developer"
-    };
-    
-    const userProfile = userProfileStr ? JSON.parse(userProfileStr) : placeholderProfile;
     const filteredJobs = getRecommendedJobs(allJobs, userProfile);
     setRecommendedJobs(filteredJobs);
 
     if (activeSection === 'recommended') {
       setDisplayedJobs(filteredJobs);
-      toast({
-        title: "Job Recommendations Updated",
-        description: `Found ${filteredJobs.length} jobs matching your profile`,
-      });
+      toast(`Found ${filteredJobs.length} jobs matching your profile`);
     }
   }, [allJobs, activeSection]);
 
