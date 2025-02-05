@@ -31,13 +31,16 @@ export const ClearProfileButton = ({ onClear }: ClearProfileButtonProps) => {
   };
 
   return (
-    <Button 
-      variant="destructive" 
-      onClick={handleClear}
-      className="w-full gap-2"
-    >
-      <Trash2 className="h-4 w-4" />
-      Clear Profile Data
-    </Button>
+    <div className="flex justify-center">
+      <Button 
+        variant="destructive" 
+        onClick={handleClear}
+        className="w-[40%] gap-2"
+      >
+        <Trash2 className="h-4 w-4" />
+        Clear Profile Data
+      </Button>
+    </div>
   );
 };
+
