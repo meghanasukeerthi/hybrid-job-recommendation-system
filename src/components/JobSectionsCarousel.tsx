@@ -40,8 +40,30 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
     }
   }, [allJobs, activeSection]);
 
-  const sortJobs = (jobs: Job[]) => {
+  const sortJobs = (jobs: Job[], isRecommended: boolean) => {
     return [...jobs].sort((a, b) => {
+      // For recommended jobs, don't apply like-based sorting
+      if (isRecommended) {
+        switch (sortOrder) {
+          case 'newest':
+            return b.postedDate - a.postedDate;
+          case 'oldest':
+            return a.postedDate - b.postedDate;
+          case 'salaryLowToHigh':
+            return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
+          case 'salaryHighToLow':
+            return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
+          default:
+            return 0;
+        }
+      }
+      
+      // For all jobs, sort by like count first
+      if (a.likeCount !== b.likeCount) {
+        return b.likeCount - a.likeCount;
+      }
+      
+      // Then apply the selected sort order
       switch (sortOrder) {
         case 'newest':
           return b.postedDate - a.postedDate;
@@ -59,7 +81,7 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   useEffect(() => {
     const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
-    setDisplayedJobs(sortJobs(jobsToDisplay));
+    setDisplayedJobs(sortJobs(jobsToDisplay, activeSection === 'recommended'));
   }, [activeSection, sortOrder, allJobs, recommendedJobs]);
 
   return (
