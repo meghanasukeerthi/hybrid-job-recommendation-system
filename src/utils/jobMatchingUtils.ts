@@ -16,6 +16,8 @@ const calculateSkillScore = (jobSkills: string[], userSkills: string[]): number 
       userSkill.toLowerCase().includes(jobSkill.toLowerCase())
     )
   );
+  
+  // Weight: 1.0 for skills match
   return matches.length > 0 ? (matches.length / jobSkills.length) * 1.0 : 0;
 };
 
@@ -26,9 +28,10 @@ const calculateExperienceScore = (jobExperience: { years: number }, userExperien
   const userYears = parseInt(userYearsMatch[0]);
   const jobYears = jobExperience.years;
   
-  if (Math.abs(userYears - jobYears) <= 1) return 0.8;
-  if (userYears >= jobYears) return 0.6;
-  return Math.max(0, 0.4 - (jobYears - userYears) * 0.1);
+  // Weight: 0.9 for experience match
+  if (Math.abs(userYears - jobYears) <= 1) return 0.9;
+  if (userYears >= jobYears) return 0.7;
+  return Math.max(0, 0.5 - (jobYears - userYears) * 0.1);
 };
 
 const calculateEducationScore = (jobDescription: string, education: string): number => {
@@ -38,7 +41,9 @@ const calculateEducationScore = (jobDescription: string, education: string): num
   const matches = educationKeywords.filter(keyword => 
     jobDescription.toLowerCase().includes(keyword)
   );
-  return matches.length > 0 ? (matches.length / educationKeywords.length) * 0.3 : 0;
+  
+  // Weight: 0.4 for education match
+  return matches.length > 0 ? (matches.length / educationKeywords.length) * 0.4 : 0;
 };
 
 const calculateKeywordScore = (jobDescription: string, userProfile: UserProfile): number => {
@@ -53,7 +58,8 @@ const calculateKeywordScore = (jobDescription: string, userProfile: UserProfile)
     jobDescription.toLowerCase().includes(keyword.toLowerCase())
   );
   
-  return matches.length > 0 ? (matches.length / userKeywords.length) * 0.7 : 0;
+  // Weight: 0.8 for keyword match
+  return matches.length > 0 ? (matches.length / userKeywords.length) * 0.8 : 0;
 };
 
 export const calculateJobScore = (job: Job, userProfile: UserProfile): number => {
@@ -67,7 +73,7 @@ export const calculateJobScore = (job: Job, userProfile: UserProfile): number =>
 };
 
 export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[] => {
-  const MINIMUM_SCORE = 2.7;
+  const MINIMUM_SCORE = 1.5; // Updated minimum score threshold
   
   // Initially show all jobs if no profile exists
   if (!userProfile.skills?.length && !userProfile.experience && !userProfile.education) {
