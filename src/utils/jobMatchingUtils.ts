@@ -73,7 +73,7 @@ export const calculateJobScore = (job: Job, userProfile: UserProfile): number =>
 };
 
 export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[] => {
-  const MINIMUM_SCORE = 1.1; // Updated minimum score threshold
+  const MINIMUM_SCORE = 1.3; // Updated minimum score threshold
   
   // Initially show all jobs if no profile exists
   if (!userProfile.skills?.length && !userProfile.experience && !userProfile.education) {
