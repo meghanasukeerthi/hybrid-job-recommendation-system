@@ -12,7 +12,7 @@ import { JobSectionButtons } from "./job/JobSectionButtons";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
-  sortOrder: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow' | 'likesHighToLow';
+  sortOrder: 'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow';
 }
 
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
@@ -54,8 +54,6 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
           return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
         case 'salaryHighToLow':
           return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
-        case 'likesHighToLow':
-          return b.likeCount - a.likeCount;
         default:
           return 0;
       }

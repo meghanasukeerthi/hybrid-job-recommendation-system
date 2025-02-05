@@ -10,7 +10,7 @@ import { Job } from "@/types/job";
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow' | 'likesHighToLow'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow'>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
     type: "all",
     location: "",
