@@ -25,8 +25,12 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    if (query.trim()) {
-      onSearch(query);
+    // Always call onSearch, even with empty string
+    onSearch(query);
+    
+    // If the search is empty and we're on the search page, go back to home
+    if (!query.trim() && window.location.pathname === '/search') {
+      navigate('/');
     }
   };
 
