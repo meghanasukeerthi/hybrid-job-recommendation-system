@@ -8,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
+const BACKEND_URL = 'https://your-backend-url.com'; // Replace with your actual backend URL
+
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,7 +31,7 @@ const Navbar = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('/login', {
+      const response = await fetch(`${BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +63,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/logout', {
+      const response = await fetch(`${BACKEND_URL}/api/logout`, {
         method: 'POST',
         credentials: 'include'
       });
