@@ -144,3 +144,31 @@ export const isJobApplied = (jobId: number): boolean => {
   const applications = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
   return applications.includes(jobId);
 };
+
+// Add the missing bookmarkJob function
+export const bookmarkJob = async (jobId: number): Promise<void> => {
+  try {
+    const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to bookmark job');
+    }
+  } catch (error) {
+    // Use local storage if API fails
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    const index = bookmarks.indexOf(jobId);
+    
+    if (index === -1) {
+      bookmarks.push(jobId);
+    } else {
+      bookmarks.splice(index, 1);
+    }
+    
+    localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
+  }
+};
