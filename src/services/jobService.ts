@@ -1,120 +1,46 @@
-import { Job, Comment } from "@/types/job";
 
-const mockJobs: Job[] = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    company: "TechCorp",
-    location: "Remote",
-    type: "Full-time",
-    description: "Looking for an experienced frontend developer with React expertise",
-    postedDate: Date.now() - 86400000, // 1 day ago
-    requiredSkills: ["React", "TypeScript", "HTML", "CSS"],
-    likeCount: 5,
-    experienceRequired: { years: 5 },
-    comments: [],
-    category: "experienced",
-    salary: "120000"
-  },
-  {
-    id: 2,
-    title: "Full Stack Developer",
-    company: "InnovateTech",
-    location: "New York",
-    type: "Full-time",
-    description: "Join our team as a Full Stack Developer",
-    postedDate: Date.now() - 172800000, // 2 days ago
-    requiredSkills: ["React", "Node.js", "MongoDB", "TypeScript"],
-    likeCount: 3,
-    experienceRequired: { years: 3 },
-    comments: [],
-    category: "experienced",
-    salary: "110000"
-  },
-  {
-    id: 3,
-    title: "React Developer",
-    company: "WebSolutions",
-    location: "San Francisco",
-    type: "Remote",
-    description: "Looking for a React developer to join our remote team",
-    postedDate: Date.now(),
-    requiredSkills: ["React", "JavaScript", "Redux", "CSS"],
-    likeCount: 7,
-    experienceRequired: { years: 2 },
-    comments: [],
-    category: "remote",
-    salary: "100000"
-  }
-];
+import { Job, Comment } from "@/types/job";
 
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
-  try {
-    const response = await fetch(`http://localhost:8080/alljobs`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch jobs');
-    }
-    const jobs = await response.json();
-    return jobs;
-  } catch (error) {
-    console.log('Using mock data due to API error:', error);
-    return mockJobs;
+  const response = await fetch(`http://localhost:8080/alljobs`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch jobs');
   }
+  return response.json();
 };
 
 // Like/unlike a job
 export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
-  try {
-    const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${like}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update like status');
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${like}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
     }
-    
-    return response.json();
-  } catch (error) {
-    // Use mock data if API fails
-    const job = mockJobs.find(j => j.id === jobId);
-    if (job) {
-      job.likeCount = like ? job.likeCount + 1 : job.likeCount - 1;
-    }
-    return job || mockJobs[0];
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to update like status');
   }
+  
+  return response.json();
 };
 
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
-  try {
-    const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(comment),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to add comment');
-    }
-    
-    return response.json();
-  } catch (error) {
-    // Use mock data if API fails
-    const job = mockJobs.find(j => j.id === jobId);
-    if (job) {
-      if (!job.comments) {
-        job.comments = [];
-      }
-      job.comments.push({ ...comment, id: job.comments.length + 1 });
-    }
-    return job || mockJobs[0];
+  const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(comment),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to add comment');
   }
+  
+  return response.json();
 };
 
 // Track job application
@@ -145,7 +71,7 @@ export const isJobApplied = (jobId: number): boolean => {
   return applications.includes(jobId);
 };
 
-// Add the missing bookmarkJob function
+// Bookmark job function
 export const bookmarkJob = async (jobId: number): Promise<void> => {
   try {
     const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
