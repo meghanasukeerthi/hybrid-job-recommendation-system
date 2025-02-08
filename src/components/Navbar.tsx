@@ -8,14 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
-const BACKEND_URL = 'https://your-backend-url.com'; // Replace with your actual backend URL
-
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // Use React Query to track applications
   const { data: applicationCount = 0 } = useQuery({
     queryKey: ['applicationCount'],
     queryFn: () => {
@@ -29,41 +26,13 @@ const Navbar = () => {
     navigate('/');
   };
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'user1', // This should come from a login form
-          password: 'pass1'  // This should come from a login form
-        }),
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-        toast({
-          title: "Success",
-          description: "Logged in successfully",
-        });
-      } else {
-        throw new Error('Login failed');
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to login. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleLoginClick = () => {
+    navigate('/login');
   };
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/logout`, {
+      const response = await fetch('http://localhost:8080/logout', {
         method: 'POST',
         credentials: 'include'
       });
@@ -118,7 +87,7 @@ const Navbar = () => {
           {!isAuthenticated ? (
             <Button 
               variant="outline" 
-              onClick={handleLogin}
+              onClick={handleLoginClick}
               className="flex items-center gap-2"
             >
               <LogIn className="w-5 h-5" />

@@ -1,7 +1,5 @@
 import { Job, Comment } from "@/types/job";
 
-const BACKEND_URL = 'https://your-backend-url.com'; // Replace with your actual backend URL
-
 const mockJobs: Job[] = [
   {
     id: 1,
@@ -53,7 +51,7 @@ const mockJobs: Job[] = [
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/jobs`);
+    const response = await fetch(`http://localhost:8080/alljobs`);
     if (!response.ok) {
       throw new Error('Failed to fetch jobs');
     }
@@ -68,12 +66,11 @@ export const fetchJobs = async (): Promise<Job[]> => {
 // Like/unlike a job
 export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/jobs/${jobId}/like?like=${like}`, {
+    const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${like}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-      },
-      credentials: 'include'
+      }
     });
     
     if (!response.ok) {
@@ -94,13 +91,12 @@ export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/jobs/${jobId}/comment`, {
+    const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(comment),
-      credentials: 'include'
     });
     
     if (!response.ok) {
