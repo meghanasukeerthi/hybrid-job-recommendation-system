@@ -1,13 +1,17 @@
 
 import { Link, useNavigate } from "react-router-dom";
-import { UserCircle, Home, FileText } from "lucide-react";
+import { UserCircle, Home, FileText, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Use React Query to track applications
   const { data: applicationCount = 0 } = useQuery({
@@ -21,6 +25,63 @@ const Navbar = () => {
 
   const handleHomeClick = () => {
     navigate('/');
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'user1', // This should come from a login form
+          password: 'pass1'  // This should come from a login form
+        }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
+      } else {
+        throw new Error('Login failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to login. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(false);
+        toast({
+          title: "Success",
+          description: "Logged out successfully",
+        });
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to logout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -52,12 +113,33 @@ const Navbar = () => {
             </Badge>
           </div>
           <ThemeToggle />
-          <Link to="/profile">
-            <Button variant="outline" className="flex items-center gap-2">
-              <UserCircle className="w-5 h-5" />
-              Profile
+          {!isAuthenticated ? (
+            <Button 
+              variant="outline" 
+              onClick={handleLogin}
+              className="flex items-center gap-2"
+            >
+              <LogIn className="w-5 h-5" />
+              Login
             </Button>
-          </Link>
+          ) : (
+            <>
+              <Link to="/profile">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <UserCircle className="w-5 h-5" />
+                  Profile
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-5 h-5" />
+                Logout
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
