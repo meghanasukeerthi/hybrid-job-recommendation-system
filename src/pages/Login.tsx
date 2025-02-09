@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:8080/login', {
+      const response = await fetch('http://localhost:8080/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,11 +30,14 @@ const Login = () => {
           title: "Success",
           description: "Logged in successfully",
         });
+        // Trigger navbar state update
+        window.dispatchEvent(new Event('auth-change'));
         navigate('/');
       } else {
+        const errorData = await response.text();
         toast({
           title: "Error",
-          description: "Invalid credentials",
+          description: errorData || "Invalid credentials",
           variant: "destructive",
         });
       }

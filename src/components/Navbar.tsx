@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -22,6 +22,32 @@ const Navbar = () => {
     refetchInterval: 1000
   });
 
+  useEffect(() => {
+    // Listen for authentication changes
+    const handleAuthChange = () => {
+      checkAuthStatus();
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+    
+    // Initial auth check
+    checkAuthStatus();
+    
+    return () => {
+      window.removeEventListener('auth-change', handleAuthChange);
+    };
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/users/me', {
+        credentials: 'include'
+      });
+      setIsAuthenticated(response.ok);
+    } catch (error) {
+      setIsAuthenticated(false);
+    }
+  };
+
   const handleHomeClick = () => {
     navigate('/');
   };
@@ -32,7 +58,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:8080/logout', {
+      const response = await fetch('http://localhost:8080/users/logout', {
         method: 'POST',
         credentials: 'include'
       });
@@ -43,6 +69,7 @@ const Navbar = () => {
           title: "Success",
           description: "Logged out successfully",
         });
+        navigate('/');
       } else {
         throw new Error('Logout failed');
       }
