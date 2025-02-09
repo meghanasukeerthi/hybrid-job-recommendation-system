@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8080/users/me', {
+      const response = await fetch('http://localhost:8080/api/auth/me', {
         credentials: 'include'
       });
       setIsAuthenticated(response.ok);
@@ -58,7 +58,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:8080/users/logout', {
+      const response = await fetch('http://localhost:8080/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });
