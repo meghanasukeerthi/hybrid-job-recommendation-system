@@ -1,12 +1,21 @@
 
 import { Job, Comment } from "@/types/job";
+import { useToast } from "@/hooks/use-toast";
 
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
-  const response = await fetch(`http://localhost:8080/alljobs`);
+  const response = await fetch(`http://localhost:8080/alljobs`, {
+    credentials: 'include' // Add credentials for session
+  });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to view jobs');
+  }
+  
   if (!response.ok) {
     throw new Error('Failed to fetch jobs');
   }
+  
   return response.json();
 };
 
@@ -16,8 +25,13 @@ export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
+    credentials: 'include' // Add credentials for session
   });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to like jobs');
+  }
   
   if (!response.ok) {
     throw new Error('Failed to update like status');
@@ -34,7 +48,12 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(comment),
+    credentials: 'include' // Add credentials for session
   });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to add comments');
+  }
   
   if (!response.ok) {
     throw new Error('Failed to add comment');
@@ -45,18 +64,11 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
 
 // Track job application
 export const trackJob = async (jobId: number): Promise<void> => {
-  try {
-    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-    if (!appliedJobs.includes(jobId)) {
-      appliedJobs.push(jobId);
-      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      
-      // Dispatch custom event for real-time updates
-      window.dispatchEvent(new Event('applicationCountUpdated'));
-    }
-  } catch (error) {
-    console.error('Error tracking job application:', error);
-    throw error;
+  const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+  if (!appliedJobs.includes(jobId)) {
+    appliedJobs.push(jobId);
+    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+    window.dispatchEvent(new Event('applicationCountUpdated'));
   }
 };
 
@@ -78,14 +90,19 @@ export const bookmarkJob = async (jobId: number): Promise<void> => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      credentials: 'include' // Add credentials for session
     });
+    
+    if (response.status === 401) {
+      throw new Error('Please login to bookmark jobs');
+    }
     
     if (!response.ok) {
       throw new Error('Failed to bookmark job');
     }
   } catch (error) {
-    // Use local storage if API fails
+    // Fallback to localStorage if API fails
     const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
     const index = bookmarks.indexOf(jobId);
     

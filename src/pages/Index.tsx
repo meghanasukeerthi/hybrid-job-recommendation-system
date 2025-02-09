@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { WelcomeHeader } from "@/components/WelcomeHeader";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
@@ -9,6 +10,7 @@ import { Job } from "@/types/job";
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'salaryLowToHigh' | 'salaryHighToLow'>('newest');
   const [filters, setFilters] = useState<JobFiltersType>({
@@ -21,6 +23,22 @@ const Index = () => {
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
+    onError: (error: Error) => {
+      if (error.message === 'Please login to view jobs') {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to view jobs",
+          variant: "destructive",
+        });
+        navigate('/login');
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
   });
 
   const handleSearch = (query: string) => {
