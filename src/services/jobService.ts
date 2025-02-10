@@ -1,11 +1,17 @@
 
 import { Job, Comment } from "@/types/job";
-import { useToast } from "@/hooks/use-toast";
+
+const API_BASE_URL = 'http://localhost:8080';
 
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
-  const response = await fetch(`http://localhost:8080/alljobs`, {
-    credentials: 'include' // Add credentials for session
+  const response = await fetch(`${API_BASE_URL}/alljobs`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
   });
   
   if (response.status === 401) {
@@ -21,12 +27,13 @@ export const fetchJobs = async (): Promise<Job[]> => {
 
 // Like/unlike a job
 export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/like?like=${like}`, {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${like}`, {
     method: 'PUT',
     headers: {
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
-    credentials: 'include' // Add credentials for session
+    credentials: 'include'
   });
   
   if (response.status === 401) {
@@ -42,13 +49,14 @@ export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
 
 // Add a comment to a job
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
-  const response = await fetch(`http://localhost:8080/jobs/${jobId}/comment`, {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: {
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(comment),
-    credentials: 'include' // Add credentials for session
+    credentials: 'include'
   });
   
   if (response.status === 401) {
@@ -86,12 +94,13 @@ export const isJobApplied = (jobId: number): boolean => {
 // Bookmark job function
 export const bookmarkJob = async (jobId: number): Promise<void> => {
   try {
-    const response = await fetch(`http://localhost:8080/jobs/${jobId}/bookmark`, {
+    const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/bookmark`, {
       method: 'PUT',
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      credentials: 'include' // Add credentials for session
+      credentials: 'include'
     });
     
     if (response.status === 401) {
