@@ -25,28 +25,19 @@ const Navbar = () => {
   useEffect(() => {
     // Listen for authentication changes
     const handleAuthChange = () => {
-      checkAuthStatus();
+      const token = localStorage.getItem('jwt_token');
+      setIsAuthenticated(!!token);
     };
+    
     window.addEventListener('auth-change', handleAuthChange);
     
     // Initial auth check
-    checkAuthStatus();
+    handleAuthChange();
     
     return () => {
       window.removeEventListener('auth-change', handleAuthChange);
     };
   }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/me', {
-        credentials: 'include'
-      });
-      setIsAuthenticated(response.ok);
-    } catch (error) {
-      setIsAuthenticated(false);
-    }
-  };
 
   const handleHomeClick = () => {
     navigate('/');
@@ -56,30 +47,14 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(false);
-        toast({
-          title: "Success",
-          description: "Logged out successfully",
-        });
-        navigate('/');
-      } else {
-        throw new Error('Logout failed');
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to logout. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_token');
+    setIsAuthenticated(false);
+    toast({
+      title: "Success",
+      description: "Logged out successfully",
+    });
+    navigate('/');
   };
 
   return (
@@ -145,3 +120,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

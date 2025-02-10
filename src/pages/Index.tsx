@@ -25,20 +25,22 @@ const Index = () => {
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     retry: 1,
-    onError: (error: Error) => {
-      if (error.message === 'Please login to view jobs') {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to view jobs",
-          variant: "destructive",
-        });
-        navigate('/login');
-      } else {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
+    meta: {
+      onError: (error: Error) => {
+        if (error.message === 'Please login to view jobs') {
+          toast({
+            title: "Authentication Required",
+            description: "Please login to view jobs",
+            variant: "destructive",
+          });
+          navigate('/login');
+        } else {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       }
     }
   });
@@ -113,3 +115,4 @@ const Index = () => {
 };
 
 export default Index;
+
