@@ -62,9 +62,8 @@ const AppliedJobs = () => {
             <div className="grid gap-4">
               {appliedJobs.map((appliedJob) => (
                 <AppliedJobCard 
-                  key={appliedJob.id} 
-                  job={appliedJob} 
-                  applicationDate={appliedJob.applicationDate ? new Date(appliedJob.applicationDate).getTime() : Date.now()}
+                  key={appliedJob.job.id} 
+                  job={appliedJob}
                 />
               ))}
             </div>
