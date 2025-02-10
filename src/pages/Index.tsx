@@ -23,18 +23,16 @@ const Index = () => {
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
-    meta: {
-      errorMessage: 'Failed to fetch jobs'
-    },
-    onSettled: (data, error: Error | null) => {
-      if (error?.message === 'Please login to view jobs') {
+    retry: 1,
+    onError: (error: Error) => {
+      if (error.message === 'Please login to view jobs') {
         toast({
           title: "Authentication Required",
           description: "Please login to view jobs",
           variant: "destructive",
         });
         navigate('/login');
-      } else if (error) {
+      } else {
         toast({
           title: "Error",
           description: error.message,

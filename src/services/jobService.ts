@@ -3,15 +3,17 @@ import { Job, Comment } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
 
+const defaultHeaders = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
+
 // Fetch all jobs
 export const fetchJobs = async (): Promise<Job[]> => {
   const response = await fetch(`${API_BASE_URL}/alljobs`, {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }
+    headers: defaultHeaders
   });
   
   if (response.status === 401) {
@@ -29,10 +31,7 @@ export const fetchJobs = async (): Promise<Job[]> => {
 export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${like}`, {
     method: 'PUT',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: defaultHeaders,
     credentials: 'include'
   });
   
@@ -51,10 +50,7 @@ export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
 export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
     method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: defaultHeaders,
     body: JSON.stringify(comment),
     credentials: 'include'
   });
@@ -96,10 +92,7 @@ export const bookmarkJob = async (jobId: number): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/bookmark`, {
       method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
+      headers: defaultHeaders,
       credentials: 'include'
     });
     
