@@ -1,4 +1,3 @@
-
 import { Job, Comment } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -69,6 +68,29 @@ export const applyForJob = async (jobId: number): Promise<void> => {
     appliedJobs.push(jobId);
     localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
   }
+};
+
+// Withdraw job application
+export const withdrawApplication = async (jobId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/withdraw`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to withdraw application');
+  }
+  
+  if (!response.ok) {
+    throw new Error('Failed to withdraw application');
+  }
+  
+  // Update local storage after withdrawal
+  const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+  const updatedJobs = appliedJobs.filter((id: number) => id !== jobId);
+  localStorage.setItem('appliedJobs', JSON.stringify(updatedJobs));
+  
+  window.dispatchEvent(new Event('applicationCountUpdated'));
 };
 
 // Like/unlike a job

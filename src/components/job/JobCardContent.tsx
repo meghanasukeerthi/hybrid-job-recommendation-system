@@ -1,8 +1,10 @@
+
 import { JobDetails } from "./JobDetails";
 import { JobComments } from "./JobComments";
 import { JobTrackingButton } from "./JobTrackingButton";
 import { LoadingSpinner } from "../ui/loading-spinner";
 import { Comment } from "@/types/job";
+import { Badge } from "@/components/ui/badge";
 
 interface JobCardContentProps {
   description: string;
@@ -19,6 +21,7 @@ interface JobCardContentProps {
   location: string;
   postedDate: number;
   salary?: string;
+  isApplied?: boolean;
 }
 
 export const JobCardContent = ({
@@ -35,10 +38,19 @@ export const JobCardContent = ({
   onAddComment,
   isCommentLoading,
   jobId,
-  isAnimating
+  isAnimating,
+  isApplied = false
 }: JobCardContentProps) => {
   return (
     <>
+      <div className="flex justify-between items-center mb-4">
+        {isApplied && (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Application Status: Under Review
+          </Badge>
+        )}
+      </div>
+
       <JobDetails
         location={location}
         postedDate={postedDate}
@@ -61,7 +73,11 @@ export const JobCardContent = ({
         {isCommentLoading ? (
           <LoadingSpinner className="w-6 h-6" />
         ) : (
-          <JobTrackingButton jobId={jobId} isAnimating={isAnimating} />
+          <JobTrackingButton 
+            jobId={jobId} 
+            isAnimating={isAnimating}
+            isApplied={isApplied}
+          />
         )}
       </div>
     </>

@@ -1,25 +1,27 @@
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { trackJob } from "@/services/jobService";
+import { trackJob, withdrawApplication } from "@/services/jobService";
 import { LoadingSpinner } from "../ui/loading-spinner";
 
 interface JobTrackingButtonProps {
   jobId: number;
   isAnimating: boolean;
+  isApplied?: boolean;
 }
 
-export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps) => {
-  const [hasApplied, setHasApplied] = useState(false);
+export const JobTrackingButton = ({ jobId, isAnimating, isApplied = false }: JobTrackingButtonProps) => {
+  const [hasApplied, setHasApplied] = useState(isApplied);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-    setHasApplied(appliedJobs.includes(jobId));
-  }, [jobId]);
+    setHasApplied(appliedJobs.includes(jobId) || isApplied);
+  }, [jobId, isApplied]);
 
   const trackMutation = useMutation({
     mutationFn: () => trackJob(jobId),
@@ -30,8 +32,8 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
         description: "Your application has been recorded. Track your progress in the Applications section.",
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
       
-      // Update application count
       const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
       if (!appliedJobs.includes(jobId)) {
         appliedJobs.push(jobId);
@@ -50,33 +52,56 @@ export const JobTrackingButton = ({ jobId, isAnimating }: JobTrackingButtonProps
     }
   });
 
-  const handleApply = () => {
-    if (!hasApplied) {
+  const withdrawMutation = useMutation({
+    mutationFn: () => withdrawApplication(jobId),
+    onSuccess: () => {
+      setHasApplied(false);
+      toast({
+        title: "Application Withdrawn",
+        description: "Your application has been successfully withdrawn.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+    },
+    onError: (error) => {
+      console.error('Application withdrawal error:', error);
+      toast({
+        title: "Withdrawal Failed",
+        description: "There was an error withdrawing your application. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleClick = () => {
+    if (hasApplied) {
+      withdrawMutation.mutate();
+    } else {
       trackMutation.mutate();
     }
   };
 
   return (
     <Button 
-      onClick={handleApply}
-      disabled={hasApplied || trackMutation.isPending}
+      onClick={handleClick}
+      disabled={trackMutation.isPending || withdrawMutation.isPending}
       className={cn(
         "w-2/3 mx-auto transform transition-all duration-300",
         "hover:scale-105 active:scale-95",
-        "rounded-lg shadow-lg hover:shadow-purple-500/50",
-        "bg-primary hover:bg-purple-600 hover:text-white",
+        "rounded-lg shadow-lg",
         isAnimating && "animate-scale-in",
-        hasApplied && "bg-green-500 hover:bg-green-600",
-        trackMutation.isPending && "opacity-70 cursor-wait"
+        hasApplied ? "bg-red-500 hover:bg-red-600" : "bg-primary hover:bg-purple-600",
+        "hover:text-white",
+        (trackMutation.isPending || withdrawMutation.isPending) && "opacity-70 cursor-wait"
       )}
     >
-      {trackMutation.isPending ? (
+      {trackMutation.isPending || withdrawMutation.isPending ? (
         <div className="flex items-center gap-2">
           <LoadingSpinner className="w-4 h-4" />
-          <span>Applying...</span>
+          <span>{hasApplied ? "Withdrawing..." : "Applying..."}</span>
         </div>
       ) : hasApplied ? (
-        "Applied ✓"
+        "Withdraw Application"
       ) : (
         "Apply Now"
       )}

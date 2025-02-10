@@ -41,6 +41,11 @@ const AppliedJobs = () => {
     );
   }
 
+  const jobsWithAppliedStatus = appliedJobs.map(job => ({
+    ...job,
+    isApplied: true
+  }));
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-8">
@@ -60,7 +65,7 @@ const AppliedJobs = () => {
             <p className="text-center text-muted-foreground mb-6">
               You have applied to {appliedJobs.length} job{appliedJobs.length !== 1 ? 's' : ''}
             </p>
-            <JobList jobs={appliedJobs} />
+            <JobList jobs={jobsWithAppliedStatus} />
           </div>
         )}
       </div>
