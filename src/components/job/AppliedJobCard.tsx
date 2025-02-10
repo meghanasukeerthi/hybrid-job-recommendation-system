@@ -25,12 +25,14 @@ export const AppliedJobCard = ({ job, applicationDate }: AppliedJobCardProps) =>
             </p>
           </div>
           
-          <div className="mt-4">
-            <JobTrackingButton 
-              jobId={job.id} 
-              isAnimating={false}
-              isApplied={true}
-            />
+          <div className="flex justify-end mt-4">
+            <div className="w-1/3">
+              <JobTrackingButton 
+                jobId={job.id} 
+                isAnimating={false}
+                isApplied={true}
+              />
+            </div>
           </div>
         </div>
       </CardContent>

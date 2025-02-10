@@ -1,3 +1,4 @@
+
 export type JobCategory = "fresher" | "experienced" | "remote" | "internship";
 
 export interface Comment {
@@ -26,4 +27,5 @@ export interface Job {
   comments: Comment[];
   likeCount: number;
   salary?: string;
+  applicationDate?: string | number;
 }

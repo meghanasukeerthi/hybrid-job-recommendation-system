@@ -60,11 +60,11 @@ const AppliedJobs = () => {
               You have applied to {appliedJobs.length} job{appliedJobs.length !== 1 ? 's' : ''}
             </p>
             <div className="grid gap-4">
-              {appliedJobs.map((job) => (
+              {appliedJobs.map((appliedJob) => (
                 <AppliedJobCard 
-                  key={job.id} 
-                  job={job} 
-                  applicationDate={job.applicationDate || Date.now()}
+                  key={appliedJob.id} 
+                  job={appliedJob} 
+                  applicationDate={appliedJob.applicationDate ? new Date(appliedJob.applicationDate).getTime() : Date.now()}
                 />
               ))}
             </div>
