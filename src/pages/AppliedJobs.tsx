@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { fetchAppliedJobs } from "@/services/jobService";
 import { AppliedJobCard } from "@/components/job/AppliedJobCard";
+import { motion } from "framer-motion";
 
 interface AppliedJob {
   job: {
     id: number;
     title: string;
+    company: string;
+    location: string;
   };
   applicationDate: string;
 }
@@ -42,7 +45,7 @@ const AppliedJobs = () => {
 
   if (isLoading) {
     return (
-      <div className="container py-8 flex justify-center items-center">
+      <div className="container py-8 flex justify-center items-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
@@ -50,33 +53,42 @@ const AppliedJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
-        <h3 className="text-3xl font-bold mb-8 text-center">My Applications</h3>
-        {appliedJobs.length === 0 ? (
-          <div className="text-center text-muted-foreground">
-            <p className="text-xl">You haven't applied to any jobs yet.</p>
-            <button 
-              onClick={() => navigate('/')}
-              className="mt-4 text-primary hover:underline"
-            >
-              Browse available jobs
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <p className="text-center text-muted-foreground mb-6">
-              You have applied to {appliedJobs.length} job{appliedJobs.length !== 1 ? 's' : ''}
-            </p>
-            <div className="grid gap-4">
-              {appliedJobs.map((appliedJob) => (
-                <AppliedJobCard 
-                  key={appliedJob.job.id} 
-                  job={appliedJob}
-                />
-              ))}
+      <div className="container py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-4xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            My Applications
+          </h3>
+          
+          {appliedJobs.length === 0 ? (
+            <div className="text-center mt-16 space-y-4 bg-card p-8 rounded-lg shadow-lg">
+              <p className="text-xl text-muted-foreground">You haven't applied to any jobs yet.</p>
+              <button 
+                onClick={() => navigate('/')}
+                className="text-primary hover:text-primary/80 underline-offset-4 hover:underline transition-colors"
+              >
+                Browse available jobs
+              </button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="space-y-8">
+              <p className="text-center text-muted-foreground mb-8">
+                You have applied to {appliedJobs.length} job{appliedJobs.length !== 1 ? 's' : ''}
+              </p>
+              <div className="grid gap-6">
+                {appliedJobs.map((appliedJob, index) => (
+                  <motion.div
+                    key={appliedJob.job.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <AppliedJobCard job={appliedJob} />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

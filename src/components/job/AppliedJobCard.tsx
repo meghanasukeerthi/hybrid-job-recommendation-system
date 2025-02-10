@@ -3,12 +3,15 @@ import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JobTrackingButton } from "./JobTrackingButton";
+import { Building2, MapPin, Calendar } from "lucide-react";
 
 interface AppliedJobCardProps {
   job: {
     job: {
       id: number;
       title: string;
+      company: string;
+      location: string;
     };
     applicationDate: string;
   };
@@ -16,21 +19,39 @@ interface AppliedJobCardProps {
 
 export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
   return (
-    <Card className="w-full">
-      <CardContent className="pt-6">
+    <Card className="w-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+      <CardContent className="p-6">
         <div className="space-y-4">
-          <div className="flex flex-col gap-2">
-            <h4 className="text-xl font-semibold">{job.job.title}</h4>
-            <Badge variant="secondary" className="bg-green-100 text-green-800 w-fit">
-              Status: Under Review
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              Applied {formatDistanceToNow(new Date(job.applicationDate))} ago
-            </p>
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-start">
+              <div className="space-y-1">
+                <h4 className="text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {job.job.title}
+                </h4>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Building2 className="w-4 h-4" />
+                  <span>{job.job.company}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  <span>{job.job.location}</span>
+                </div>
+              </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-200">
+                Status: Under Review
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4" />
+              <p>
+                Applied {formatDistanceToNow(new Date(job.applicationDate))} ago
+              </p>
+            </div>
           </div>
           
           <div className="flex justify-end mt-4">
-            <div className="w-1/4">
+            <div className="w-32">
               <JobTrackingButton 
                 jobId={job.job.id} 
                 isAnimating={false}
