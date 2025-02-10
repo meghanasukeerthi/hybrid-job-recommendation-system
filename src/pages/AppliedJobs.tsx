@@ -2,9 +2,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Job } from "@/types/job";
-import { JobList } from "@/components/JobList";
 import { fetchAppliedJobs } from "@/services/jobService";
+import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 
 const AppliedJobs = () => {
   const { toast } = useToast();
@@ -41,11 +40,6 @@ const AppliedJobs = () => {
     );
   }
 
-  const jobsWithAppliedStatus = appliedJobs.map(job => ({
-    ...job,
-    isApplied: true
-  }));
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-8">
@@ -65,7 +59,15 @@ const AppliedJobs = () => {
             <p className="text-center text-muted-foreground mb-6">
               You have applied to {appliedJobs.length} job{appliedJobs.length !== 1 ? 's' : ''}
             </p>
-            <JobList jobs={jobsWithAppliedStatus} />
+            <div className="grid gap-4">
+              {appliedJobs.map((job) => (
+                <AppliedJobCard 
+                  key={job.id} 
+                  job={job} 
+                  applicationDate={job.applicationDate || Date.now()}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
