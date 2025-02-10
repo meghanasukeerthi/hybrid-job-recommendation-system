@@ -22,15 +22,18 @@ const Login = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include'
+        body: JSON.stringify({ username, password })
       });
 
       if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('jwt_token', data.token);
+        
         toast({
           title: "Success",
           description: "Logged in successfully",
         });
+        
         // Trigger navbar state update
         window.dispatchEvent(new Event('auth-change'));
         navigate('/');

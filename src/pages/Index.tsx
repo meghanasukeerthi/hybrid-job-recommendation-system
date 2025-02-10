@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -24,15 +25,15 @@ const Index = () => {
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     retry: 1,
-    onError: (error: Error) => {
-      if (error.message === 'Please login to view jobs') {
+    onSettled: (data, error: Error | null) => {
+      if (error?.message === 'Please login to view jobs') {
         toast({
           title: "Authentication Required",
           description: "Please login to view jobs",
           variant: "destructive",
         });
         navigate('/login');
-      } else {
+      } else if (error) {
         toast({
           title: "Error",
           description: error.message,
