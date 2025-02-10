@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { WelcomeHeader } from "@/components/WelcomeHeader";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
 import { Job } from "@/types/job";
+import { JobFiltersSection } from "@/components/job/JobFiltersSection";
 
 const Index = () => {
   const { toast } = useToast();
@@ -25,15 +25,15 @@ const Index = () => {
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     retry: 1,
-    onSettled: (data, error: Error | null) => {
-      if (error?.message === 'Please login to view jobs') {
+    onError: (error: Error) => {
+      if (error.message === 'Please login to view jobs') {
         toast({
           title: "Authentication Required",
           description: "Please login to view jobs",
           variant: "destructive",
         });
         navigate('/login');
-      } else if (error) {
+      } else {
         toast({
           title: "Error",
           description: error.message,
@@ -93,9 +93,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="container py-8 animate-fade-in">
-        <WelcomeHeader 
+        <JobFiltersSection 
+          searchQuery={searchQuery}
           onSearch={handleSearch}
-          onFilterClick={() => {}}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
           filters={filters}
