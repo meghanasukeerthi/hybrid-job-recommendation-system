@@ -5,11 +5,19 @@ import { useToast } from "@/hooks/use-toast";
 import { fetchAppliedJobs } from "@/services/jobService";
 import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 
+interface AppliedJob {
+  job: {
+    id: number;
+    title: string;
+  };
+  applicationDate: string;
+}
+
 const AppliedJobs = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: appliedJobs = [], isLoading } = useQuery({
+  const { data: appliedJobs = [], isLoading } = useQuery<AppliedJob[]>({
     queryKey: ['appliedJobs'],
     queryFn: fetchAppliedJobs,
     meta: {

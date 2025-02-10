@@ -1,3 +1,4 @@
+
 import { Job } from "@/types/job";
 
 interface UserProfile {
@@ -17,7 +18,6 @@ const calculateSkillScore = (jobSkills: string[], userSkills: string[]): number 
     )
   );
   
-  // Weight: 1.0 for skills match
   return matches.length > 0 ? (matches.length / jobSkills.length) * 1.0 : 0;
 };
 
@@ -28,7 +28,6 @@ const calculateExperienceScore = (jobExperience: { years: number }, userExperien
   const userYears = parseInt(userYearsMatch[0]);
   const jobYears = jobExperience.years;
   
-  // Weight: 0.9 for experience match
   if (Math.abs(userYears - jobYears) <= 1) return 0.9;
   if (userYears >= jobYears) return 0.7;
   return Math.max(0, 0.5 - (jobYears - userYears) * 0.1);
@@ -42,7 +41,6 @@ const calculateEducationScore = (jobDescription: string, education: string): num
     jobDescription.toLowerCase().includes(keyword)
   );
   
-  // Weight: 0.4 for education match
   return matches.length > 0 ? (matches.length / educationKeywords.length) * 0.4 : 0;
 };
 
@@ -58,11 +56,10 @@ const calculateKeywordScore = (jobDescription: string, userProfile: UserProfile)
     jobDescription.toLowerCase().includes(keyword.toLowerCase())
   );
   
-  // Weight: 0.8 for keyword match
   return matches.length > 0 ? (matches.length / userKeywords.length) * 0.8 : 0;
 };
 
-export const calculateJobScore = (job: Job, userProfile: UserProfile): number => {
+const calculateJobScore = (job: Job, userProfile: UserProfile): number => {
   const skillScore = calculateSkillScore(job.requiredSkills, userProfile.skills);
   const experienceScore = calculateExperienceScore(job.experienceRequired, userProfile.experience);
   const educationScore = calculateEducationScore(job.description, userProfile.education);
@@ -72,16 +69,24 @@ export const calculateJobScore = (job: Job, userProfile: UserProfile): number =>
   return Number(totalScore.toFixed(2));
 };
 
-export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile): Job[] => {
-  const MINIMUM_SCORE = 1.3; // Updated minimum score threshold
+export const filterOutAppliedJobs = (jobs: Job[], appliedJobs: any[]): Job[] => {
+  const appliedJobIds = appliedJobs.map(aj => aj.job.id);
+  return jobs.filter(job => !appliedJobIds.includes(job.id));
+};
+
+export const getRecommendedJobs = (jobs: Job[], userProfile: UserProfile, appliedJobs: any[] = []): Job[] => {
+  const MINIMUM_SCORE = 1.3;
   
-  // Initially show all jobs if no profile exists
+  // Filter out applied jobs first
+  const availableJobs = filterOutAppliedJobs(jobs, appliedJobs);
+  
+  // Initially show all available jobs if no profile exists
   if (!userProfile.skills?.length && !userProfile.experience && !userProfile.education) {
-    console.log('No user profile found, showing all jobs');
-    return jobs;
+    console.log('No user profile found, showing all available jobs');
+    return availableJobs;
   }
 
-  const scoredJobs = jobs.map(job => ({
+  const scoredJobs = availableJobs.map(job => ({
     job,
     score: calculateJobScore(job, userProfile)
   }));

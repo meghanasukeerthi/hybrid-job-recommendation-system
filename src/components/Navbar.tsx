@@ -7,19 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { fetchAppliedJobs } from "@/services/jobService";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  const { data: applicationCount = 0 } = useQuery({
-    queryKey: ['applicationCount'],
-    queryFn: () => {
-      const applications = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      return applications.length;
-    },
-    refetchInterval: 1000
+  const { data: appliedJobs = [] } = useQuery({
+    queryKey: ['appliedJobs'],
+    queryFn: fetchAppliedJobs,
+    enabled: isAuthenticated
   });
 
   useEffect(() => {
@@ -84,7 +82,7 @@ const Navbar = () => {
               <Button variant="outline" className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-muted-foreground" />
                 <Badge variant="secondary" className="text-sm">
-                  Applications: {applicationCount}
+                  Applications: {appliedJobs.length}
                 </Badge>
               </Button>
             </Link>
