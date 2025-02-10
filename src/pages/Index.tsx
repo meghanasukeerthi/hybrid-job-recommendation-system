@@ -25,15 +25,15 @@ const Index = () => {
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     retry: 1,
-    onSettled: (data, error: Error | null) => {
-      if (error?.message === 'Please login to view jobs') {
+    onError: (error: Error) => {
+      if (error.message === 'Please login to view jobs') {
         toast({
           title: "Authentication Required",
           description: "Please login to view jobs",
           variant: "destructive",
         });
         navigate('/login');
-      } else if (error) {
+      } else {
         toast({
           title: "Error",
           description: error.message,
