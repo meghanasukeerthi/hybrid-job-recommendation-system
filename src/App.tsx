@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
+import AppliedJobs from "./pages/AppliedJobs";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/applied-jobs" element={<AppliedJobs />} />
               </Routes>
             </main>
           </div>

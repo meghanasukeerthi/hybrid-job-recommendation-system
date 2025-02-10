@@ -30,6 +30,47 @@ export const fetchJobs = async (): Promise<Job[]> => {
   return response.json();
 };
 
+// Fetch applied jobs
+export const fetchAppliedJobs = async (): Promise<Job[]> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/applied`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to view applied jobs');
+  }
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch applied jobs');
+  }
+  
+  return response.json();
+};
+
+// Apply for a job
+export const applyForJob = async (jobId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/apply`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to apply for jobs');
+  }
+  
+  if (!response.ok) {
+    throw new Error('Failed to apply for job');
+  }
+  
+  // Update local storage for application count
+  const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+  if (!appliedJobs.includes(jobId)) {
+    appliedJobs.push(jobId);
+    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+  }
+};
+
 // Like/unlike a job
 export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${like}`, {
@@ -69,11 +110,11 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
 
 // Track job application
 export const trackJob = async (jobId: number): Promise<void> => {
-  const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-  if (!appliedJobs.includes(jobId)) {
-    appliedJobs.push(jobId);
-    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+  try {
+    await applyForJob(jobId);
     window.dispatchEvent(new Event('applicationCountUpdated'));
+  } catch (error) {
+    throw error;
   }
 };
 

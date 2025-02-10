@@ -79,12 +79,16 @@ const Navbar = () => {
           </Button>
         </div>
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-muted-foreground" />
-            <Badge variant="secondary" className="text-sm">
-              Applications: {applicationCount}
-            </Badge>
-          </div>
+          {isAuthenticated && (
+            <Link to="/applied-jobs">
+              <Button variant="outline" className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-muted-foreground" />
+                <Badge variant="secondary" className="text-sm">
+                  Applications: {applicationCount}
+                </Badge>
+              </Button>
+            </Link>
+          )}
           <ThemeToggle />
           {!isAuthenticated ? (
             <Button 
@@ -120,4 +124,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
