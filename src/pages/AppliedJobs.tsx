@@ -49,7 +49,7 @@ const AppliedJobs = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-8">
-        <h1 className="text-4xl font-bold mb-8 text-center">My Applications</h1>
+        <h3 className="text-3xl font-bold mb-8 text-center">My Applications</h3>
         {appliedJobs.length === 0 ? (
           <div className="text-center text-muted-foreground">
             <p className="text-xl">You haven't applied to any jobs yet.</p>

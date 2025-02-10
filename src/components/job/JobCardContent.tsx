@@ -5,6 +5,7 @@ import { JobTrackingButton } from "./JobTrackingButton";
 import { LoadingSpinner } from "../ui/loading-spinner";
 import { Comment } from "@/types/job";
 import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
 
 interface JobCardContentProps {
   description: string;
@@ -22,6 +23,7 @@ interface JobCardContentProps {
   postedDate: number;
   salary?: string;
   isApplied?: boolean;
+  applicationDate?: number;
 }
 
 export const JobCardContent = ({
@@ -39,15 +41,23 @@ export const JobCardContent = ({
   isCommentLoading,
   jobId,
   isAnimating,
-  isApplied = false
+  isApplied = false,
+  applicationDate
 }: JobCardContentProps) => {
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col gap-2 mb-4">
         {isApplied && (
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            Application Status: Under Review
-          </Badge>
+          <>
+            <Badge variant="secondary" className="bg-green-100 text-green-800 w-fit">
+              Application Status: Under Review
+            </Badge>
+            {applicationDate && (
+              <p className="text-sm text-muted-foreground">
+                Applied {formatDistanceToNow(applicationDate)} ago
+              </p>
+            )}
+          </>
         )}
       </div>
 

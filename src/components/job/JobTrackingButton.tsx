@@ -19,9 +19,8 @@ export const JobTrackingButton = ({ jobId, isAnimating, isApplied = false }: Job
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-    setHasApplied(appliedJobs.includes(jobId) || isApplied);
-  }, [jobId, isApplied]);
+    setHasApplied(isApplied);
+  }, [isApplied]);
 
   const trackMutation = useMutation({
     mutationFn: () => trackJob(jobId),
@@ -33,12 +32,6 @@ export const JobTrackingButton = ({ jobId, isAnimating, isApplied = false }: Job
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
-      
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
-      if (!appliedJobs.includes(jobId)) {
-        appliedJobs.push(jobId);
-        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-      }
       
       window.dispatchEvent(new Event('applicationCountUpdated'));
     },
@@ -62,6 +55,8 @@ export const JobTrackingButton = ({ jobId, isAnimating, isApplied = false }: Job
       });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+      
+      window.dispatchEvent(new Event('applicationCountUpdated'));
     },
     onError: (error) => {
       console.error('Application withdrawal error:', error);
