@@ -1,3 +1,4 @@
+
 import {
   Carousel,
   CarouselContent,
@@ -9,6 +10,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getRecommendedJobs } from "@/utils/jobMatchingUtils";
 import { JobSectionButtons } from "./job/JobSectionButtons";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAppliedJobs } from "@/services/jobService";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
@@ -27,6 +30,15 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>(allJobs);
 
+  // Fetch applied jobs
+  const { data: appliedJobs = [] } = useQuery({
+    queryKey: ['appliedJobs'],
+    queryFn: fetchAppliedJobs,
+  });
+
+  // Create a set of applied job IDs for efficient lookup
+  const appliedJobIds = new Set(appliedJobs.map(job => job.id));
+
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
     const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultUserProfile;
@@ -42,7 +54,6 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   const sortJobs = (jobs: Job[], isRecommended: boolean) => {
     return [...jobs].sort((a, b) => {
-      // For recommended jobs, don't apply like-based sorting
       if (isRecommended) {
         switch (sortOrder) {
           case 'newest':
@@ -58,12 +69,10 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         }
       }
       
-      // For all jobs, sort by like count first
       if (a.likeCount !== b.likeCount) {
         return b.likeCount - a.likeCount;
       }
       
-      // Then apply the selected sort order
       switch (sortOrder) {
         case 'newest':
           return b.postedDate - a.postedDate;
@@ -81,8 +90,16 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
 
   useEffect(() => {
     const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
-    setDisplayedJobs(sortJobs(jobsToDisplay, activeSection === 'recommended'));
-  }, [activeSection, sortOrder, allJobs, recommendedJobs]);
+    const sortedJobs = sortJobs(jobsToDisplay, activeSection === 'recommended');
+    
+    // Add isApplied property to each job
+    const jobsWithAppliedStatus = sortedJobs.map(job => ({
+      ...job,
+      isApplied: appliedJobIds.has(job.id)
+    }));
+    
+    setDisplayedJobs(jobsWithAppliedStatus);
+  }, [activeSection, sortOrder, allJobs, recommendedJobs, appliedJobIds]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">

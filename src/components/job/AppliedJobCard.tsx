@@ -12,6 +12,22 @@ interface AppliedJobCardProps {
       title: string;
       company: string;
       location: string;
+      type: string;
+      category: string;
+      description: string;
+      postedDate: number;
+      requiredSkills?: string[];
+      experienceRequired: {
+        years: number;
+      };
+      comments: Array<{
+        id: number;
+        text: string;
+        author: string;
+        date: number;
+      }>;
+      likeCount: number;
+      salary?: number;
     };
     applicationDate: string;
   };
