@@ -26,7 +26,11 @@ const SearchHistory = () => {
   const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
 
   useEffect(() => {
-    setHistory(getSearchHistory());
+    const fetchHistory = async () => {
+      const searchHistory = await getSearchHistory();
+      setHistory(searchHistory);
+    };
+    fetchHistory();
   }, []);
 
   const handleSearchClick = (query: string) => {

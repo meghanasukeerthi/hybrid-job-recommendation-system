@@ -5,14 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { fetchAppliedJobs } from "@/services/jobService";
 import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 import { motion } from "framer-motion";
+import type { Job } from "@/types/job";
 
 interface AppliedJob {
-  job: {
-    id: number;
-    title: string;
-    company: string;
-    location: string;
-  };
+  job: Job;
   applicationDate: string;
 }
 
@@ -27,11 +23,19 @@ const AppliedJobs = () => {
       return jobs.map(job => ({
         job: {
           id: job.id,
-          title: job.title,
-          company: job.company,
-          location: job.location
+          title: job.title || 'Untitled Position',
+          company: job.company || 'Company Name Not Available',
+          location: job.location || 'Location Not Specified',
+          type: job.type || 'Full-time',
+          category: job.category || 'experienced',
+          description: job.description || '',
+          postedDate: job.postedDate || Date.now(),
+          requiredSkills: job.requiredSkills || [],
+          experienceRequired: job.experienceRequired || { years: 0 },
+          comments: job.comments || [],
+          likeCount: job.likeCount || 0
         },
-        applicationDate: new Date().toISOString() // You might want to get this from your API
+        applicationDate: job.applicationDate || new Date().toISOString()
       }));
     },
     meta: {
