@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
 import AppliedJobs from "./pages/AppliedJobs";
+import SearchHistory from "./pages/SearchHistory";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
                 <Route path="/search" element={<Search />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/applied-jobs" element={<AppliedJobs />} />
+                <Route path="/search-history" element={<SearchHistory />} />
               </Routes>
             </main>
           </div>
