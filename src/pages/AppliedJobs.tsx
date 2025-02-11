@@ -5,12 +5,24 @@ import { useToast } from "@/hooks/use-toast";
 import { fetchAppliedJobs } from "@/services/jobService";
 import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 import { motion } from "framer-motion";
-import type { Job } from "@/types/job";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AppliedJob {
-  job: Job;
+  job: {
+    id: number;
+    title: string;
+    company: string;
+    location: string;
+    type: string;
+    category: string;
+    description: string;
+    postedDate: number;
+    requiredSkills: string[];
+    experienceRequired: { years: number };
+    comments: any[];
+    likeCount: number;
+  };
   applicationDate: string;
 }
 
