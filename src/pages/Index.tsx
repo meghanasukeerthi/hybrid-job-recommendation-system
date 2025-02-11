@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -81,7 +82,7 @@ const Index = () => {
       if (!searchQuery) return true;
       
       const matchScore = calculateMatchScore(job, searchQuery);
-      return matchScore >= 0.3; // Reduced threshold to 30% for more lenient matching
+      return matchScore >= 0.4; // Changed threshold to 40% for more lenient matching
     }).filter(job => {
       const matchesType = filters.type === "all" || job.type === filters.type;
       const matchesLocation = !filters.location || 
