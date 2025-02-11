@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
@@ -27,11 +28,19 @@ export const ResumeUpload = ({ onResumeData }: ResumeUploadProps) => {
       validateFile(file);
       setIsUploading(true);
 
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        throw new Error("Please login to upload your resume");
+      }
+
       const formData = new FormData();
       formData.append("file", file);
 
       const response = await fetch("http://localhost:8080/resume/upload", {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
