@@ -22,7 +22,18 @@ const AppliedJobs = () => {
 
   const { data: appliedJobs = [], isLoading } = useQuery<AppliedJob[]>({
     queryKey: ['appliedJobs'],
-    queryFn: fetchAppliedJobs,
+    queryFn: async () => {
+      const jobs = await fetchAppliedJobs();
+      return jobs.map(job => ({
+        job: {
+          id: job.id,
+          title: job.title,
+          company: job.company,
+          location: job.location
+        },
+        applicationDate: new Date().toISOString() // You might want to get this from your API
+      }));
+    },
     meta: {
       onError: (error: Error) => {
         if (error.message === 'Please login to view applied jobs') {
