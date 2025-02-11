@@ -19,7 +19,7 @@ interface AppliedJobCardProps {
 
 export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
   return (
-    <Card className="w-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+    <Card className="w-[70%] mx-auto hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex flex-col gap-3">
@@ -51,7 +51,7 @@ export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
           </div>
           
           <div className="flex justify-end mt-4">
-            <div className="w-64"> {/* Increased from w-32 to w-64 (200%) */}
+            <div className="w-64">
               <JobTrackingButton 
                 jobId={job.job.id} 
                 isAnimating={false}

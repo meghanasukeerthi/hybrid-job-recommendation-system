@@ -1,4 +1,3 @@
-
 const STORAGE_KEY = 'search_history';
 const MAX_KEYWORDS = 5;
 
@@ -21,11 +20,9 @@ export const getSearchHistory = (): SearchHistoryEntry[] => {
 
 export const addSearchKeyword = (keyword: string): void => {
   const history = getSearchHistory();
-  if (!history.some(entry => entry.query === keyword)) {
-    const newEntry = { query: keyword, timestamp: Date.now() };
-    const newHistory = [newEntry, ...history].slice(0, MAX_KEYWORDS);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-  }
+  const newEntry = { query: keyword, timestamp: Date.now() };
+  const newHistory = [newEntry, ...history].slice(0, MAX_KEYWORDS);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 };
 
 export const clearSearchHistory = (range: string = 'all'): void => {

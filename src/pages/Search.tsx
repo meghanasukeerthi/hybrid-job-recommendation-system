@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { JobCard } from "@/components/JobCard";
@@ -52,7 +51,7 @@ const Search = () => {
 
   if (error) {
     const isAuthError = error instanceof Error && 
-      error.message === 'Please login to view jobs';
+      (error.message === 'Please login to view jobs' || error.message.includes('login'));
 
     if (isAuthError) {
       return (
@@ -60,10 +59,11 @@ const Search = () => {
           <div className="text-center space-y-6 max-w-md mx-auto p-8 rounded-lg bg-card shadow-lg">
             <LogIn className="w-16 h-16 mx-auto text-primary animate-bounce" />
             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Authentication Required
+              Welcome to Job Search!
             </h2>
             <p className="text-muted-foreground">
-              Please login to view available jobs and continue your job search journey
+              To start your job search journey and explore available opportunities, please log in to your account. 
+              New here? Creating an account takes just a minute!
             </p>
             <Button 
               onClick={() => navigate('/login')}
@@ -77,8 +77,19 @@ const Search = () => {
     }
 
     return (
-      <div className="container py-8 text-center text-red-500">
-        Error loading jobs. Please try again later.
+      <div className="container min-h-[60vh] flex flex-col items-center justify-center">
+        <div className="text-center space-y-4 max-w-md mx-auto p-8 rounded-lg bg-card shadow-lg">
+          <h2 className="text-2xl font-bold text-destructive">Oops!</h2>
+          <p className="text-muted-foreground">
+            We're having trouble loading the jobs right now. Please try again in a few moments.
+          </p>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="bg-primary hover:bg-primary/90 text-white"
+          >
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }
