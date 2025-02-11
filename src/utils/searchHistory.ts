@@ -16,47 +16,32 @@ export const getSearchHistory = async (): Promise<SearchHistoryEntry[]> => {
     });
 
     if (!response.ok) {
-      // Fallback to local storage if API fails
-      const history = localStorage.getItem(STORAGE_KEY);
-      if (!history) return [];
-      return JSON.parse(history);
+      throw new Error('Failed to fetch search history');
     }
 
     const serverHistory = await response.json();
-    // Update local storage with server data
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(serverHistory));
-    return serverHistory;
+    return serverHistory.map((entry: any) => ({
+      query: entry.query,
+      timestamp: new Date(entry.timestamp).getTime()
+    }));
   } catch (error) {
-    // Fallback to local storage on API error
-    const history = localStorage.getItem(STORAGE_KEY);
-    if (!history) return [];
-    return JSON.parse(history);
+    console.error('Error fetching history:', error);
+    return [];
   }
 };
 
 export const addSearchKeyword = async (keyword: string): Promise<void> => {
-  const newEntry = { query: keyword, timestamp: Date.now() };
-  
-  try {
-    const response = await fetch('http://localhost:8080/jobs/history', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-      },
-      body: JSON.stringify(newEntry),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to save search history to server');
-    }
-  } catch (error) {
-    console.error('Error saving to server, falling back to local storage:', error);
-    // Fallback to local storage
-    const history = await getSearchHistory();
-    const newHistory = [newEntry, ...history].slice(0, MAX_KEYWORDS);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-  }
+  // Send to backend without waiting for response
+  fetch('http://localhost:8080/jobs/search', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
+    },
+    // Using query parameter as specified in the controller
+    params: { query: keyword }
+  }).catch(error => {
+    console.error('Error saving search history:', error);
+  });
 };
 
 export const clearSearchHistory = async (range: string = 'all'): Promise<void> => {
@@ -69,36 +54,10 @@ export const clearSearchHistory = async (range: string = 'all'): Promise<void> =
     });
 
     if (!response.ok) {
-      throw new Error('Failed to clear search history on server');
+      throw new Error('Failed to clear search history');
     }
   } catch (error) {
-    console.error('Error clearing history on server, falling back to local storage:', error);
-    // Fallback to local storage
-    const history = await getSearchHistory();
-    const now = Date.now();
-    
-    let cutoffTime = now;
-    switch (range) {
-      case 'last_hour':
-        cutoffTime = now - (60 * 60 * 1000);
-        break;
-      case 'last_day':
-        cutoffTime = now - (24 * 60 * 60 * 1000);
-        break;
-      case 'last_week':
-        cutoffTime = now - (7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'last_month':
-        cutoffTime = now - (30 * 24 * 60 * 60 * 1000);
-        break;
-      case 'all':
-        localStorage.removeItem(STORAGE_KEY);
-        return;
-      default:
-        throw new Error('Invalid range specified');
-    }
-
-    const filteredHistory = history.filter(entry => entry.timestamp < cutoffTime);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredHistory));
+    console.error('Error clearing history:', error);
+    throw error;
   }
 };

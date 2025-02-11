@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -27,33 +26,50 @@ const SearchHistory = () => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      const searchHistory = await getSearchHistory();
-      setHistory(searchHistory);
+      try {
+        const searchHistory = await getSearchHistory();
+        setHistory(searchHistory);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch search history",
+          variant: "destructive",
+        });
+      }
     };
     fetchHistory();
-  }, []);
+  }, [toast]);
 
   const handleSearchClick = (query: string) => {
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  const handleClearHistory = (range: string) => {
-    clearSearchHistory(range);
-    setHistory(getSearchHistory());
-    
-    const rangeText = {
-      last_hour: "last hour's",
-      last_day: "last day's",
-      last_week: "last week's",
-      last_month: "last month's",
-      all: "all"
-    }[range];
+  const handleClearHistory = async (range: string) => {
+    try {
+      await clearSearchHistory(range);
+      const updatedHistory = await getSearchHistory();
+      setHistory(updatedHistory);
+      
+      const rangeText = {
+        last_hour: "last hour's",
+        last_day: "last day's",
+        last_week: "last week's",
+        last_month: "last month's",
+        all: "all"
+      }[range];
 
-    toast({
-      title: "Search History Cleared",
-      description: `Successfully cleared ${rangeText} search history.`,
-      duration: 3000,
-    });
+      toast({
+        title: "Search History Cleared",
+        description: `Successfully cleared ${rangeText} search history.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear search history",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

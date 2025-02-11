@@ -13,7 +13,15 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const [searchHistory] = useState(getSearchHistory());
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryEntry[]>([]);
+
+  useEffect(() => {
+    const loadSearchHistory = async () => {
+      const history = await getSearchHistory();
+      setSearchHistory(history);
+    };
+    loadSearchHistory();
+  }, []);
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
@@ -105,7 +113,7 @@ const Search = () => {
             <div className="flex gap-2 justify-center flex-wrap">
               {searchHistory.map((entry, index) => (
                 <button
-                  key={index}
+                  key={`${entry.query}-${entry.timestamp}`}
                   onClick={() => handleSearch(entry.query)}
                   className="text-sm px-3 py-1 rounded-full bg-purple-500/10 
                            text-purple-500 hover:bg-purple-500/20 transition-colors"
