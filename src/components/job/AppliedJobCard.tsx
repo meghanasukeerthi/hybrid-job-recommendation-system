@@ -19,7 +19,7 @@ interface AppliedJobCardProps {
 
 export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
   return (
-    <Card className="w-[70%] mx-auto hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+    <Card className="w-[70%] mx-auto hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group relative pb-16">
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex flex-col gap-3">
@@ -49,18 +49,17 @@ export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
               </p>
             </div>
           </div>
-          
-          <div className="flex justify-end mt-4">
-            <div className="w-64">
-              <JobTrackingButton 
-                jobId={job.job.id} 
-                isAnimating={false}
-                isApplied={true}
-              />
-            </div>
-          </div>
         </div>
       </CardContent>
+      <div className="absolute bottom-4 right-4">
+        <div className="w-64">
+          <JobTrackingButton 
+            jobId={job.job.id} 
+            isAnimating={false}
+            isApplied={true}
+          />
+        </div>
+      </div>
     </Card>
   );
 };

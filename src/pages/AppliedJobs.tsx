@@ -6,6 +6,8 @@ import { fetchAppliedJobs } from "@/services/jobService";
 import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 import { motion } from "framer-motion";
 import type { Job } from "@/types/job";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AppliedJob {
   job: Job;
@@ -18,26 +20,7 @@ const AppliedJobs = () => {
 
   const { data: appliedJobs = [], isLoading } = useQuery<AppliedJob[]>({
     queryKey: ['appliedJobs'],
-    queryFn: async () => {
-      const jobs = await fetchAppliedJobs();
-      return jobs.map(job => ({
-        job: {
-          id: job.id,
-          title: job.title || 'Untitled Position',
-          company: job.company || 'Company Name Not Available',
-          location: job.location || 'Location Not Specified',
-          type: job.type || 'Full-time',
-          category: job.category || 'experienced',
-          description: job.description || '',
-          postedDate: job.postedDate || Date.now(),
-          requiredSkills: job.requiredSkills || [],
-          experienceRequired: job.experienceRequired || { years: 0 },
-          comments: job.comments || [],
-          likeCount: job.likeCount || 0
-        },
-        applicationDate: job.applicationDate || new Date().toISOString()
-      }));
-    },
+    queryFn: fetchAppliedJobs,
     meta: {
       onError: (error: Error) => {
         if (error.message === 'Please login to view applied jobs') {
@@ -70,6 +53,15 @@ const AppliedJobs = () => {
     <div className="min-h-screen bg-background">
       <div className="container py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-6 hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
           <h3 className="text-4xl font-bold mb-2 text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
             My Applications
           </h3>
