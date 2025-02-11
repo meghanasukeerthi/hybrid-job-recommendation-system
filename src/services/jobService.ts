@@ -30,7 +30,10 @@ export const fetchJobs = async (): Promise<Job[]> => {
 };
 
 // Fetch applied jobs
-export const fetchAppliedJobs = async (): Promise<Job[]> => {
+export const fetchAppliedJobs = async (): Promise<{
+  job: Job;
+  applicationDate: string;
+}[]> => {
   const response = await fetch(`${API_BASE_URL}/jobs/applied`, {
     method: 'GET',
     headers: getAuthHeaders()

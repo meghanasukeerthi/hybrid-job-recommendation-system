@@ -7,31 +7,10 @@ import { AppliedJobCard } from "@/components/job/AppliedJobCard";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Job } from "@/types/job";
 
 interface AppliedJob {
-  job: {
-    id: number;
-    title: string;
-    company: string;
-    location: string;
-    type: string;
-    category: string;
-    description: string;
-    postedDate: number;
-    requiredSkills: string[];
-    experienceRequired: {
-      id?: number;
-      years: number;
-    };
-    comments: Array<{
-      id: number;
-      text: string;
-      author: string;
-      date: number;
-    }>;
-    likeCount: number;
-    salary: number;
-  };
+  job: Job;
   applicationDate: string;
 }
 

@@ -34,7 +34,7 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
   };
 
   return (
-    <div className="flex gap-2 max-w-[180%] mx-auto items-center">
+    <div className="flex gap-2 w-[180%] mx-auto items-center">
       <form onSubmit={handleSubmit} className={`flex gap-2 flex-1 ${className || ''}`}>
         <div className="flex-1">
           <Input 

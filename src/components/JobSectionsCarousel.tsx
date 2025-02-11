@@ -1,4 +1,3 @@
-
 import {
   Carousel,
   CarouselContent,
@@ -31,13 +30,13 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>(allJobs);
 
   // Fetch applied jobs
-  const { data: appliedJobs = [] } = useQuery({
+  const { data: appliedJobsData = [] } = useQuery({
     queryKey: ['appliedJobs'],
     queryFn: fetchAppliedJobs,
   });
 
   // Create a set of applied job IDs for efficient lookup
-  const appliedJobIds = new Set(appliedJobs.map(job => job.id));
+  const appliedJobIds = new Set(appliedJobsData.map(aj => aj.job.id));
 
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
