@@ -39,40 +39,27 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   // Create a set of applied job IDs for efficient lookup
   const appliedJobIds = new Set(appliedJobsData.map(aj => aj.job.id));
 
+  // Filter out applied jobs from allJobs
+  const filterAppliedJobs = (jobs: Job[]) => {
+    return jobs.filter(job => !appliedJobIds.has(job.id));
+  };
+
   useEffect(() => {
     const userProfileStr = localStorage.getItem('userProfile');
     const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultUserProfile;
     
-    const filteredJobs = getRecommendedJobs(allJobs, userProfile);
-    setRecommendedJobs(filteredJobs);
+    // Get recommended jobs and filter out applied ones
+    const filteredRecommendedJobs = filterAppliedJobs(getRecommendedJobs(allJobs, userProfile));
+    setRecommendedJobs(filteredRecommendedJobs);
 
     if (activeSection === 'recommended') {
-      setDisplayedJobs(filteredJobs);
-      toast(`Found ${filteredJobs.length} jobs matching your profile`);
+      setDisplayedJobs(filteredRecommendedJobs);
+      toast(`Found ${filteredRecommendedJobs.length} jobs matching your profile`);
     }
-  }, [allJobs, activeSection]);
+  }, [allJobs, activeSection, appliedJobIds]);
 
-  const sortJobs = (jobs: Job[], isRecommended: boolean) => {
+  const sortJobs = (jobs: Job[]) => {
     return [...jobs].sort((a, b) => {
-      if (isRecommended) {
-        switch (sortOrder) {
-          case 'newest':
-            return b.postedDate - a.postedDate;
-          case 'oldest':
-            return a.postedDate - b.postedDate;
-          case 'salaryLowToHigh':
-            return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
-          case 'salaryHighToLow':
-            return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
-          default:
-            return 0;
-        }
-      }
-      
-      if (a.likeCount !== b.likeCount) {
-        return b.likeCount - a.likeCount;
-      }
-      
       switch (sortOrder) {
         case 'newest':
           return b.postedDate - a.postedDate;
@@ -89,16 +76,16 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   };
 
   useEffect(() => {
+    // Get the appropriate jobs based on active section
     const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
-    const sortedJobs = sortJobs(jobsToDisplay, activeSection === 'recommended');
     
-    // Add isApplied property to each job
-    const jobsWithAppliedStatus = sortedJobs.map(job => ({
-      ...job,
-      isApplied: appliedJobIds.has(job.id)
-    }));
+    // Filter out applied jobs first
+    const filteredJobs = filterAppliedJobs(jobsToDisplay);
     
-    setDisplayedJobs(jobsWithAppliedStatus);
+    // Then sort the filtered jobs
+    const sortedJobs = sortJobs(filteredJobs);
+    
+    setDisplayedJobs(sortedJobs);
   }, [activeSection, sortOrder, allJobs, recommendedJobs, appliedJobIds]);
 
   return (
@@ -106,7 +93,7 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
       <JobSectionButtons
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        allJobsCount={allJobs.length}
+        allJobsCount={filterAppliedJobs(allJobs).length}
         recommendedJobsCount={recommendedJobs.length}
       />
       <Carousel className="w-full">
