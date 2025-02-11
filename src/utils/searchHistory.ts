@@ -1,6 +1,5 @@
 
 const STORAGE_KEY = 'search_history';
-const MAX_KEYWORDS = 5;
 
 interface SearchHistoryEntry {
   query: string;
@@ -30,8 +29,8 @@ export const getSearchHistory = async (): Promise<SearchHistoryEntry[]> => {
   }
 };
 
-export const addSearchKeyword = async (keyword: string): Promise<void> => {
-  // Send to backend without waiting for response
+export const addSearchKeyword = (keyword: string): void => {
+  // Fire and forget - just send to backend to save history
   fetch('http://localhost:8080/jobs/search', {
     method: 'GET',
     headers: {
