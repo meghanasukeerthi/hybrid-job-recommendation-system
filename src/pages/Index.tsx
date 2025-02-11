@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -62,16 +61,19 @@ const Index = () => {
       ...(job.requiredSkills || []),
     ];
     
-    const lowercaseQuery = query.toLowerCase();
-    let matchCount = 0;
+    const queryWords = query.toLowerCase().split(/\s+/);
+    let totalMatchScore = 0;
     
-    searchFields.forEach(field => {
-      if (field && field.toLowerCase().includes(lowercaseQuery)) {
-        matchCount++;
-      }
+    queryWords.forEach(word => {
+      searchFields.forEach(field => {
+        if (field && field.toLowerCase().includes(word)) {
+          totalMatchScore += 1;
+        }
+      });
     });
     
-    return matchCount / searchFields.length;
+    const maxPossibleScore = searchFields.length * queryWords.length;
+    return totalMatchScore / maxPossibleScore;
   };
 
   const filterAndSortJobs = (jobs: Job[]) => {
@@ -79,7 +81,7 @@ const Index = () => {
       if (!searchQuery) return true;
       
       const matchScore = calculateMatchScore(job, searchQuery);
-      return matchScore >= 0.5; // 50% match threshold
+      return matchScore >= 0.3; // Reduced threshold to 30% for more lenient matching
     }).filter(job => {
       const matchesType = filters.type === "all" || job.type === filters.type;
       const matchesLocation = !filters.location || 
@@ -92,13 +94,10 @@ const Index = () => {
       return matchesType && matchesLocation && matchesMinSalary && matchesMaxSalary;
     });
 
-    // Apply multiple sort criteria
     return filteredJobs.sort((a, b) => {
-      // First sort by the selected sort order
       const salaryA = parseInt(a.salary || "0");
       const salaryB = parseInt(b.salary || "0");
       
-      // Combine salary and date sorting
       const salaryDiff = sortOrder.includes('salaryLowToHigh') ? 
         salaryA - salaryB : 
         sortOrder.includes('salaryHighToLow') ? 
@@ -109,7 +108,6 @@ const Index = () => {
         sortOrder.includes('oldest') ?
           a.postedDate - b.postedDate : 0;
           
-      // Weighted combination of both criteria
       return salaryDiff * 0.5 + dateDiff * 0.5;
     });
   };
