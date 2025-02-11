@@ -81,7 +81,7 @@ export const JobTrackingButton = ({ jobId, isAnimating, isApplied = false }: Job
       onClick={handleClick}
       disabled={trackMutation.isPending || withdrawMutation.isPending}
       className={cn(
-        "w-2/3 mx-auto transform transition-all duration-300",
+        "w-full mx-auto transform transition-all duration-300",
         "hover:scale-105 active:scale-95",
         "rounded-lg shadow-lg",
         isAnimating && "animate-scale-in",

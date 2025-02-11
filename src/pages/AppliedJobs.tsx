@@ -22,6 +22,7 @@ interface AppliedJob {
     experienceRequired: { years: number };
     comments: any[];
     likeCount: number;
+    salary?: string;
   };
   applicationDate: string;
 }
@@ -32,7 +33,7 @@ const AppliedJobs = () => {
 
   const { data: appliedJobs = [], isLoading } = useQuery<AppliedJob[]>({
     queryKey: ['appliedJobs'],
-    queryFn: fetchAppliedJobs,
+    queryFn: fetchAppliedJobs as () => Promise<AppliedJob[]>,
     meta: {
       onError: (error: Error) => {
         if (error.message === 'Please login to view applied jobs') {
