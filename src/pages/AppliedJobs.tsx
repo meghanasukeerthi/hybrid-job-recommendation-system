@@ -19,10 +19,18 @@ interface AppliedJob {
     description: string;
     postedDate: number;
     requiredSkills: string[];
-    experienceRequired: { years: number };
-    comments: any[];
+    experienceRequired: {
+      id?: number;
+      years: number;
+    };
+    comments: Array<{
+      id: number;
+      text: string;
+      author: string;
+      date: number;
+    }>;
     likeCount: number;
-    salary?: string;
+    salary: number;
   };
   applicationDate: string;
 }
@@ -33,13 +41,7 @@ const AppliedJobs = () => {
 
   const { data: appliedJobs = [], isLoading } = useQuery<AppliedJob[]>({
     queryKey: ['appliedJobs'],
-    queryFn: async () => {
-      const response = await fetchAppliedJobs();
-      return response.map(job => ({
-        job: job,
-        applicationDate: new Date().toISOString() // This is a placeholder, adjust based on your actual data
-      }));
-    },
+    queryFn: fetchAppliedJobs,
     meta: {
       onError: (error: Error) => {
         if (error.message === 'Please login to view applied jobs') {

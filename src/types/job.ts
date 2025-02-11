@@ -28,4 +28,5 @@ export interface Job {
   likeCount: number;
   salary?: string;
   applicationDate?: string | number;
+  isApplied?: boolean;
 }
