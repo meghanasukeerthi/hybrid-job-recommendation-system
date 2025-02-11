@@ -24,13 +24,6 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
     }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    if (query.trim()) {
-      addSearchKeyword(query.trim());
-    }
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     onSearch(query);
@@ -49,7 +42,6 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
             placeholder="Search jobs by title, skills, or description..." 
             className="w-full"
             onChange={handleChange}
-            onBlur={handleBlur}
           />
         </div>
         <Button type="submit" className="hover:bg-purple-600 hover:text-white transition-colors">

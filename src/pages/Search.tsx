@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { JobCard } from "@/components/JobCard";
@@ -7,7 +8,12 @@ import { fetchJobs } from "@/services/jobService";
 import { getSearchHistory } from "@/utils/searchHistory";
 import type { Job } from "@/types/job";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, ArrowLeft } from "lucide-react";
+
+interface SearchHistoryEntry {
+  query: string;
+  timestamp: number;
+}
 
 const Search = () => {
   const [searchParams] = useSearchParams();
@@ -102,10 +108,29 @@ const Search = () => {
     );
   }
 
+  const query = searchParams.get('q');
+  const resultCount = filteredJobs.length;
+
   return (
     <div className="container py-8 animate-fade-in">
+      <div className="flex justify-between items-center mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+      </div>
+
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold mb-4">Search Results</h2>
+        {query && (
+          <p className="text-muted-foreground mb-4">
+            Found {resultCount} result{resultCount !== 1 ? 's' : ''} for "{query}"
+          </p>
+        )}
         <SearchBar onSearch={handleSearch} />
         {searchHistory.length > 0 && (
           <div className="mt-4">

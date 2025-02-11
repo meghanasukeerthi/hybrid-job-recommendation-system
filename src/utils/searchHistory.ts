@@ -31,13 +31,11 @@ export const getSearchHistory = async (): Promise<SearchHistoryEntry[]> => {
 
 export const addSearchKeyword = (keyword: string): void => {
   // Fire and forget - just send to backend to save history
-  fetch('http://localhost:8080/jobs/search', {
+  fetch(`http://localhost:8080/jobs/search?query=${encodeURIComponent(keyword)}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-    },
-    // Using query parameter as specified in the controller
-    params: { query: keyword }
+    }
   }).catch(error => {
     console.error('Error saving search history:', error);
   });
