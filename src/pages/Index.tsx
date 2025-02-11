@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { WelcomeHeader } from "@/components/WelcomeHeader";
@@ -21,9 +21,12 @@ const Index = () => {
     maxSalary: "",
   });
 
+  // Optimize job fetching with proper caching and error handling
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
     retry: 1,
     meta: {
       onError: (error: Error) => {
@@ -45,13 +48,15 @@ const Index = () => {
     }
   });
 
-  const handleSearch = (query: string) => {
+  // Memoize the search handler to prevent unnecessary re-renders
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
-  const handleFilterChange = (newFilters: JobFiltersType) => {
+  // Memoize the filter handler
+  const handleFilterChange = useCallback((newFilters: JobFiltersType) => {
     setFilters(newFilters);
-  };
+  }, []);
 
   const calculateMatchScore = (job: Job, query: string) => {
     const searchFields = [
@@ -77,7 +82,7 @@ const Index = () => {
     return totalMatchScore / maxPossibleScore;
   };
 
-  const filterAndSortJobs = (jobs: Job[]) => {
+  const filterAndSortJobs = useCallback((jobs: Job[]) => {
     let filteredJobs = jobs.filter(job => {
       if (!searchQuery) return true;
       
@@ -111,7 +116,7 @@ const Index = () => {
           
       return salaryDiff * 0.5 + dateDiff * 0.5;
     });
-  };
+  }, [searchQuery, filters, sortOrder]);
 
   if (isLoading) {
     return (

@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/carousel";
 import { JobList } from "./JobList";
 import { Job } from "@/types/job";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import { getRecommendedJobs } from "@/utils/jobMatchingUtils";
 import { JobSectionButtons } from "./job/JobSectionButtons";
@@ -26,67 +26,68 @@ const defaultUserProfile = {
 };
 
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
-  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>([]);
 
-  // Fetch applied jobs
+  // Fetch applied jobs with caching
   const { data: appliedJobsData = [] } = useQuery({
     queryKey: ['appliedJobs'],
     queryFn: fetchAppliedJobs,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
   });
 
-  // Create a set of applied job IDs for efficient lookup
-  const appliedJobIds = new Set(appliedJobsData.map(aj => aj.job.id));
+  // Memoize applied job IDs set
+  const appliedJobIds = useMemo(() => 
+    new Set(appliedJobsData.map(aj => aj.job.id)),
+    [appliedJobsData]
+  );
 
-  // Filter out applied jobs from allJobs
-  const filterAppliedJobs = (jobs: Job[]) => {
-    return jobs.filter(job => !appliedJobIds.has(job.id));
-  };
+  // Memoize filtered applied jobs
+  const filterAppliedJobs = useMemo(() => 
+    (jobs: Job[]) => jobs.filter(job => !appliedJobIds.has(job.id)),
+    [appliedJobIds]
+  );
 
-  useEffect(() => {
+  // Memoize recommended jobs calculation
+  const recommendedJobs = useMemo(() => {
     const userProfileStr = localStorage.getItem('userProfile');
     const userProfile = userProfileStr ? JSON.parse(userProfileStr) : defaultUserProfile;
-    
-    // Get recommended jobs and filter out applied ones
-    const filteredRecommendedJobs = filterAppliedJobs(getRecommendedJobs(allJobs, userProfile));
-    setRecommendedJobs(filteredRecommendedJobs);
-
-    if (activeSection === 'recommended') {
-      setDisplayedJobs(filteredRecommendedJobs);
-      toast(`Found ${filteredRecommendedJobs.length} jobs matching your profile`);
-    }
-  }, [allJobs, activeSection, appliedJobIds]);
-
-  const sortJobs = (jobs: Job[]) => {
-    return [...jobs].sort((a, b) => {
-      switch (sortOrder) {
-        case 'newest':
-          return b.postedDate - a.postedDate;
-        case 'oldest':
-          return a.postedDate - b.postedDate;
-        case 'salaryLowToHigh':
-          return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
-        case 'salaryHighToLow':
-          return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
-        default:
-          return 0;
-      }
-    });
-  };
+    return filterAppliedJobs(getRecommendedJobs(allJobs, userProfile));
+  }, [allJobs, filterAppliedJobs]);
 
   useEffect(() => {
-    // Get the appropriate jobs based on active section
+    if (activeSection === 'recommended') {
+      setDisplayedJobs(recommendedJobs);
+      toast(`Found ${recommendedJobs.length} jobs matching your profile`);
+    }
+  }, [activeSection, recommendedJobs]);
+
+  const sortJobs = useMemo(() => 
+    (jobs: Job[]) => 
+      [...jobs].sort((a, b) => {
+        switch (sortOrder) {
+          case 'newest':
+            return b.postedDate - a.postedDate;
+          case 'oldest':
+            return a.postedDate - b.postedDate;
+          case 'salaryLowToHigh':
+            return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
+          case 'salaryHighToLow':
+            return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
+          default:
+            return 0;
+        }
+      }),
+    [sortOrder]
+  );
+
+  useEffect(() => {
     const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
-    
-    // Filter out applied jobs first
     const filteredJobs = filterAppliedJobs(jobsToDisplay);
-    
-    // Then sort the filtered jobs
     const sortedJobs = sortJobs(filteredJobs);
-    
     setDisplayedJobs(sortedJobs);
-  }, [activeSection, sortOrder, allJobs, recommendedJobs, appliedJobIds]);
+  }, [activeSection, sortOrder, allJobs, recommendedJobs, filterAppliedJobs, sortJobs]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
