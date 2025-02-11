@@ -51,7 +51,7 @@ export const AppliedJobCard = ({ job }: AppliedJobCardProps) => {
           </div>
           
           <div className="flex justify-end mt-4">
-            <div className="w-32">
+            <div className="w-64"> {/* Increased from w-32 to w-64 (200%) */}
               <JobTrackingButton 
                 jobId={job.job.id} 
                 isAnimating={false}
