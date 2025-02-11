@@ -1,3 +1,4 @@
+
 import {
   Carousel,
   CarouselContent,
@@ -27,7 +28,7 @@ const defaultUserProfile = {
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
-  const [displayedJobs, setDisplayedJobs] = useState<Job[]>(allJobs);
+  const [displayedJobs, setDisplayedJobs] = useState<Job[]>([]);
 
   // Fetch applied jobs
   const { data: appliedJobsData = [] } = useQuery({

@@ -2,7 +2,7 @@
 export type JobCategory = "fresher" | "experienced" | "remote" | "internship";
 
 export interface Comment {
-  id?: number;
+  id: number; // Now required
   text: string;
   author: string;
   date: number;
