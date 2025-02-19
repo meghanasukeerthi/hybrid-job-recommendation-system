@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { fetchAppliedJobs } from "@/services/jobService";
+import { ResetInteractionsButtons } from "@/components/ResetInteractionsButtons";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -78,14 +79,17 @@ const Navbar = () => {
         </div>
         <div className="flex gap-4 items-center">
           {isAuthenticated && (
-            <Link to="/applied-jobs">
-              <Button variant="outline" className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-muted-foreground" />
-                <Badge variant="secondary" className="text-sm">
-                  Applications: {appliedJobs.length}
-                </Badge>
-              </Button>
-            </Link>
+            <>
+              <Link to="/applied-jobs">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                  <Badge variant="secondary" className="text-sm">
+                    Applications: {appliedJobs.length}
+                  </Badge>
+                </Button>
+              </Link>
+              <ResetInteractionsButtons />
+            </>
           )}
           <ThemeToggle />
           {!isAuthenticated ? (
