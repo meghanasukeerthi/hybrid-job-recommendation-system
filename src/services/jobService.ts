@@ -1,3 +1,4 @@
+
 import { Job, Comment } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -119,7 +120,11 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify(comment)
+    body: JSON.stringify({
+      text: comment.text,
+      author: comment.author,
+      date: Date.now()
+    })
   });
   
   if (response.status === 401) {
