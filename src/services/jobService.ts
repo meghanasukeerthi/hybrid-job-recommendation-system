@@ -236,7 +236,7 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       return {
         ...jobDetails,
         relevanceScore: rec.relevanceScore
-      };
+      } satisfies Job;
     } catch (error) {
       console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
       return null;
@@ -269,7 +269,7 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
       return {
         ...jobDetails,
         relevanceScore: rec.relevanceScore
-      };
+      } satisfies Job;
     } catch (error) {
       console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
       return null;
