@@ -1,4 +1,5 @@
 import { Job, JobRecommendation, AppliedJob } from "@/types/job";
+import { toast } from "sonner";
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -208,84 +209,105 @@ const fetchJobDetails = async (jobId: number): Promise<Job> => {
   });
 
   if (!response.ok) {
+    console.error(`Failed to fetch job ${jobId}:`, response.status);
+    toast.error(`Failed to fetch job details for ID ${jobId}`);
     throw new Error('Failed to fetch job details');
   }
 
-  const jobData = await response.json();
-  return {
-    ...jobData,
-    salary: jobData.salary?.toString() ?? "Not specified"
-  };
+  try {
+    const jobData = await response.json();
+    return {
+      ...jobData,
+      salary: jobData.salary?.toString() ?? "Not specified",
+      id: jobId, // Ensure ID is set correctly
+      category: jobData.category || "fresher", // Provide default category if missing
+      requiredSkills: jobData.requiredSkills || [], // Ensure array exists
+      comments: jobData.comments || [], // Ensure array exists
+      likeCount: jobData.likeCount || 0 // Ensure number exists
+    };
+  } catch (error) {
+    console.error(`Error parsing job ${jobId} data:`, error);
+    toast.error(`Error processing job data for ID ${jobId}`);
+    throw new Error('Failed to process job details');
+  }
 };
 
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
-  const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
-    headers: getAuthHeaders()
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
+      headers: getAuthHeaders()
+    });
 
-  if (response.status === 401) {
-    throw new Error('Please login to view recommendations');
-  }
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch content-based recommendations');
-  }
-
-  const recommendations: JobRecommendation[] = await response.json();
-  
-  // Fetch complete job details for each recommendation
-  const jobDetailsPromises = recommendations.map(async (rec) => {
-    try {
-      const jobDetails = await fetchJobDetails(rec.jobId);
-      const job: Job = {
-        ...jobDetails,
-        relevanceScore: rec.relevanceScore,
-        salary: jobDetails.salary?.toString() ?? "Not specified"
-      };
-      return job;
-    } catch (error) {
-      console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
-      return null;
+    if (response.status === 401) {
+      throw new Error('Please login to view recommendations');
     }
-  });
 
-  const jobs = await Promise.all(jobDetailsPromises);
-  return jobs.filter((job): job is Job => job !== null);
+    if (!response.ok) {
+      throw new Error('Failed to fetch content-based recommendations');
+    }
+
+    const recommendations: JobRecommendation[] = await response.json();
+    
+    // Fetch complete job details for each recommendation
+    const jobDetailsPromises = recommendations.map(async (rec) => {
+      try {
+        const jobDetails = await fetchJobDetails(rec.jobId);
+        return {
+          ...jobDetails,
+          relevanceScore: rec.relevanceScore
+        } as Job;
+      } catch (error) {
+        console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
+        return null;
+      }
+    });
+
+    const jobs = await Promise.all(jobDetailsPromises);
+    return jobs.filter((job): job is Job => job !== null);
+  } catch (error) {
+    console.error('Error fetching content-based recommendations:', error);
+    toast.error('Failed to load content-based recommendations');
+    return [];
+  }
 };
 
 export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
-  const response = await fetch(`${API_BASE_URL}/recommendations/collaborative`, {
-    headers: getAuthHeaders()
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/recommendations/collaborative`, {
+      headers: getAuthHeaders()
+    });
 
-  if (response.status === 401) {
-    throw new Error('Please login to view recommendations');
-  }
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch collaborative recommendations');
-  }
-
-  const recommendations: JobRecommendation[] = await response.json();
-  
-  // Fetch complete job details for each recommendation
-  const jobDetailsPromises = recommendations.map(async (rec) => {
-    try {
-      const jobDetails = await fetchJobDetails(rec.jobId);
-      const job: Job = {
-        ...jobDetails,
-        relevanceScore: rec.relevanceScore,
-        salary: jobDetails.salary?.toString() ?? "Not specified"
-      };
-      return job;
-    } catch (error) {
-      console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
-      return null;
+    if (response.status === 401) {
+      throw new Error('Please login to view recommendations');
     }
-  });
 
-  const jobs = await Promise.all(jobDetailsPromises);
-  return jobs.filter((job): job is Job => job !== null);
+    if (!response.ok) {
+      throw new Error('Failed to fetch collaborative recommendations');
+    }
+
+    const recommendations: JobRecommendation[] = await response.json();
+    
+    // Fetch complete job details for each recommendation
+    const jobDetailsPromises = recommendations.map(async (rec) => {
+      try {
+        const jobDetails = await fetchJobDetails(rec.jobId);
+        return {
+          ...jobDetails,
+          relevanceScore: rec.relevanceScore
+        } as Job;
+      } catch (error) {
+        console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
+        return null;
+      }
+    });
+
+    const jobs = await Promise.all(jobDetailsPromises);
+    return jobs.filter((job): job is Job => job !== null);
+  } catch (error) {
+    console.error('Error fetching collaborative recommendations:', error);
+    toast.error('Failed to load collaborative recommendations');
+    return [];
+  }
 };
 
 export const fetchHybridRecommendations = async (): Promise<Job[]> => {
@@ -308,6 +330,7 @@ export const fetchHybridRecommendations = async (): Promise<Job[]> => {
     return uniqueJobs;
   } catch (error) {
     console.error('Failed to fetch hybrid recommendations:', error);
-    throw new Error('Failed to fetch hybrid recommendations');
+    toast.error('Failed to load hybrid recommendations');
+    return [];
   }
 };
