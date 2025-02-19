@@ -13,13 +13,6 @@ export interface ExperienceRequired {
   years: number;
 }
 
-export interface JobRecommendation {
-  jobId: number;
-  title: string;
-  company: string;
-  relevanceScore: number;
-}
-
 export interface Job {
   id: number;
   title: string;
@@ -37,6 +30,13 @@ export interface Job {
   applicationDate?: string;
   isApplied?: boolean;
   relevanceScore?: number;
+}
+
+export interface JobRecommendation {
+  jobId: number;
+  title: string;
+  company: string;
+  relevanceScore: number;
 }
 
 export interface AppliedJob {

@@ -1,6 +1,6 @@
 
 import { Link, useNavigate } from "react-router-dom";
-import { UserCircle, Home, FileText, LogIn, LogOut } from "lucide-react";
+import { UserCircle, FileText, LogIn, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
@@ -22,29 +22,18 @@ const Navbar = () => {
   });
 
   useEffect(() => {
-    // Listen for authentication changes
     const handleAuthChange = () => {
       const token = localStorage.getItem('jwt_token');
       setIsAuthenticated(!!token);
     };
     
     window.addEventListener('auth-change', handleAuthChange);
-    
-    // Initial auth check
     handleAuthChange();
     
     return () => {
       window.removeEventListener('auth-change', handleAuthChange);
     };
   }, []);
-
-  const handleHomeClick = () => {
-    navigate('/');
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -58,31 +47,21 @@ const Navbar = () => {
 
   return (
     <header className="bg-card shadow-md backdrop-blur-sm sticky top-0 z-10">
-      <div className="container py-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Link 
-            to="/" 
-            className="text-2xl font-bold hover:text-primary transition-colors cursor-pointer"
-            aria-label="Go to home page"
-          >
-            AI-Powered Job Portal
-          </Link>
-          <Button 
-            variant="ghost" 
-            onClick={handleHomeClick}
-            className="flex items-center gap-2"
-            aria-label="Go to home page"
-          >
-            <Home className="w-5 h-5" />
-            Home
-          </Button>
-        </div>
-        <div className="flex gap-4 items-center">
+      <div className="container py-3 flex justify-between items-center">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
+        >
+          <Home className="w-5 h-5" />
+          AI-Powered Job Portal
+        </Link>
+
+        <div className="flex items-center gap-3">
           {isAuthenticated && (
             <>
-              <Link to="/applied-jobs">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-muted-foreground" />
+              <Link to="/applied-jobs" className="hover:opacity-80 transition-opacity">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
                   <Badge variant="secondary" className="text-sm">
                     Applications: {appliedJobs.length}
                   </Badge>
@@ -93,31 +72,34 @@ const Navbar = () => {
           )}
           <ThemeToggle />
           {!isAuthenticated ? (
-            <Button 
-              variant="outline" 
-              onClick={handleLoginClick}
-              className="flex items-center gap-2"
-            >
-              <LogIn className="w-5 h-5" />
-              Login
-            </Button>
+            <Link to="/login">
+              <Button 
+                variant="default" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                Login
+              </Button>
+            </Link>
           ) : (
-            <>
+            <div className="flex items-center gap-3">
               <Link to="/profile">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <UserCircle className="w-5 h-5" />
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <UserCircle className="w-4 h-4" />
                   Profile
                 </Button>
               </Link>
               <Button 
                 variant="outline" 
+                size="sm"
                 onClick={handleLogout}
                 className="flex items-center gap-2"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
                 Logout
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

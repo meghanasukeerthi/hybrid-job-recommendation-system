@@ -38,13 +38,14 @@ export const ResetInteractionsButtons = () => {
   };
 
   return (
-    <div className="flex gap-4 items-center justify-end">
+    <div className="flex gap-2">
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button 
-            variant="outline" 
+            variant="outline"
+            size="sm"
             disabled={isResetting}
-            className="w-48"
+            className="whitespace-nowrap"
           >
             {isResetting ? (
               <>
@@ -74,9 +75,10 @@ export const ResetInteractionsButtons = () => {
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button 
-            variant="destructive" 
+            variant="destructive"
+            size="sm"
             disabled={isResettingAll}
-            className="w-48"
+            className="whitespace-nowrap"
           >
             {isResettingAll ? (
               <>
