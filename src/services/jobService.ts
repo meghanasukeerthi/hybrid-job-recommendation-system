@@ -201,6 +201,19 @@ export const bookmarkJob = async (jobId: number): Promise<void> => {
   }
 };
 
+// Fetch job details by ID
+const fetchJobDetails = async (jobId: number): Promise<Job> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+    headers: getAuthHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch job details');
+  }
+
+  return response.json();
+};
+
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
     headers: getAuthHeaders()
@@ -215,22 +228,23 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   }
 
   const recommendations: JobRecommendation[] = await response.json();
-  return recommendations.map(rec => ({
-    id: rec.jobId,
-    title: rec.title,
-    company: rec.company,
-    relevanceScore: rec.relevanceScore,
-    // Add default values for required Job properties
-    location: "",
-    type: "",
-    category: "experienced",
-    description: "",
-    postedDate: Date.now(),
-    requiredSkills: [],
-    experienceRequired: { years: 0 },
-    comments: [],
-    likeCount: 0
-  }));
+  
+  // Fetch complete job details for each recommendation
+  const jobDetailsPromises = recommendations.map(async (rec) => {
+    try {
+      const jobDetails = await fetchJobDetails(rec.jobId);
+      return {
+        ...jobDetails,
+        relevanceScore: rec.relevanceScore
+      };
+    } catch (error) {
+      console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
+      return null;
+    }
+  });
+
+  const jobs = await Promise.all(jobDetailsPromises);
+  return jobs.filter((job): job is Job => job !== null);
 };
 
 export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
@@ -247,20 +261,21 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
   }
 
   const recommendations: JobRecommendation[] = await response.json();
-  return recommendations.map(rec => ({
-    id: rec.jobId,
-    title: rec.title,
-    company: rec.company,
-    relevanceScore: rec.relevanceScore,
-    // Add default values for required Job properties
-    location: "",
-    type: "",
-    category: "experienced",
-    description: "",
-    postedDate: Date.now(),
-    requiredSkills: [],
-    experienceRequired: { years: 0 },
-    comments: [],
-    likeCount: 0
-  }));
+  
+  // Fetch complete job details for each recommendation
+  const jobDetailsPromises = recommendations.map(async (rec) => {
+    try {
+      const jobDetails = await fetchJobDetails(rec.jobId);
+      return {
+        ...jobDetails,
+        relevanceScore: rec.relevanceScore
+      };
+    } catch (error) {
+      console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
+      return null;
+    }
+  });
+
+  const jobs = await Promise.all(jobDetailsPromises);
+  return jobs.filter((job): job is Job => job !== null);
 };

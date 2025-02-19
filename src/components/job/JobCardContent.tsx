@@ -24,6 +24,7 @@ interface JobCardContentProps {
   salary?: string;
   isApplied?: boolean;
   applicationDate?: number;
+  relevanceScore?: number;
 }
 
 export const JobCardContent = ({
@@ -42,7 +43,8 @@ export const JobCardContent = ({
   jobId,
   isAnimating,
   isApplied = false,
-  applicationDate
+  applicationDate,
+  relevanceScore
 }: JobCardContentProps) => {
   return (
     <>
@@ -68,6 +70,7 @@ export const JobCardContent = ({
         description={description}
         requiredSkills={requiredSkills}
         experienceRequired={experienceRequired}
+        relevanceScore={relevanceScore}
       />
       
       <JobComments

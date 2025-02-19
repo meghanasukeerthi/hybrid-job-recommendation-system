@@ -1,5 +1,6 @@
+
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Timer } from "lucide-react";
+import { MapPin, Timer, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface JobDetailsProps {
@@ -9,6 +10,7 @@ interface JobDetailsProps {
   description: string;
   requiredSkills: string[];
   experienceRequired: { years: number };
+  relevanceScore?: number;
 }
 
 export const JobDetails = ({
@@ -17,7 +19,8 @@ export const JobDetails = ({
   salary,
   description,
   requiredSkills,
-  experienceRequired
+  experienceRequired,
+  relevanceScore
 }: JobDetailsProps) => {
   const getExperienceLevel = (years: number) => {
     if (years <= 1) return "Entry Level";
@@ -36,6 +39,12 @@ export const JobDetails = ({
         {salary && (
           <span className="ml-4">
             ₹ {salary}
+          </span>
+        )}
+        {relevanceScore !== undefined && (
+          <span className="ml-4 flex items-center text-yellow-600">
+            <Star className="w-4 h-4 mr-1 fill-yellow-500" />
+            Score: {relevanceScore.toFixed(2)}
           </span>
         )}
       </div>
