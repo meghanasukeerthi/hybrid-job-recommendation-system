@@ -1,4 +1,3 @@
-
 import { Job, Comment } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -97,10 +96,10 @@ export const withdrawApplication = async (jobId: number): Promise<void> => {
   window.dispatchEvent(new Event('applicationCountUpdated'));
 };
 
-// Like/unlike a job
-export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
-  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like?like=${like}`, {
-    method: 'PUT',
+// Like a job
+export const likeJob = async (jobId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/like`, {
+    method: 'POST',
     headers: getAuthHeaders()
   });
   
@@ -109,21 +108,33 @@ export const likeJob = async (jobId: number, like: boolean): Promise<Job> => {
   }
   
   if (!response.ok) {
-    throw new Error('Failed to update like status');
+    throw new Error('Failed to like job');
+  }
+};
+
+// Dislike a job
+export const dislikeJob = async (jobId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/dislike`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to dislike jobs');
   }
   
-  return response.json();
+  if (!response.ok) {
+    throw new Error('Failed to dislike job');
+  }
 };
 
 // Add a comment to a job
-export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<Job> => {
+export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({
-      text: comment.text,
-      author: comment.author,
-      date: Date.now()
+      text: comment.text
     })
   });
   
@@ -134,8 +145,6 @@ export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): P
   if (!response.ok) {
     throw new Error('Failed to add comment');
   }
-  
-  return response.json();
 };
 
 // Track job application

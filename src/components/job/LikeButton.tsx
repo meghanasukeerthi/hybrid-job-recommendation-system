@@ -1,8 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { likeJob } from "@/services/jobService";
+import { likeJob, dislikeJob } from "@/services/jobService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Job } from "@/types/job";
 
@@ -26,7 +27,13 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
   }, [jobId, initialLikeCount]);
 
   const likeMutation = useMutation({
-    mutationFn: () => likeJob(jobId, !isLiked),
+    mutationFn: async () => {
+      if (isLiked) {
+        await dislikeJob(jobId);
+      } else {
+        await likeJob(jobId);
+      }
+    },
     onMutate: async () => {
       const previousLikeCount = likeCount;
       const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
@@ -48,14 +55,10 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
       
       return { previousLikeCount };
     },
-    onSuccess: (updatedJob) => {
-      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-        if (!oldJobs) return oldJobs;
-        return oldJobs.map(job => 
-          job.id === jobId ? { ...job, likeCount: updatedJob.likeCount } : job
-        );
-      });
+    onSuccess: () => {
       setIsLiked(!isLiked);
+      // Invalidate and refetch jobs query to get updated like count
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
     },
     onError: (_, __, context) => {
       if (context) {

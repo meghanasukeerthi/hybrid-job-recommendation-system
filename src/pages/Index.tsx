@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -21,12 +20,11 @@ const Index = () => {
     maxSalary: "",
   });
 
-  // Optimize job fetching with proper caching and error handling
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 30 * 60 * 1000, // Cache for 30 minutes
     retry: 1,
     meta: {
       onError: (error: Error) => {
@@ -48,12 +46,10 @@ const Index = () => {
     }
   });
 
-  // Memoize the search handler to prevent unnecessary re-renders
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
 
-  // Memoize the filter handler
   const handleFilterChange = useCallback((newFilters: JobFiltersType) => {
     setFilters(newFilters);
   }, []);
