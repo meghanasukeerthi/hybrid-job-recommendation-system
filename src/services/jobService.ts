@@ -1,4 +1,3 @@
-
 import { Job, JobRecommendation, AppliedJob } from "@/types/job";
 import { toast } from "sonner";
 
@@ -265,11 +264,15 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
 
     const recommendedJobs = await Promise.all(
       recommendations.map(async (rec) => {
-        const job = await getJobFromAllJobs(rec.jobId, allJobs);
-        if (!job) return null;
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) {
+          console.error(`Job ${rec.jobId} not found in allJobs`);
+          return null;
+        }
         return {
           ...job,
-          relevanceScore: rec.relevanceScore
+          relevanceScore: rec.relevanceScore,
+          salary: job.salary?.toString() ?? "Not specified"
         } as Job;
       })
     );
@@ -300,11 +303,15 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
 
     const recommendedJobs = await Promise.all(
       recommendations.map(async (rec) => {
-        const job = await getJobFromAllJobs(rec.jobId, allJobs);
-        if (!job) return null;
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) {
+          console.error(`Job ${rec.jobId} not found in allJobs`);
+          return null;
+        }
         return {
           ...job,
-          relevanceScore: rec.relevanceScore
+          relevanceScore: rec.relevanceScore,
+          salary: job.salary?.toString() ?? "Not specified"
         } as Job;
       })
     );
