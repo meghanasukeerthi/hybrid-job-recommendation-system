@@ -293,13 +293,16 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/content-based`, {
         headers
       }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
+        if (!res.ok) {
+          console.error('Content-based recommendations status:', res.status);
+          throw new Error('Failed to fetch content-based recommendations');
+        }
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    return recommendations.map(rec => {
+    const recommendedJobs = recommendations.map(rec => {
       const job = allJobs.find(j => j.id === rec.jobId);
       if (!job) {
         console.error(`Job ${rec.jobId} not found in allJobs`);
@@ -307,10 +310,12 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       }
       return {
         ...job,
-        relevanceScore: rec.relevanceScore,
-        salary: job.salary?.toString() ?? "Not specified"
+        salary: job.salary?.toString() ?? "Not specified",
+        relevanceScore: rec.relevanceScore
       };
-    }).filter((job): job is Job => job !== null);
+    });
+
+    return recommendedJobs.filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching content-based recommendations:', error);
     toast.error('Failed to load content-based recommendations');
@@ -325,13 +330,16 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/collaborative`, {
         headers
       }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
+        if (!res.ok) {
+          console.error('Collaborative recommendations status:', res.status);
+          throw new Error('Failed to fetch collaborative recommendations');
+        }
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    return recommendations.map(rec => {
+    const recommendedJobs = recommendations.map(rec => {
       const job = allJobs.find(j => j.id === rec.jobId);
       if (!job) {
         console.error(`Job ${rec.jobId} not found in allJobs`);
@@ -339,10 +347,12 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
       }
       return {
         ...job,
-        relevanceScore: rec.relevanceScore,
-        salary: job.salary?.toString() ?? "Not specified"
+        salary: job.salary?.toString() ?? "Not specified",
+        relevanceScore: rec.relevanceScore
       };
-    }).filter((job): job is Job => job !== null);
+    });
+
+    return recommendedJobs.filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching collaborative recommendations:', error);
     toast.error('Failed to load collaborative recommendations');
