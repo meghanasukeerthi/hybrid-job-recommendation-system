@@ -19,10 +19,7 @@ const getAuthHeaders = () => {
 export const resetUserInteractions = async (): Promise<void> => {
   const token = localStorage.getItem('jwt_token');
   if (!token) {
-    toast({
-      description: "Please login to reset interactions",
-      variant: "destructive"
-    });
+    toast("Please login to reset interactions");
     throw new Error('Authentication required');
   }
 
@@ -36,10 +33,7 @@ export const resetUserInteractions = async (): Promise<void> => {
     });
 
     if (response.status === 403) {
-      toast({
-        description: "You don't have permission to perform this action",
-        variant: "destructive"
-      });
+      toast("You don't have permission to perform this action");
       throw new Error('Permission denied');
     }
 
@@ -52,9 +46,7 @@ export const resetUserInteractions = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
     await queryClient.invalidateQueries({ queryKey: ['recommendations'] });
     
-    toast({
-      description: "Your interactions have been reset successfully"
-    });
+    toast("Your interactions have been reset successfully");
   } catch (error) {
     console.error('Error resetting user interactions:', error);
     throw error;
@@ -65,10 +57,7 @@ export const resetUserInteractions = async (): Promise<void> => {
 export const resetAllUserInteractions = async (): Promise<void> => {
   const token = localStorage.getItem('jwt_token');
   if (!token) {
-    toast({
-      description: "Please login to reset interactions",
-      variant: "destructive"
-    });
+    toast("Please login to reset interactions");
     throw new Error('Authentication required');
   }
 
@@ -82,10 +71,7 @@ export const resetAllUserInteractions = async (): Promise<void> => {
     });
 
     if (response.status === 403) {
-      toast({
-        description: "You don't have permission to perform this action",
-        variant: "destructive"
-      });
+      toast("You don't have permission to perform this action");
       throw new Error('Permission denied');
     }
 
@@ -98,9 +84,7 @@ export const resetAllUserInteractions = async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
     await queryClient.invalidateQueries({ queryKey: ['recommendations'] });
     
-    toast({
-      description: "All user interactions have been reset successfully"
-    });
+    toast("All user interactions have been reset successfully");
   } catch (error) {
     console.error('Error resetting all user interactions:', error);
     throw error;
@@ -111,10 +95,7 @@ export const resetAllUserInteractions = async (): Promise<void> => {
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   const token = localStorage.getItem('jwt_token');
   if (!token) {
-    toast({
-      description: "Please login to view recommendations",
-      variant: "destructive"
-    });
+    toast("Please login to view recommendations");
     return [];
   }
 
@@ -129,10 +110,7 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
     });
 
     if (response.status === 403) {
-      toast({
-        description: "You don't have permission to view recommendations",
-        variant: "destructive"
-      });
+      toast("You don't have permission to view recommendations");
       return [];
     }
 
@@ -152,13 +130,10 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
           relevanceScore: rec.relevanceScore
         };
       })
-      .filter((job): job is Job => Boolean(job));
+      .filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching content-based recommendations:', error);
-    toast({
-      description: "Failed to load content-based recommendations",
-      variant: "destructive"
-    });
+    toast("Failed to load content-based recommendations");
     return [];
   }
 };
@@ -167,10 +142,7 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
 export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
   const token = localStorage.getItem('jwt_token');
   if (!token) {
-    toast({
-      description: "Please login to view recommendations",
-      variant: "destructive"
-    });
+    toast("Please login to view recommendations");
     return [];
   }
 
@@ -185,10 +157,7 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
     });
 
     if (response.status === 403) {
-      toast({
-        description: "You don't have permission to view recommendations",
-        variant: "destructive"
-      });
+      toast("You don't have permission to view recommendations");
       return [];
     }
 
@@ -208,13 +177,10 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
           relevanceScore: rec.relevanceScore
         };
       })
-      .filter((job): job is Job => Boolean(job));
+      .filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching collaborative recommendations:', error);
-    toast({
-      description: "Failed to load collaborative recommendations",
-      variant: "destructive"
-    });
+    toast("Failed to load collaborative recommendations");
     return [];
   }
 };
