@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { JobFilters } from "@/components/JobFilters";
+import { ResetInteractionsButtons } from "@/components/ResetInteractionsButtons";
 
 interface WelcomeHeaderProps {
   onSearch: (query: string) => void;
@@ -34,6 +35,9 @@ export const WelcomeHeader = ({
 }: WelcomeHeaderProps) => {
   return (
     <div className="text-center mb-12">
+      <div className="flex justify-end mb-4">
+        <ResetInteractionsButtons />
+      </div>
       <h2 className="text-4xl font-bold mb-4 hover:text-primary transition-colors">
         Find Your Dream Job
       </h2>

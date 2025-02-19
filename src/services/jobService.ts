@@ -308,7 +308,7 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       return {
         ...job,
         relevanceScore: rec.relevanceScore,
-        salary: typeof job.salary === 'number' ? job.salary : parseInt(job.salary || '0')
+        salary: job.salary?.toString() ?? "Not specified"
       };
     }).filter((job): job is Job => job !== null);
   } catch (error) {
@@ -325,31 +325,24 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/collaborative`, {
         headers
       }).then(res => {
-        if (!res.ok) {
-          console.error('Collaborative recommendations fetch failed:', res.status);
-          throw new Error('Failed to fetch collaborative recommendations');
-        }
+        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    const recommendedJobs = await Promise.all(
-      recommendations.map(async (rec) => {
-        const job = allJobs.find(j => j.id === rec.jobId);
-        if (!job) {
-          console.error(`Job ${rec.jobId} not found in allJobs`);
-          return null;
-        }
-        return {
-          ...job,
-          relevanceScore: rec.relevanceScore,
-          salary: job.salary?.toString() ?? "Not specified"
-        } as Job;
-      })
-    );
-
-    return recommendedJobs.filter((job): job is Job => job !== null);
+    return recommendations.map(rec => {
+      const job = allJobs.find(j => j.id === rec.jobId);
+      if (!job) {
+        console.error(`Job ${rec.jobId} not found in allJobs`);
+        return null;
+      }
+      return {
+        ...job,
+        relevanceScore: rec.relevanceScore,
+        salary: job.salary?.toString() ?? "Not specified"
+      };
+    }).filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching collaborative recommendations:', error);
     toast.error('Failed to load collaborative recommendations');
