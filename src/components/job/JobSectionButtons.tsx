@@ -1,10 +1,13 @@
+
 import { Button } from "@/components/ui/button";
 
 interface JobSectionButtonsProps {
-  activeSection: 'all' | 'recommended';
-  setActiveSection: (section: 'all' | 'recommended') => void;
+  activeSection: 'all' | 'recommended' | 'content-based' | 'collaborative';
+  setActiveSection: (section: 'all' | 'recommended' | 'content-based' | 'collaborative') => void;
   allJobsCount: number;
   recommendedJobsCount: number;
+  contentBasedCount: number;
+  collaborativeCount: number;
 }
 
 export const JobSectionButtons = ({
@@ -12,9 +15,11 @@ export const JobSectionButtons = ({
   setActiveSection,
   allJobsCount,
   recommendedJobsCount,
+  contentBasedCount,
+  collaborativeCount,
 }: JobSectionButtonsProps) => {
   return (
-    <div className="flex justify-center gap-4 mb-6">
+    <div className="flex flex-wrap justify-center gap-4 mb-6">
       <Button
         variant={activeSection === 'all' ? 'default' : 'outline'}
         onClick={() => setActiveSection('all')}
@@ -27,7 +32,21 @@ export const JobSectionButtons = ({
         onClick={() => setActiveSection('recommended')}
         className="min-w-[120px]"
       >
-        Recommended ({recommendedJobsCount})
+        Profile Based ({recommendedJobsCount})
+      </Button>
+      <Button
+        variant={activeSection === 'content-based' ? 'default' : 'outline'}
+        onClick={() => setActiveSection('content-based')}
+        className="min-w-[120px]"
+      >
+        Content Based ({contentBasedCount})
+      </Button>
+      <Button
+        variant={activeSection === 'collaborative' ? 'default' : 'outline'}
+        onClick={() => setActiveSection('collaborative')}
+        className="min-w-[120px]"
+      >
+        Collaborative ({collaborativeCount})
       </Button>
     </div>
   );

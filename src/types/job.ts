@@ -13,6 +13,13 @@ export interface ExperienceRequired {
   years: number;
 }
 
+export interface JobRecommendation {
+  jobId: number;
+  title: string;
+  company: string;
+  relevanceScore: number;
+}
+
 export interface Job {
   id: number;
   title: string;
@@ -26,5 +33,8 @@ export interface Job {
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   likeCount: number;
-  salary?: string; // Changed from number to string to match the actual data type
+  salary?: string;
+  applicationDate?: string;
+  isApplied?: boolean;
+  relevanceScore?: number;
 }

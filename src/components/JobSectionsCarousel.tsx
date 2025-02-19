@@ -1,3 +1,4 @@
+
 import {
   Carousel,
   CarouselContent,
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 import { getRecommendedJobs } from "@/utils/jobMatchingUtils";
 import { JobSectionButtons } from "./job/JobSectionButtons";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAppliedJobs } from "@/services/jobService";
+import { fetchAppliedJobs, fetchContentBasedRecommendations, fetchCollaborativeRecommendations } from "@/services/jobService";
 
 interface JobSectionsCarouselProps {
   allJobs: Job[];
@@ -25,15 +26,31 @@ const defaultUserProfile = {
 };
 
 export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselProps) => {
-  const [activeSection, setActiveSection] = useState<'all' | 'recommended'>('all');
+  const [activeSection, setActiveSection] = useState<'all' | 'recommended' | 'content-based' | 'collaborative'>('all');
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>([]);
 
-  // Fetch applied jobs with caching
+  // Fetch applied jobs
   const { data: appliedJobsData = [] } = useQuery({
     queryKey: ['appliedJobs'],
     queryFn: fetchAppliedJobs,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Cache for 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+
+  // Fetch content-based recommendations
+  const { data: contentBasedRecs = [] } = useQuery({
+    queryKey: ['contentBasedRecs'],
+    queryFn: fetchContentBasedRecommendations,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+
+  // Fetch collaborative recommendations
+  const { data: collaborativeRecs = [] } = useQuery({
+    queryKey: ['collaborativeRecs'],
+    queryFn: fetchCollaborativeRecommendations,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   // Memoize applied job IDs set
@@ -56,37 +73,34 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
   }, [allJobs, filterAppliedJobs]);
 
   useEffect(() => {
-    if (activeSection === 'recommended') {
-      setDisplayedJobs(recommendedJobs);
-      toast(`Found ${recommendedJobs.length} jobs matching your profile`);
+    let jobs: Job[] = [];
+    let message = "";
+
+    switch (activeSection) {
+      case 'all':
+        jobs = allJobs;
+        break;
+      case 'recommended':
+        jobs = recommendedJobs;
+        message = `Found ${recommendedJobs.length} jobs matching your profile`;
+        break;
+      case 'content-based':
+        jobs = contentBasedRecs;
+        message = `Found ${contentBasedRecs.length} content-based recommendations`;
+        break;
+      case 'collaborative':
+        jobs = collaborativeRecs;
+        message = `Found ${collaborativeRecs.length} collaborative recommendations`;
+        break;
     }
-  }, [activeSection, recommendedJobs]);
 
-  const sortJobs = useMemo(() => 
-    (jobs: Job[]) => 
-      [...jobs].sort((a, b) => {
-        switch (sortOrder) {
-          case 'newest':
-            return b.postedDate - a.postedDate;
-          case 'oldest':
-            return a.postedDate - b.postedDate;
-          case 'salaryLowToHigh':
-            return (parseInt(a.salary || "0") - parseInt(b.salary || "0"));
-          case 'salaryHighToLow':
-            return (parseInt(b.salary || "0") - parseInt(a.salary || "0"));
-          default:
-            return 0;
-        }
-      }),
-    [sortOrder]
-  );
+    if (message) {
+      toast(message);
+    }
 
-  useEffect(() => {
-    const jobsToDisplay = activeSection === 'all' ? allJobs : recommendedJobs;
-    const filteredJobs = filterAppliedJobs(jobsToDisplay);
-    const sortedJobs = sortJobs(filteredJobs);
-    setDisplayedJobs(sortedJobs);
-  }, [activeSection, sortOrder, allJobs, recommendedJobs, filterAppliedJobs, sortJobs]);
+    const filteredJobs = filterAppliedJobs(jobs);
+    setDisplayedJobs(filteredJobs);
+  }, [activeSection, allJobs, recommendedJobs, contentBasedRecs, collaborativeRecs, filterAppliedJobs]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
@@ -95,6 +109,8 @@ export const JobSectionsCarousel = ({ allJobs, sortOrder }: JobSectionsCarouselP
         setActiveSection={setActiveSection}
         allJobsCount={filterAppliedJobs(allJobs).length}
         recommendedJobsCount={recommendedJobs.length}
+        contentBasedCount={contentBasedRecs.length}
+        collaborativeCount={collaborativeRecs.length}
       />
       <Carousel className="w-full">
         <CarouselContent>

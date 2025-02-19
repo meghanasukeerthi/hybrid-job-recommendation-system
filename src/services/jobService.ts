@@ -1,5 +1,4 @@
-
-import { Job, Comment } from "@/types/job";
+import { Job, JobRecommendation } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -200,4 +199,68 @@ export const bookmarkJob = async (jobId: number): Promise<void> => {
     
     localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
   }
+};
+
+export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
+  const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
+    headers: getAuthHeaders()
+  });
+
+  if (response.status === 401) {
+    throw new Error('Please login to view recommendations');
+  }
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch content-based recommendations');
+  }
+
+  const recommendations: JobRecommendation[] = await response.json();
+  return recommendations.map(rec => ({
+    id: rec.jobId,
+    title: rec.title,
+    company: rec.company,
+    relevanceScore: rec.relevanceScore,
+    // Add default values for required Job properties
+    location: "",
+    type: "",
+    category: "experienced",
+    description: "",
+    postedDate: Date.now(),
+    requiredSkills: [],
+    experienceRequired: { years: 0 },
+    comments: [],
+    likeCount: 0
+  }));
+};
+
+export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
+  const response = await fetch(`${API_BASE_URL}/recommendations/collaborative`, {
+    headers: getAuthHeaders()
+  });
+
+  if (response.status === 401) {
+    throw new Error('Please login to view recommendations');
+  }
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch collaborative recommendations');
+  }
+
+  const recommendations: JobRecommendation[] = await response.json();
+  return recommendations.map(rec => ({
+    id: rec.jobId,
+    title: rec.title,
+    company: rec.company,
+    relevanceScore: rec.relevanceScore,
+    // Add default values for required Job properties
+    location: "",
+    type: "",
+    category: "experienced",
+    description: "",
+    postedDate: Date.now(),
+    requiredSkills: [],
+    experienceRequired: { years: 0 },
+    comments: [],
+    likeCount: 0
+  }));
 };
