@@ -34,8 +34,6 @@ export interface Job {
 
 export interface JobRecommendation {
   jobId: number;
-  title: string;
-  company: string;
   relevanceScore: number;
 }
 

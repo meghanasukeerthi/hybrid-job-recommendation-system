@@ -11,78 +11,211 @@ const getAuthHeaders = () => {
   }
   return {
     'Authorization': `Bearer ${token}`,
-    'Accept': 'application/json',
     'Content-Type': 'application/json'
   };
 };
 
 // Reset user interactions
 export const resetUserInteractions = async (): Promise<void> => {
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    toast({
+      description: "Please login to reset interactions",
+      variant: "destructive"
+    });
+    throw new Error('Authentication required');
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/user-interactions/reset`, {
       method: 'DELETE',
       headers: {
-        ...getAuthHeaders(),
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
+
+    if (response.status === 403) {
+      toast({
+        description: "You don't have permission to perform this action",
+        variant: "destructive"
+      });
+      throw new Error('Permission denied');
+    }
 
     if (!response.ok) {
       throw new Error('Failed to reset user interactions');
     }
 
-    // Invalidate relevant queries after successful reset
-    queryClient.invalidateQueries({ queryKey: ['jobs'] });
-    queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
-    queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+    // Invalidate relevant queries
+    await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    await queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+    await queryClient.invalidateQueries({ queryKey: ['recommendations'] });
     
     toast({
-      title: "Success",
-      description: "Your interactions have been reset successfully",
+      description: "Your interactions have been reset successfully"
     });
   } catch (error) {
     console.error('Error resetting user interactions:', error);
-    toast({
-      title: "Error",
-      description: "Failed to reset interactions. Please try again.",
-      variant: "destructive"
-    });
     throw error;
   }
 };
 
 // Reset all users' interactions (admin only)
 export const resetAllUserInteractions = async (): Promise<void> => {
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    toast({
+      description: "Please login to reset interactions",
+      variant: "destructive"
+    });
+    throw new Error('Authentication required');
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/user-interactions/reset-all`, {
       method: 'DELETE',
       headers: {
-        ...getAuthHeaders(),
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
+
+    if (response.status === 403) {
+      toast({
+        description: "You don't have permission to perform this action",
+        variant: "destructive"
+      });
+      throw new Error('Permission denied');
+    }
 
     if (!response.ok) {
       throw new Error('Failed to reset all user interactions');
     }
 
-    // Invalidate all relevant queries after successful reset
-    queryClient.invalidateQueries({ queryKey: ['jobs'] });
-    queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
-    queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+    // Invalidate queries
+    await queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    await queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+    await queryClient.invalidateQueries({ queryKey: ['recommendations'] });
     
     toast({
-      title: "Success",
-      description: "All user interactions have been reset successfully",
+      description: "All user interactions have been reset successfully"
     });
   } catch (error) {
     console.error('Error resetting all user interactions:', error);
+    throw error;
+  }
+};
+
+// Fetch content-based recommendations
+export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
     toast({
-      title: "Error",
-      description: "Failed to reset all interactions. Please try again.",
+      description: "Please login to view recommendations",
       variant: "destructive"
     });
-    throw error;
+    return [];
+  }
+
+  try {
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
+      headers
+    });
+
+    if (response.status === 403) {
+      toast({
+        description: "You don't have permission to view recommendations",
+        variant: "destructive"
+      });
+      return [];
+    }
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch content-based recommendations');
+    }
+
+    const recommendations = await response.json() as JobRecommendation[];
+    const allJobs = await fetchJobs();
+
+    return recommendations
+      .map(rec => {
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) return null;
+        return {
+          ...job,
+          relevanceScore: rec.relevanceScore
+        };
+      })
+      .filter((job): job is Job => Boolean(job));
+  } catch (error) {
+    console.error('Error fetching content-based recommendations:', error);
+    toast({
+      description: "Failed to load content-based recommendations",
+      variant: "destructive"
+    });
+    return [];
+  }
+};
+
+// Fetch collaborative recommendations
+export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    toast({
+      description: "Please login to view recommendations",
+      variant: "destructive"
+    });
+    return [];
+  }
+
+  try {
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    const response = await fetch(`${API_BASE_URL}/recommendations/collaborative`, {
+      headers
+    });
+
+    if (response.status === 403) {
+      toast({
+        description: "You don't have permission to view recommendations",
+        variant: "destructive"
+      });
+      return [];
+    }
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch collaborative recommendations');
+    }
+
+    const recommendations = await response.json() as JobRecommendation[];
+    const allJobs = await fetchJobs();
+
+    return recommendations
+      .map(rec => {
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) return null;
+        return {
+          ...job,
+          relevanceScore: rec.relevanceScore
+        };
+      })
+      .filter((job): job is Job => Boolean(job));
+  } catch (error) {
+    console.error('Error fetching collaborative recommendations:', error);
+    toast({
+      description: "Failed to load collaborative recommendations",
+      variant: "destructive"
+    });
+    return [];
   }
 };
 
@@ -315,74 +448,6 @@ const getJobFromAllJobs = async (jobId: number, allJobs: Job[]): Promise<Job | n
     salary: job.salary?.toString() ?? "Not specified",
     relevanceScore: 0 // Ensure relevanceScore has a default value
   };
-};
-
-export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
-  try {
-    const headers = getAuthHeaders();
-    const [recommendations, allJobs] = await Promise.all([
-      fetch(`${API_BASE_URL}/recommendations/content-based`, {
-        headers
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
-        return res.json() as Promise<JobRecommendation[]>;
-      }),
-      fetchJobs()
-    ]);
-
-    return recommendations
-      .map(rec => {
-        const job = allJobs.find(j => j.id === rec.jobId);
-        if (!job) return null;
-        return {
-          ...job,
-          relevanceScore: rec.relevanceScore
-        };
-      })
-      .filter((job): job is Job => job !== null);
-  } catch (error) {
-    console.error('Error fetching content-based recommendations:', error);
-    toast({
-      title: "Error",
-      description: "Failed to load content-based recommendations",
-      variant: "destructive"
-    });
-    return [];
-  }
-};
-
-export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
-  try {
-    const headers = getAuthHeaders();
-    const [recommendations, allJobs] = await Promise.all([
-      fetch(`${API_BASE_URL}/recommendations/collaborative`, {
-        headers
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
-        return res.json() as Promise<JobRecommendation[]>;
-      }),
-      fetchJobs()
-    ]);
-
-    return recommendations
-      .map(rec => {
-        const job = allJobs.find(j => j.id === rec.jobId);
-        if (!job) return null;
-        return {
-          ...job,
-          relevanceScore: rec.relevanceScore
-        };
-      })
-      .filter((job): job is Job => job !== null);
-  } catch (error) {
-    console.error('Error fetching collaborative recommendations:', error);
-    toast({
-      title: "Error",
-      description: "Failed to load collaborative recommendations",
-      variant: "destructive"
-    });
-    return [];
-  }
 };
 
 export const fetchHybridRecommendations = async (): Promise<Job[]> => {
