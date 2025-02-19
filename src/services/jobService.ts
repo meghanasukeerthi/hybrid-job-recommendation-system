@@ -1,4 +1,4 @@
-import { Job, JobRecommendation } from "@/types/job";
+import { Job, JobRecommendation, AppliedJob } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -211,7 +211,11 @@ const fetchJobDetails = async (jobId: number): Promise<Job> => {
     throw new Error('Failed to fetch job details');
   }
 
-  return response.json();
+  const jobData = await response.json();
+  return {
+    ...jobData,
+    salary: jobData.salary?.toString() ?? "Not specified"
+  };
 };
 
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
@@ -233,10 +237,12 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   const jobDetailsPromises = recommendations.map(async (rec) => {
     try {
       const jobDetails = await fetchJobDetails(rec.jobId);
-      return {
+      const job: Job = {
         ...jobDetails,
-        relevanceScore: rec.relevanceScore
-      } satisfies Job;
+        relevanceScore: rec.relevanceScore,
+        salary: jobDetails.salary?.toString() ?? "Not specified"
+      };
+      return job;
     } catch (error) {
       console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
       return null;
@@ -266,10 +272,12 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
   const jobDetailsPromises = recommendations.map(async (rec) => {
     try {
       const jobDetails = await fetchJobDetails(rec.jobId);
-      return {
+      const job: Job = {
         ...jobDetails,
-        relevanceScore: rec.relevanceScore
-      } satisfies Job;
+        relevanceScore: rec.relevanceScore,
+        salary: jobDetails.salary?.toString() ?? "Not specified"
+      };
+      return job;
     } catch (error) {
       console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
       return null;
@@ -278,4 +286,28 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
 
   const jobs = await Promise.all(jobDetailsPromises);
   return jobs.filter((job): job is Job => job !== null);
+};
+
+export const fetchHybridRecommendations = async (): Promise<Job[]> => {
+  try {
+    const [contentBased, collaborative] = await Promise.all([
+      fetchContentBasedRecommendations(),
+      fetchCollaborativeRecommendations()
+    ]);
+
+    // Combine and sort recommendations by relevance score
+    const hybridJobs = [...contentBased, ...collaborative].sort(
+      (a, b) => (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0)
+    );
+
+    // Remove duplicates based on job ID
+    const uniqueJobs = Array.from(
+      new Map(hybridJobs.map(job => [job.id, job])).values()
+    );
+
+    return uniqueJobs;
+  } catch (error) {
+    console.error('Failed to fetch hybrid recommendations:', error);
+    throw new Error('Failed to fetch hybrid recommendations');
+  }
 };

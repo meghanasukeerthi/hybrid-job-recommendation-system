@@ -33,8 +33,13 @@ export interface Job {
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   likeCount: number;
-  salary?: string;
+  salary: string;
   applicationDate?: string;
   isApplied?: boolean;
   relevanceScore?: number;
+}
+
+export interface AppliedJob {
+  job: Job;
+  applicationDate: string;
 }
