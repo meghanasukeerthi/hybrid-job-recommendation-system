@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { likeJob, dislikeJob } from "@/services/jobService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Job } from "@/types/job";
 
 interface LikeButtonProps {
   jobId: number;
@@ -39,7 +38,6 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
       const newLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
       setLikeCount(newLikeCount);
       
-      // Update localStorage
       const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
       if (!isLiked) {
         likedJobs.push(jobId);
@@ -57,7 +55,6 @@ export const LikeButton = ({ jobId, initialLikeCount, onLike, isAnimating }: Lik
     },
     onSuccess: () => {
       setIsLiked(!isLiked);
-      // Invalidate and refetch jobs query to get updated like count
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
     },
     onError: (_, __, context) => {

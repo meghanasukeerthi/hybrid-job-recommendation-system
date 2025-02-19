@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +8,6 @@ import { filterValidComments } from "@/services/commentService";
 import { JobCardHeader } from "./job/JobCardHeader";
 import { JobCardContent } from "./job/JobCardContent";
 import { JobMetadata } from "./job/JobMetadata";
-import { JobSkills } from "./job/JobSkills";
 
 interface JobCardProps {
   id: number;
@@ -48,46 +48,24 @@ export const JobCard = ({
 
   const queryClient = useQueryClient();
 
-  const likeMutation = useMutation({
-    mutationFn: () => likeJob(id, !isAnimating),
-    onSuccess: (updatedJob) => {
-      queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-        if (!oldJobs) return oldJobs;
-        return oldJobs.map(job => 
-          job.id === id ? { ...job, likeCount: updatedJob.likeCount } : job
-        );
-      });
-      setTimeout(() => setIsAnimating(false), 300);
-    },
-    onError: () => {
-      setLikesCount(prev => prev - 1);
-      setIsAnimating(false);
-    }
-  });
-
   const commentMutation = useMutation({
-    mutationFn: (commentText: string) => {
+    mutationFn: async (commentText: string) => {
       if (!commentText.trim()) {
         throw new Error("Comment cannot be empty");
       }
-      return addComment(id, {
-        text: commentText.trim(),
+      await addComment(id, commentText.trim());
+      return commentText;
+    },
+    onSuccess: (commentText) => {
+      const newComment: Comment = {
+        id: Date.now(),
+        text: commentText,
         author: "Current User",
         date: Date.now()
-      });
-    },
-    onSuccess: (updatedJob) => {
-      if (updatedJob && updatedJob.comments) {
-        const validComments = filterValidComments(updatedJob.comments);
-        setComments(validComments);
-        setNewComment("");
-        queryClient.setQueryData(['jobs'], (oldJobs: Job[] | undefined) => {
-          if (!oldJobs) return oldJobs;
-          return oldJobs.map(job => 
-            job.id === id ? { ...job, comments: validComments } : job
-          );
-        });
-      }
+      };
+      setComments([...comments, newComment]);
+      setNewComment("");
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
     }
   });
 
@@ -116,7 +94,7 @@ export const JobCard = ({
           likesCount={likesCount}
           onShare={handleShare}
           onComment={() => setShowComments(!showComments)}
-          onLike={() => likeMutation.mutate()}
+          onLike={() => setIsAnimating(true)}
           isAnimating={isAnimating}
         />
         <JobMetadata

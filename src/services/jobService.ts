@@ -4,10 +4,13 @@ const API_BASE_URL = 'http://localhost:8080';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    throw new Error('Please login to perform this action');
+  }
   return {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : ''
+    'Authorization': `Bearer ${token}`
   };
 };
 
@@ -103,10 +106,6 @@ export const likeJob = async (jobId: number): Promise<void> => {
     headers: getAuthHeaders()
   });
   
-  if (response.status === 401) {
-    throw new Error('Please login to like jobs');
-  }
-  
   if (!response.ok) {
     throw new Error('Failed to like job');
   }
@@ -119,28 +118,22 @@ export const dislikeJob = async (jobId: number): Promise<void> => {
     headers: getAuthHeaders()
   });
   
-  if (response.status === 401) {
-    throw new Error('Please login to dislike jobs');
-  }
-  
   if (!response.ok) {
     throw new Error('Failed to dislike job');
   }
 };
 
 // Add a comment to a job
-export const addComment = async (jobId: number, comment: Omit<Comment, 'id'>): Promise<void> => {
+export const addComment = async (jobId: number, text: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/jobs/${jobId}/comment`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({
-      text: comment.text
+      text,
+      author: "Current User",
+      date: Date.now()
     })
   });
-  
-  if (response.status === 401) {
-    throw new Error('Please login to add comments');
-  }
   
   if (!response.ok) {
     throw new Error('Failed to add comment');
