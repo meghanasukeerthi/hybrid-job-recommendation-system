@@ -26,7 +26,5 @@ export interface Job {
   experienceRequired: ExperienceRequired;
   comments: Comment[];
   likeCount: number;
-  salary?: string;
-  applicationDate?: string | number;
-  isApplied?: boolean;
+  salary?: string; // Changed from number to string to match the actual data type
 }

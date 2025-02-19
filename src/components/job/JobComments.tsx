@@ -1,3 +1,4 @@
+
 import { Comment } from "@/types/job";
 import { CommentList } from "./CommentList";
 import { CommentForm } from "./CommentForm";
@@ -27,6 +28,7 @@ export const JobComments = ({
         newComment={newComment}
         onCommentChange={onCommentChange}
         onAddComment={onAddComment}
+        isLoading={isCommentLoading}
       />
       <CommentList comments={comments} />
     </div>

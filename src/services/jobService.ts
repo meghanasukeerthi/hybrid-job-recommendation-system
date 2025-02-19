@@ -1,3 +1,4 @@
+
 import { Job, Comment } from "@/types/job";
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -106,6 +107,10 @@ export const likeJob = async (jobId: number): Promise<void> => {
     headers: getAuthHeaders()
   });
   
+  if (response.status === 401) {
+    throw new Error('Please login to like jobs');
+  }
+  
   if (!response.ok) {
     throw new Error('Failed to like job');
   }
@@ -118,6 +123,10 @@ export const dislikeJob = async (jobId: number): Promise<void> => {
     headers: getAuthHeaders()
   });
   
+  if (response.status === 401) {
+    throw new Error('Please login to dislike jobs');
+  }
+  
   if (!response.ok) {
     throw new Error('Failed to dislike job');
   }
@@ -129,11 +138,13 @@ export const addComment = async (jobId: number, text: string): Promise<void> => 
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({
-      text,
-      author: "Current User",
-      date: Date.now()
+      text: text
     })
   });
+  
+  if (response.status === 401) {
+    throw new Error('Please login to add comments');
+  }
   
   if (!response.ok) {
     throw new Error('Failed to add comment');
