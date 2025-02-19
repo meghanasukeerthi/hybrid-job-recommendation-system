@@ -232,38 +232,43 @@ const fetchJobDetails = async (jobId: number): Promise<Job> => {
   }
 };
 
+// Get job details from allJobs array
+const getJobFromAllJobs = async (jobId: number, allJobs: Job[]): Promise<Job | null> => {
+  const job = allJobs.find(j => j.id === jobId);
+  if (!job) {
+    console.error(`Job ${jobId} not found in allJobs`);
+    return null;
+  }
+  return {
+    ...job,
+    salary: job.salary?.toString() ?? "Not specified"
+  };
+};
+
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/recommendations/content-based`, {
-      headers: getAuthHeaders()
-    });
+    const [recommendations, allJobs] = await Promise.all([
+      fetch(`${API_BASE_URL}/recommendations/content-based`, {
+        headers: getAuthHeaders()
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
+        return res.json() as Promise<JobRecommendation[]>;
+      }),
+      fetchJobs()
+    ]);
 
-    if (response.status === 401) {
-      throw new Error('Please login to view recommendations');
-    }
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch content-based recommendations');
-    }
-
-    const recommendations: JobRecommendation[] = await response.json();
-    
-    // Fetch complete job details for each recommendation
-    const jobDetailsPromises = recommendations.map(async (rec) => {
-      try {
-        const jobDetails = await fetchJobDetails(rec.jobId);
+    const recommendedJobs = await Promise.all(
+      recommendations.map(async (rec) => {
+        const job = await getJobFromAllJobs(rec.jobId, allJobs);
+        if (!job) return null;
         return {
-          ...jobDetails,
+          ...job,
           relevanceScore: rec.relevanceScore
-        } as Job;
-      } catch (error) {
-        console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
-        return null;
-      }
-    });
+        };
+      })
+    );
 
-    const jobs = await Promise.all(jobDetailsPromises);
-    return jobs.filter((job): job is Job => job !== null);
+    return recommendedJobs.filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching content-based recommendations:', error);
     toast.error('Failed to load content-based recommendations');
@@ -273,36 +278,28 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
 
 export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/recommendations/collaborative`, {
-      headers: getAuthHeaders()
-    });
+    const [recommendations, allJobs] = await Promise.all([
+      fetch(`${API_BASE_URL}/recommendations/collaborative`, {
+        headers: getAuthHeaders()
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
+        return res.json() as Promise<JobRecommendation[]>;
+      }),
+      fetchJobs()
+    ]);
 
-    if (response.status === 401) {
-      throw new Error('Please login to view recommendations');
-    }
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch collaborative recommendations');
-    }
-
-    const recommendations: JobRecommendation[] = await response.json();
-    
-    // Fetch complete job details for each recommendation
-    const jobDetailsPromises = recommendations.map(async (rec) => {
-      try {
-        const jobDetails = await fetchJobDetails(rec.jobId);
+    const recommendedJobs = await Promise.all(
+      recommendations.map(async (rec) => {
+        const job = await getJobFromAllJobs(rec.jobId, allJobs);
+        if (!job) return null;
         return {
-          ...jobDetails,
+          ...job,
           relevanceScore: rec.relevanceScore
-        } as Job;
-      } catch (error) {
-        console.error(`Failed to fetch details for job ${rec.jobId}:`, error);
-        return null;
-      }
-    });
+        };
+      })
+    );
 
-    const jobs = await Promise.all(jobDetailsPromises);
-    return jobs.filter((job): job is Job => job !== null);
+    return recommendedJobs.filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching collaborative recommendations:', error);
     toast.error('Failed to load collaborative recommendations');
