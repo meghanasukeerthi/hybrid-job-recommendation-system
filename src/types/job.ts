@@ -29,7 +29,7 @@ export interface Job {
   salary: string;
   applicationDate?: string;
   isApplied?: boolean;
-  relevanceScore?: number;
+  relevanceScore: number;
 }
 
 export interface JobRecommendation {
