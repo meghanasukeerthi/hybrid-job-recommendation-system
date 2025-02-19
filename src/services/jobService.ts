@@ -9,10 +9,50 @@ const getAuthHeaders = () => {
     throw new Error('Please login to perform this action');
   }
   return {
+    'Authorization': `Bearer ${token}`,
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Content-Type': 'application/json'
   };
+};
+
+// Reset user interactions
+export const resetUserInteractions = async (): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-interactions/reset`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to reset user interactions');
+    }
+
+    toast.success('Your interactions have been reset successfully');
+  } catch (error) {
+    console.error('Error resetting user interactions:', error);
+    toast.error('Failed to reset user interactions');
+    throw error;
+  }
+};
+
+// Reset all users' interactions (admin only)
+export const resetAllUserInteractions = async (): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-interactions/reset-all`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to reset all user interactions');
+    }
+
+    toast.success('All user interactions have been reset successfully');
+  } catch (error) {
+    console.error('Error resetting all user interactions:', error);
+    toast.error('Failed to reset all user interactions');
+    throw error;
+  }
 };
 
 // Fetch all jobs
@@ -253,31 +293,24 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/content-based`, {
         headers
       }).then(res => {
-        if (!res.ok) {
-          console.error('Content-based recommendations fetch failed:', res.status);
-          throw new Error('Failed to fetch content-based recommendations');
-        }
+        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    const recommendedJobs = await Promise.all(
-      recommendations.map(async (rec) => {
-        const job = allJobs.find(j => j.id === rec.jobId);
-        if (!job) {
-          console.error(`Job ${rec.jobId} not found in allJobs`);
-          return null;
-        }
-        return {
-          ...job,
-          relevanceScore: rec.relevanceScore,
-          salary: job.salary?.toString() ?? "Not specified"
-        } as Job;
-      })
-    );
-
-    return recommendedJobs.filter((job): job is Job => job !== null);
+    return recommendations.map(rec => {
+      const job = allJobs.find(j => j.id === rec.jobId);
+      if (!job) {
+        console.error(`Job ${rec.jobId} not found in allJobs`);
+        return null;
+      }
+      return {
+        ...job,
+        relevanceScore: rec.relevanceScore,
+        salary: typeof job.salary === 'number' ? job.salary : parseInt(job.salary || '0')
+      };
+    }).filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching content-based recommendations:', error);
     toast.error('Failed to load content-based recommendations');

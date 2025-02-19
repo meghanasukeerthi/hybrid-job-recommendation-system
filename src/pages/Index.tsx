@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchJobs } from "@/services/jobService";
 import { JobSectionsCarousel } from "@/components/JobSectionsCarousel";
 import { JobFilters as JobFiltersType } from "@/components/JobFilters";
+import { ResetInteractionsButtons } from "@/components/ResetInteractionsButtons";
 import { Job } from "@/types/job";
 
 const Index = () => {
@@ -143,6 +145,7 @@ const Index = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
         />
+        <ResetInteractionsButtons />
         <div className="mt-6">
           <JobSectionsCarousel 
             allJobs={filteredAndSortedJobs} 
