@@ -1,3 +1,4 @@
+
 import { Job, JobRecommendation, AppliedJob } from "@/types/job";
 import { toast } from "sonner";
 
@@ -241,17 +242,22 @@ const getJobFromAllJobs = async (jobId: number, allJobs: Job[]): Promise<Job | n
   }
   return {
     ...job,
-    salary: job.salary?.toString() ?? "Not specified"
+    salary: job.salary?.toString() ?? "Not specified",
+    relevanceScore: 0 // Ensure relevanceScore has a default value
   };
 };
 
 export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
   try {
+    const headers = getAuthHeaders();
     const [recommendations, allJobs] = await Promise.all([
       fetch(`${API_BASE_URL}/recommendations/content-based`, {
-        headers: getAuthHeaders()
+        headers
       }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
+        if (!res.ok) {
+          console.error('Content-based recommendations fetch failed:', res.status);
+          throw new Error('Failed to fetch content-based recommendations');
+        }
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
@@ -264,7 +270,7 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
         return {
           ...job,
           relevanceScore: rec.relevanceScore
-        };
+        } as Job;
       })
     );
 
@@ -278,11 +284,15 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
 
 export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
   try {
+    const headers = getAuthHeaders();
     const [recommendations, allJobs] = await Promise.all([
       fetch(`${API_BASE_URL}/recommendations/collaborative`, {
-        headers: getAuthHeaders()
+        headers
       }).then(res => {
-        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
+        if (!res.ok) {
+          console.error('Collaborative recommendations fetch failed:', res.status);
+          throw new Error('Failed to fetch collaborative recommendations');
+        }
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
@@ -295,7 +305,7 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
         return {
           ...job,
           relevanceScore: rec.relevanceScore
-        };
+        } as Job;
       })
     );
 
