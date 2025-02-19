@@ -1,5 +1,6 @@
 import { Job, JobRecommendation, AppliedJob } from "@/types/job";
 import { toast } from "sonner";
+import { queryClient } from "@/lib/react-query";
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -19,18 +20,33 @@ const getAuthHeaders = () => {
 export const resetUserInteractions = async (): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/user-interactions/reset`, {
-      method: 'POST',
-      headers: getAuthHeaders()
+      method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {
       throw new Error('Failed to reset user interactions');
     }
 
-    toast.success('Your interactions have been reset successfully');
+    // Invalidate relevant queries after successful reset
+    queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+    queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+    
+    toast({
+      title: "Success",
+      description: "Your interactions have been reset successfully",
+    });
   } catch (error) {
     console.error('Error resetting user interactions:', error);
-    toast.error('Failed to reset user interactions');
+    toast({
+      title: "Error",
+      description: "Failed to reset interactions. Please try again.",
+      variant: "destructive"
+    });
     throw error;
   }
 };
@@ -39,18 +55,33 @@ export const resetUserInteractions = async (): Promise<void> => {
 export const resetAllUserInteractions = async (): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/user-interactions/reset-all`, {
-      method: 'POST',
-      headers: getAuthHeaders()
+      method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {
       throw new Error('Failed to reset all user interactions');
     }
 
-    toast.success('All user interactions have been reset successfully');
+    // Invalidate all relevant queries after successful reset
+    queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    queryClient.invalidateQueries({ queryKey: ['appliedJobs'] });
+    queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+    
+    toast({
+      title: "Success",
+      description: "All user interactions have been reset successfully",
+    });
   } catch (error) {
     console.error('Error resetting all user interactions:', error);
-    toast.error('Failed to reset all user interactions');
+    toast({
+      title: "Error",
+      description: "Failed to reset all interactions. Please try again.",
+      variant: "destructive"
+    });
     throw error;
   }
 };
@@ -293,32 +324,29 @@ export const fetchContentBasedRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/content-based`, {
         headers
       }).then(res => {
-        if (!res.ok) {
-          console.error('Content-based recommendations status:', res.status);
-          throw new Error('Failed to fetch content-based recommendations');
-        }
+        if (!res.ok) throw new Error('Failed to fetch content-based recommendations');
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    const recommendedJobs = recommendations.map(rec => {
-      const job = allJobs.find(j => j.id === rec.jobId);
-      if (!job) {
-        console.error(`Job ${rec.jobId} not found in allJobs`);
-        return null;
-      }
-      return {
-        ...job,
-        salary: job.salary?.toString() ?? "Not specified",
-        relevanceScore: rec.relevanceScore
-      };
-    });
-
-    return recommendedJobs.filter((job): job is Job => job !== null);
+    return recommendations
+      .map(rec => {
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) return null;
+        return {
+          ...job,
+          relevanceScore: rec.relevanceScore
+        };
+      })
+      .filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching content-based recommendations:', error);
-    toast.error('Failed to load content-based recommendations');
+    toast({
+      title: "Error",
+      description: "Failed to load content-based recommendations",
+      variant: "destructive"
+    });
     return [];
   }
 };
@@ -330,32 +358,29 @@ export const fetchCollaborativeRecommendations = async (): Promise<Job[]> => {
       fetch(`${API_BASE_URL}/recommendations/collaborative`, {
         headers
       }).then(res => {
-        if (!res.ok) {
-          console.error('Collaborative recommendations status:', res.status);
-          throw new Error('Failed to fetch collaborative recommendations');
-        }
+        if (!res.ok) throw new Error('Failed to fetch collaborative recommendations');
         return res.json() as Promise<JobRecommendation[]>;
       }),
       fetchJobs()
     ]);
 
-    const recommendedJobs = recommendations.map(rec => {
-      const job = allJobs.find(j => j.id === rec.jobId);
-      if (!job) {
-        console.error(`Job ${rec.jobId} not found in allJobs`);
-        return null;
-      }
-      return {
-        ...job,
-        salary: job.salary?.toString() ?? "Not specified",
-        relevanceScore: rec.relevanceScore
-      };
-    });
-
-    return recommendedJobs.filter((job): job is Job => job !== null);
+    return recommendations
+      .map(rec => {
+        const job = allJobs.find(j => j.id === rec.jobId);
+        if (!job) return null;
+        return {
+          ...job,
+          relevanceScore: rec.relevanceScore
+        };
+      })
+      .filter((job): job is Job => job !== null);
   } catch (error) {
     console.error('Error fetching collaborative recommendations:', error);
-    toast.error('Failed to load collaborative recommendations');
+    toast({
+      title: "Error",
+      description: "Failed to load collaborative recommendations",
+      variant: "destructive"
+    });
     return [];
   }
 };

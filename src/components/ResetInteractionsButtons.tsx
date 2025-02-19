@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { resetUserInteractions, resetAllUserInteractions } from "@/services/jobService";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +19,23 @@ import {
 export const ResetInteractionsButtons = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [isResettingAll, setIsResettingAll] = useState(false);
+  const { toast } = useToast();
 
   const handleResetUser = async () => {
     setIsResetting(true);
     try {
       await resetUserInteractions();
+      toast({
+        title: "Success",
+        description: "Your interactions have been reset successfully",
+      });
+    } catch (error) {
+      console.error('Error resetting user interactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset interactions. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsResetting(false);
     }
@@ -32,6 +45,17 @@ export const ResetInteractionsButtons = () => {
     setIsResettingAll(true);
     try {
       await resetAllUserInteractions();
+      toast({
+        title: "Success",
+        description: "All user interactions have been reset successfully",
+      });
+    } catch (error) {
+      console.error('Error resetting all interactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset all interactions. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsResettingAll(false);
     }
